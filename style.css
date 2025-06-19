@@ -531,3 +531,17 @@ body,
     background-size: 400% 400%;
     animation: gradient-shift 3s ease infinite;
 }
+
+
+/* Gradiente stile Instagram per il bordo dell’avatar */
+.avatar-gradient{
+    /* spessore del bordo = padding del wrapper */
+    padding:2px;
+    /* gradiente a 45° con i tuoi colori */
+    background:linear-gradient(45deg,
+        #f09433 0%,
+        #e6683c 25%,
+        #dc2743 50%,
+        #cc2366 75%,
+        #bc1888 100%);
+}
