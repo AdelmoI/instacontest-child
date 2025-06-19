@@ -52,7 +52,7 @@ if (is_post_type_archive('contest') || is_home() || is_front_page()) {
                         <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold text-xs"><?php echo $user_points > 99 ? '99+' : $user_points; ?></span>
                     <?php endif; ?>
                 </div>
-                <span class="<?php echo ($current_page === 'profilo') ? 'text-blue-500' : 'text-gray-600'; ?> text-xs">Profilo</span>
+                <span class="<?php echo ($current_page === 'profilo') ? 'text-instagram-gradient' : 'text-gray-600'; ?> text-xs">Profilo</span>
             </a>
         <?php else: ?>
             <a href="<?php echo wp_login_url(get_permalink()); ?>" class="flex flex-col items-center">
