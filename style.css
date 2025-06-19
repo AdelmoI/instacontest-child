@@ -414,3 +414,51 @@ button:focus-visible {
         padding-bottom: 0;
     }
 }
+
+
+/* ===================================
+   FIX BOTTOM NAV RESPONSIVE
+   =================================== */
+
+/* Force hide desktop version on mobile */
+@media (max-width: 991px) {
+    body nav#bottom-nav .hidden.lg\\:flex,
+    body nav#bottom-nav .lg\\:flex {
+        display: none !important;
+    }
+    
+    body nav#bottom-nav .lg\\:hidden {
+        display: flex !important;
+    }
+}
+
+/* Force hide mobile version on desktop */
+@media (min-width: 992px) {
+    body nav#bottom-nav .lg\\:hidden {
+        display: none !important;
+    }
+    
+    body nav#bottom-nav .hidden.lg\\:flex,
+    body nav#bottom-nav .lg\\:flex {
+        display: flex !important;
+    }
+}
+
+/* Extra specificity per essere sicuri */
+body nav#bottom-nav > div.flex.justify-around.py-3.px-2.lg\\:hidden {
+    display: flex;
+}
+
+body nav#bottom-nav > div.hidden.lg\\:flex.lg\\:justify-center {
+    display: none;
+}
+
+@media (min-width: 992px) {
+    body nav#bottom-nav > div.flex.justify-around.py-3.px-2.lg\\:hidden {
+        display: none !important;
+    }
+    
+    body nav#bottom-nav > div.hidden.lg\\:flex.lg\\:justify-center {
+        display: flex !important;
+    }
+}
