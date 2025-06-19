@@ -119,12 +119,8 @@ get_header(); ?>
         <h3 class="text-black font-medium text-lg mb-4">Prossimamente</h3>
         <div class="space-y-4">
             <?php 
-            // Cerca contest in bozza come "coming soon"
-            $coming_contests = get_posts(array(
-                'post_type' => 'contest',
-                'post_status' => 'draft', // Contest in bozza = coming soon
-                'posts_per_page' => 3
-            ));
+            // Usa la nuova funzione per contest in arrivo
+            $coming_contests = instacontest_get_coming_contests();
             
             if ($coming_contests): 
                 foreach ($coming_contests as $contest):
@@ -132,6 +128,16 @@ get_header(); ?>
                     $contest_id = $contest->ID;
                     $prize_name = get_field('prize_name', $contest_id);
                     $prize_image = get_field('prize_image', $contest_id);
+                    $start_date = get_field('contest_start_date', $contest_id);
+                    
+                    // Calcola countdown al START del contest
+                    $start_timestamp = strtotime($start_date);
+                    $now = time();
+                    $diff = $start_timestamp - $now;
+                    $days = floor($diff / 86400);
+                    $hours = floor(($diff % 86400) / 3600);
+                    $minutes = floor(($diff % 3600) / 60);
+                    $seconds = floor($diff % 60);
                     ?>
                     
                     <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden">
@@ -149,12 +155,13 @@ get_header(); ?>
                             <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                             <div class="absolute bottom-4 left-4">
                                 <div class="flex gap-2 mb-2">
-                                    <span class="bg-gray-800 text-white px-2 py-1 rounded text-sm monospace">00<?php echo rand(1,9); ?></span>
-                                    <span class="bg-gray-800 text-white px-2 py-1 rounded text-sm monospace"><?php echo rand(10,23); ?></span>
-                                    <span class="bg-gray-800 text-white px-2 py-1 rounded text-sm monospace"><?php echo rand(10,59); ?></span>
-                                    <span class="bg-gray-800 text-white px-2 py-1 rounded text-sm monospace"><?php echo rand(10,59); ?></span>
+                                    <span class="bg-gray-800 text-white px-2 py-1 rounded text-sm monospace"><?php echo str_pad($days, 3, '0', STR_PAD_LEFT); ?></span>
+                                    <span class="bg-gray-800 text-white px-2 py-1 rounded text-sm monospace"><?php echo str_pad($hours, 2, '0', STR_PAD_LEFT); ?></span>
+                                    <span class="bg-gray-800 text-white px-2 py-1 rounded text-sm monospace"><?php echo str_pad($minutes, 2, '0', STR_PAD_LEFT); ?></span>
+                                    <span class="bg-gray-800 text-white px-2 py-1 rounded text-sm monospace"><?php echo str_pad($seconds, 2, '0', STR_PAD_LEFT); ?></span>
                                 </div>
                                 <h4 class="text-white font-bold"><?php echo esc_html($prize_name); ?></h4>
+                                <p class="text-gray-200 text-sm">Inizia il <?php echo date_i18n('d/m/Y \a\l\l\e H:i', strtotime($start_date)); ?></p>
                             </div>
                         </div>
                     </div>
@@ -162,23 +169,11 @@ get_header(); ?>
                 <?php endforeach; 
                 wp_reset_postdata();
             else: ?>
-                <!-- Placeholder se non ci sono contest in bozza -->
-                <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-                    <div class="relative">
-                        <div class="w-full h-48 bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                            <i class="fa-solid fa-clock text-white text-4xl"></i>
-                        </div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                        <div class="absolute bottom-4 left-4">
-                            <div class="flex gap-2 mb-2">
-                                <span class="bg-gray-800 text-white px-2 py-1 rounded text-sm monospace">003</span>
-                                <span class="bg-gray-800 text-white px-2 py-1 rounded text-sm monospace">22</span>
-                                <span class="bg-gray-800 text-white px-2 py-1 rounded text-sm monospace">29</span>
-                                <span class="bg-gray-800 text-white px-2 py-1 rounded text-sm monospace">57</span>
-                            </div>
-                            <h4 class="text-white font-bold">Nuovi Contest in Arrivo</h4>
-                        </div>
-                    </div>
+                <!-- Placeholder se non ci sono contest in arrivo -->
+                <div class="bg-white border border-gray-200 rounded-2xl p-8 text-center">
+                    <i class="fa-solid fa-clock text-gray-300 text-4xl mb-4"></i>
+                    <h4 class="text-gray-500 font-medium mb-2">Nessun contest in arrivo</h4>
+                    <p class="text-gray-400 text-sm">I nuovi contest appariranno qui</p>
                 </div>
             <?php endif; ?>
         </div>
