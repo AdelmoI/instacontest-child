@@ -10,88 +10,70 @@ if (!defined('ABSPATH')) {
 }
 
 // ========================================
-// ENQUEUE STYLES - AGGIORNATO PER WINDPRESS
+// 1. ENQUEUE STYLES E SCRIPTS - SEMPLIFICATO
 // ========================================
 
-function instacontest_enqueue_styles_priority() {
-    // NON caricare Tailwind via CDN perché usi WindPress
-    // wp_enqueue_style('tailwindcss', 'https://cdn.tailwindcss.com', array(), '3.4.0');
+function instacontest_enqueue_styles() {
+    // 2. FontAwesome
+    wp_enqueue_style('fontawesome', 
+        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css', 
+        array(), 
+        '6.4.0'
+    );
     
-    // Carica Font Awesome
-    wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css', array(), '6.4.0');
+    // 3. Tema parent Astra
+    wp_enqueue_style('astra-parent-style', 
+        get_template_directory_uri() . '/style.css',
+        array('tailwindcss')
+    );
     
-    // Carica il nostro CSS DOPO tutti gli stili di Astra con priorità alta
-    wp_enqueue_style('instacontest-child-style', 
+    // 4. Child theme CSS (DOPO tutto per avere priorità massima)
+    wp_enqueue_style('instacontest-style', 
         get_stylesheet_directory_uri() . '/style.css',
-        array('astra-theme-css'), // Dipende solo da Astra
-        '1.0.3', // Incrementa la versione
-        'all'
+        array('astra-parent-style', 'tailwindcss', 'fontawesome'),
+        wp_get_theme()->get('Version')
     );
 }
-// Priorità 999 = carica molto tardi, dopo Astra e WindPress
-add_action('wp_enqueue_scripts', 'instacontest_enqueue_styles_priority', 999);
+add_action('wp_enqueue_scripts', 'instacontest_enqueue_styles');
 
-// ========================================
-// FORCE NAVIGATION STYLES - MASSIMA PRIORITÀ
-// ========================================
-
-function instacontest_force_navigation_styles() {
-    ?>
-    <style id="instacontest-navigation-override">
-    /* Force Instagram gradient con massima specificità */
-    html body.wp-admin-bar-front nav#bottom-nav a.active i,
-    html body.logged-in nav#bottom-nav a.active i,
-    html body nav#bottom-nav a.active i.text-instagram-gradient,
-    html body nav#bottom-nav a.active span.text-instagram-gradient {
-        background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
-        -webkit-background-clip: text !important;
-        -webkit-text-fill-color: transparent !important;
-        background-clip: text !important;
-        color: transparent !important;
-    }
+function instacontest_enqueue_scripts() {
+    // Tailwind Config inline
+    wp_add_inline_script('tailwindcss', '
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#667eea",
+                        secondary: "#f5576c", 
+                        success: "#4facfe",
+                        warning: "#43e97b"
+                    }
+                }
+            }
+        }
+    ');
     
-    /* Override completo dei link di navigazione con specificità WindPress */
-    html body.windpress-active nav#bottom-nav a,
-    html body nav#bottom-nav a:not(.wp-element-button),
-    html body nav#bottom-nav a:hover,
-    html body nav#bottom-nav a:focus,
-    html body nav#bottom-nav a:visited,
-    html body nav#bottom-nav a:active {
-        text-decoration: none !important;
-        outline: none !important;
-        color: inherit !important;
-        background: none !important;
-    }
+    // JavaScript personalizzato (opzionale)
+    wp_enqueue_script('instacontest-js', 
+        get_stylesheet_directory_uri() . '/instacontest.js',
+        array('jquery'),
+        wp_get_theme()->get('Version'),
+        true
+    );
     
-    /* Force colori inattivi con specificità alta */
-    html body nav#bottom-nav a.inactive i,
-    html body nav#bottom-nav a.inactive span,
-    html body nav#bottom-nav a:not(.active) i.text-gray-600,
-    html body nav#bottom-nav a:not(.active) span.text-gray-600 {
-        color: #6b7280 !important;
-        background: none !important;
-        -webkit-text-fill-color: #6b7280 !important;
-    }
-    
-    /* Reset CSS variables di Astra e WindPress */
-    html body nav#bottom-nav,
-    html body nav#bottom-nav * {
-        --ast-global-color-0: inherit !important;
-        --ast-global-color-1: inherit !important;
-        --ast-global-color-2: inherit !important;
-        --ast-global-color-3: inherit !important;
-        --tw-text-opacity: 1 !important;
-    }
-    </style>
-    <?php
+    // AJAX localization
+    wp_localize_script('instacontest-js', 'instacontest_ajax', array(
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('instacontest_nonce')
+    ));
 }
-add_action('wp_head', 'instacontest_force_navigation_styles', 9999);
+add_action('wp_enqueue_scripts', 'instacontest_enqueue_scripts');
 
 // ========================================
-// BODY CLASSES PER MAGGIORE CONTROLLO
+// 2. BODY CLASS PER CSS SPECIFICITY
 // ========================================
 
-function instacontest_add_body_classes($classes) {
+function instacontest_body_class($classes) {
     if (is_post_type_archive('contest') || is_home() || is_front_page()) {
         $classes[] = 'instacontest-homepage';
     } elseif (is_singular('contest')) {
@@ -103,12 +85,9 @@ function instacontest_add_body_classes($classes) {
     } elseif (is_page('profilo')) {
         $classes[] = 'profilo-page';
     }
-    
-    $classes[] = 'instacontest-custom';
-    $classes[] = 'windpress-active';
     return $classes;
 }
-add_filter('body_class', 'instacontest_add_body_classes');
+add_filter('body_class', 'instacontest_body_class');
 
 // ========================================
 // 3. THEME SETUP
