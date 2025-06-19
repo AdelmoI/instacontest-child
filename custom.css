@@ -1,61 +1,86 @@
-/**
- * CUSTOM.CSS - InstaContest Child Theme
- * File CSS personalizzato (attualmente vuoto)
- */
+/* AGGRESSIVE OVERRIDE FOR BOTTOM NAVIGATION */
 
-/* ===================================
-   RESET ASTRA PER PAGINE CONTEST
-   =================================== */
-/* FORCE BOTTOM NAVIGATION - OVERRIDE ASTRA */
+/* Force hide Astra elements completely */
+.site-header,
+.site-footer,
+.ast-breadcrumbs-wrapper,
+.ast-single-post-navigation-wrapper {
+    display: none !important;
+}
 
+/* Force bottom nav positioning */
 #bottom-nav {
     position: fixed !important;
     bottom: 0 !important;
     left: 0 !important;
     right: 0 !important;
-    width: 100% !important;
+    width: 100vw !important;
     background: rgba(255, 255, 255, 0.95) !important;
     backdrop-filter: blur(20px) !important;
     border-top: 1px solid #e5e7eb !important;
-    z-index: 9999 !important;
-    display: block !important;
+    z-index: 999999 !important;
+    height: auto !important;
+    min-height: 60px !important;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* Force container to flex */
-#bottom-nav > div,
-#bottom-nav .nav-container {
+/* Force mobile container to flex */
+#bottom-nav > div:first-child,
+#bottom-nav .flex.justify-around {
     display: flex !important;
+    flex-direction: row !important;
     justify-content: space-around !important;
     align-items: center !important;
     padding: 12px 8px 8px 8px !important;
     margin: 0 !important;
-    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
-/* Force nav items */
+/* Force each nav link to flex column */
 #bottom-nav a {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
+    justify-content: center !important;
     text-decoration: none !important;
     color: #6b7280 !important;
+    width: 25% !important;
+    max-width: 80px !important;
     min-width: 60px !important;
     padding: 4px !important;
+    margin: 0 !important;
     transition: all 0.2s ease !important;
-    flex: 1 !important;
-    max-width: 80px !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+    list-style: none !important;
 }
 
-#bottom-nav a:hover,
-#bottom-nav a.active {
+/* Force active state */
+#bottom-nav a.text-blue-500 {
     color: #3b82f6 !important;
+}
+
+/* Force icon container */
+#bottom-nav a > div {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+    margin-bottom: 4px !important;
 }
 
 /* Force icons */
 #bottom-nav i {
     font-size: 20px !important;
-    margin-bottom: 4px !important;
+    margin: 0 0 4px 0 !important;
+    padding: 0 !important;
     display: block !important;
+    text-align: center !important;
+    line-height: 1 !important;
+    width: auto !important;
+    height: auto !important;
 }
 
 /* Force labels */
@@ -64,121 +89,85 @@
     font-weight: 500 !important;
     text-align: center !important;
     line-height: 1.2 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+/* Force avatar */
+#bottom-nav img {
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 50% !important;
+    border: 2px solid #e5e7eb !important;
+    margin: 0 0 4px 0 !important;
+    display: block !important;
+}
+
+/* Hide desktop version on mobile */
+#bottom-nav .hidden {
+    display: none !important;
 }
 
 /* Force spacer */
 .bottom-nav-spacer {
     height: 70px !important;
     display: block !important;
+    width: 100% !important;
 }
 
-/* Hide desktop version on mobile */
-@media (max-width: 991px) {
-    #bottom-nav .hidden {
-        display: none !important;
-    }
-    
-    #bottom-nav .lg\\:hidden {
-        display: flex !important;
-    }
+/* Reset all potential Astra interference */
+#bottom-nav,
+#bottom-nav * {
+    box-sizing: border-box !important;
+    list-style: none !important;
+    list-style-type: none !important;
 }
 
-/* Badge punti */
-#bottom-nav .nav-badge {
-    position: absolute !important;
-    top: -5px !important;
-    right: 5px !important;
-    background: #ef4444 !important;
-    color: white !important;
-    font-size: 8px !important;
-    padding: 2px 4px !important;
-    border-radius: 10px !important;
-    font-weight: bold !important;
-}
-
-/* Avatar utente */
-#bottom-nav .user-avatar {
-    width: 24px !important;
-    height: 24px !important;
-    border-radius: 50% !important;
-    border: 2px solid #e5e7eb !important;
-}
-
-/* Reset Astra lists */
 #bottom-nav ul,
 #bottom-nav ol,
 #bottom-nav li {
-    list-style: none !important;
+    display: flex !important;
     margin: 0 !important;
     padding: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-}
-/* Nascondi header/footer Astra per le nostre pagine */
-.instacontest-homepage .site-header,
-.contest-single .site-header,
-.classifica-page .site-header,
-.regolamento-page .site-header,
-.profilo-page .site-header {
-    display: none !important;
+    list-style: none !important;
 }
 
-.instacontest-homepage .site-footer,
-.contest-single .site-footer,
-.classifica-page .site-footer,
-.regolamento-page .site-footer,
-.profilo-page .site-footer {
-    display: none !important;
+/* Mobile specific override */
+@media (max-width: 991px) {
+    #bottom-nav .lg\\:hidden {
+        display: flex !important;
+    }
+    
+    #bottom-nav .hidden {
+        display: none !important;
+    }
 }
 
-
-<!-- DEBUG CSS -->
-#bottom-nav {
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    background: rgba(255, 255, 255, 0.95) !important;
-    z-index: 9999 !important;
-    border-top: 1px solid #ccc !important;
+/* Desktop specific override */
+@media (min-width: 992px) {
+    #bottom-nav {
+        position: relative !important;
+        margin-top: 2rem !important;
+    }
+    
+    .bottom-nav-spacer {
+        display: none !important;
+    }
 }
 
-#bottom-nav > div {
-    display: flex !important;
-    justify-content: space-around !important;
-    padding: 10px !important;
-}
-
-#bottom-nav a {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    text-decoration: none !important;
-    color: #666 !important;
-    min-width: 60px !important;
-}
-
-#bottom-nav i {
-    font-size: 18px !important;
-    margin-bottom: 3px !important;
-}
-
-#bottom-nav span {
-    font-size: 10px !important;
-}
-/* ===================================
-   BACKGROUND GRADIENT
-   =================================== */
-
+/* Body adjustments */
 body {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    background-attachment: fixed;
-    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    background-attachment: fixed !important;
+    min-height: 100vh !important;
+    padding-bottom: 80px !important;
 }
 
-/* ===================================
-   UTILITY CLASSES
-   =================================== */
-
-/* Per ora il CSS è nella bottom-navigation.php inline */
-/* Qui aggiungeremo stili globali se necessario */
+/* Force override Astra container */
+.ast-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+}
