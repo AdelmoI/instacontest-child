@@ -103,66 +103,6 @@ if (is_user_logged_in()) {
         <?php endif; ?>
         
     </div>
-
-    <!-- Desktop Navigation -->
-    <div class="hidden lg:flex lg:justify-center">
-        <div class="bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 px-8 py-4">
-            <div class="flex space-x-8">
-                
-                <!-- Home -->
-                <a href="<?php echo get_post_type_archive_link('contest'); ?>" 
-                   class="flex flex-col items-center group transition-all duration-300 px-4 py-2 rounded-xl <?php echo ($current_page === 'home') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'; ?>">
-                    <i class="fas fa-home text-2xl mb-2 group-hover:scale-110 transition-transform duration-200"></i>
-                    <span class="text-sm font-medium">Home</span>
-                </a>
-                
-                <!-- Concorsi -->
-                <a href="<?php echo get_post_type_archive_link('contest'); ?>" 
-                   class="flex flex-col items-center group transition-all duration-300 px-4 py-2 rounded-xl <?php echo ($current_page === 'concorsi') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'; ?>">
-                    <i class="fas fa-trophy text-2xl mb-2 group-hover:scale-110 transition-transform duration-200"></i>
-                    <span class="text-sm font-medium">Concorsi</span>
-                </a>
-                
-                <!-- Premi -->
-                <a href="<?php echo get_permalink(get_page_by_path('classifica')); ?>" 
-                   class="flex flex-col items-center group transition-all duration-300 px-4 py-2 rounded-xl <?php echo ($current_page === 'premi') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'; ?>">
-                    <i class="fas fa-gift text-2xl mb-2 group-hover:scale-110 transition-transform duration-200"></i>
-                    <span class="text-sm font-medium">Premi</span>
-                </a>
-                
-                <!-- Profilo -->
-                <?php if (is_user_logged_in()): ?>
-                    <a href="<?php echo get_permalink(get_page_by_path('profilo')); ?>" 
-                       class="flex flex-col items-center group transition-all duration-300 px-4 py-2 rounded-xl relative <?php echo ($current_page === 'profilo') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'; ?>">
-                        <div class="relative">
-                            <?php if ($user_avatar): ?>
-                                <img src="<?php echo esc_url($user_avatar); ?>" 
-                                     alt="Profilo" 
-                                     class="w-8 h-8 rounded-full mb-2 border-2 <?php echo ($current_page === 'profilo') ? 'border-blue-500' : 'border-gray-300'; ?> group-hover:scale-110 transition-transform duration-200">
-                            <?php else: ?>
-                                <i class="fas fa-user text-2xl mb-2 group-hover:scale-110 transition-transform duration-200"></i>
-                            <?php endif; ?>
-                            
-                            <!-- Badge punti desktop -->
-                            <?php if ($user_points > 0): ?>
-                                <div class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold">
-                                    <?php echo $user_points > 99 ? '99+' : $user_points; ?>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                        <span class="text-sm font-medium">Profilo</span>
-                    </a>
-                <?php else: ?>
-                    <a href="<?php echo wp_login_url(get_permalink()); ?>" 
-                       class="flex flex-col items-center group transition-all duration-300 px-4 py-2 rounded-xl text-gray-600 hover:bg-gray-50">
-                        <i class="fas fa-sign-in-alt text-2xl mb-2 group-hover:scale-110 transition-transform duration-200"></i>
-                        <span class="text-sm font-medium">Accedi</span>
-                    </a>
-                <?php endif; ?>
-                
-            </div>
-        </div>
-    </div>
 </nav>
 
 <!-- Spacer per mobile -->
