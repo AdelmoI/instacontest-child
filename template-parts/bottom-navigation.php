@@ -17,12 +17,12 @@ if (is_post_type_archive('contest') || is_home() || is_front_page()) {
 ?>
 
 <!-- Bottom Navigation -->
-<nav id="bottom-nav" class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50">
-    <div class="flex justify-around py-3">
+<nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 w-full bg-white border-t border-gray-200 z-50">
+    <div class="flex justify-around items-center py-3 px-4 max-w-full mx-auto">
         
         <!-- Home/Concorsi -->
         <a href="<?php echo get_post_type_archive_link('contest'); ?>" class="flex flex-col items-center">
-            <i class="fa-regular fa-trophy <?php echo ($current_page === 'home') ? 'text-blue-500' : 'text-gray-600'; ?> text-xl mb-1"></i>
+            <i class="fa-solid fa-home <?php echo ($current_page === 'home') ? 'text-blue-500' : 'text-gray-600'; ?> text-xl mb-1"></i>
             <span class="<?php echo ($current_page === 'home') ? 'text-blue-500' : 'text-gray-600'; ?> text-xs">Home</span>
         </a>
         
