@@ -178,5 +178,247 @@ body {
    IMPORTA STILI SPECIFICI
    =================================== */
 
-/* Gli stili specifici per ogni sezione saranno negli altri file CSS */
-/* Questo è solo il file base del child theme */
+/**
+ * CUSTOM.CSS - Override minimi per InstaContest con Tailwind
+ * Solo per fix specifici che Tailwind non può gestire
+ */
+
+/* ===================================
+   RESET ASTRA STYLES PER PAGINE CONTEST
+   =================================== */
+
+/* Nascondi header e footer Astra per le nostre pagine */
+.instacontest-homepage .site-header,
+.contest-single .site-header,
+.classifica-page .site-header,
+.regolamento-page .site-header,
+.profilo-page .site-header {
+    display: none !important;
+}
+
+.instacontest-homepage .site-footer,
+.contest-single .site-footer,
+.classifica-page .site-footer,
+.regolamento-page .site-footer,
+.profilo-page .site-footer {
+    display: none !important;
+}
+
+/* Rimuovi padding container Astra */
+.instacontest-homepage .ast-container,
+.contest-single .ast-container,
+.classifica-page .ast-container,
+.regolamento-page .ast-container,
+.profilo-page .ast-container {
+    padding: 0 !important;
+    max-width: 100% !important;
+}
+
+/* ===================================
+   BACKGROUND GRADIENT GLOBALE
+   =================================== */
+
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+/* ===================================
+   SAFE AREA PER DISPOSITIVI CON NOTCH
+   =================================== */
+
+.safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ===================================
+   ANIMAZIONI CUSTOM
+   =================================== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ===================================
+   SCROLLBAR CUSTOM (WEBKIT)
+   =================================== */
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* ===================================
+   UTILITIES EXTRA PER GLASSMORPHISM
+   =================================== */
+
+.glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-white {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ===================================
+   OVERRIDE WORDPRESS ADMIN BAR
+   =================================== */
+
+#wpadminbar {
+    z-index: 999999 !important;
+}
+
+/* Aggiusta il padding quando c'è la admin bar */
+body.admin-bar #bottom-nav {
+    bottom: 0 !important;
+}
+
+/* ===================================
+   PRINT STYLES (NASCONDE NAVIGAZIONE)
+   =================================== */
+
+@media print {
+    #bottom-nav,
+    .bottom-nav-spacer {
+        display: none !important;
+    }
+}
+
+/* ===================================
+   ACCESSIBILITÀ - FOCUS STATES
+   =================================== */
+
+/* Focus visibile per navigazione keyboard */
+a:focus-visible,
+button:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* ===================================
+   FIX PER CONFLITTI ASTRA
+   =================================== */
+
+/* Assicurati che Tailwind abbia precedenza */
+.instacontest-homepage *,
+.contest-single *,
+.classifica-page *,
+.regolamento-page *,
+.profilo-page * {
+    box-sizing: border-box;
+}
+
+/* Reset margin/padding specifici di Astra */
+.instacontest-homepage .entry-content,
+.contest-single .entry-content {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* ===================================
+   RESPONSIVE IMAGES
+   =================================== */
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ===================================
+   UTILITIES CUSTOM
+   =================================== */
+
+/* Text gradient utility */
+.text-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Shadow utilities */
+.shadow-contest {
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
+}
+
+.shadow-contest-hover {
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+}
+
+/* ===================================
+   LOADING STATES
+   =================================== */
+
+.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
