@@ -122,10 +122,11 @@ get_header(); ?>
                             </span>
                         </div>
                         
-                        <a href="<?php echo get_permalink($contest_id); ?>" 
-                           class="block w-full instagram-gradient text-white font-bold py-3 rounded-xl text-sm text-center">
-                            PARTECIPA ORA
+                        <a href="<?php echo get_permalink($contest_id); ?>"
+                           class="block w-full btn-participate font-bold py-3 rounded-xl text-sm text-center">
+                           PARTECIPA ORA
                         </a>
+
                     </div>
                     
                 <?php endforeach; 
