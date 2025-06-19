@@ -1,7 +1,7 @@
 <?php
 /**
  * INSTACONTEST CHILD THEME - FUNCTIONS.PHP COMPLETO
- * Tutte le funzioni necessarie per i template - prova test
+ * Tutte le funzioni necessarie per i template - prova test2
  */
 
 // Previeni accesso diretto
