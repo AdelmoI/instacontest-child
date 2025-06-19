@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/yjinstac/public_html/wp-content/themes/instacontest-child
+    - /bin/cp -R * $DEPLOYPATH
