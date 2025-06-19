@@ -14,13 +14,6 @@ if (!defined('ABSPATH')) {
 // ========================================
 
 function instacontest_enqueue_styles() {
-    // 1. Tailwind CSS (prima di tutto per avere base)
-    wp_enqueue_style('tailwindcss', 
-        'https://cdn.tailwindcss.com', 
-        array(), 
-        '3.3.0'
-    );
-    
     // 2. FontAwesome
     wp_enqueue_style('fontawesome', 
         'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css', 
