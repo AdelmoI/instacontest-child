@@ -365,3 +365,169 @@ body,
         max-width: 1140px;
     }
 }
+
+
+/* ===================================
+   GRADIENTI INSTAGRAM PER INSTACONTEST
+   =================================== */
+
+/* Aggiungi queste classi al tuo style.css esistente */
+
+/* Gradiente principale Instagram */
+.instagram-gradient {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+
+/* Gradiente per avatar e bordi */
+.avatar-gradient {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+
+/* Gradiente hover per pulsanti */
+.instagram-gradient-hover {
+    background: linear-gradient(45deg, #e6893c 0%, #d55a35 25%, #c5213c 50%, #b51c5f 75%, #a51681 100%);
+}
+
+/* Versione più chiara per sfondi */
+.instagram-gradient-light {
+    background: linear-gradient(45deg, rgba(240, 148, 51, 0.1) 0%, rgba(230, 104, 60, 0.1) 25%, rgba(220, 39, 67, 0.1) 50%, rgba(204, 35, 102, 0.1) 75%, rgba(188, 24, 136, 0.1) 100%);
+}
+
+/* Gradiente per testo */
+.instagram-text-gradient {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ===================================
+   UTILITY CLASSES AGGIUNTIVE
+   =================================== */
+
+/* Bordo con gradiente Instagram */
+.instagram-border {
+    border: 2px solid transparent;
+    background: linear-gradient(white, white) padding-box,
+                linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) border-box;
+}
+
+/* Box shadow con colori Instagram */
+.instagram-shadow {
+    box-shadow: 0 10px 25px rgba(220, 39, 67, 0.3);
+}
+
+/* ===================================
+   AGGIORNAMENTO VARIABILI CSS
+   =================================== */
+
+/* Aggiungi queste variabili al tuo :root esistente */
+:root {
+    /* ... le tue variabili esistenti ... */
+    
+    /* Gradienti Instagram */
+    --instagram-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    --instagram-gradient-hover: linear-gradient(45deg, #e6893c 0%, #d55a35 25%, #c5213c 50%, #b51c5f 75%, #a51681 100%);
+    --instagram-gradient-light: linear-gradient(45deg, rgba(240, 148, 51, 0.1) 0%, rgba(230, 104, 60, 0.1) 25%, rgba(220, 39, 67, 0.1) 50%, rgba(204, 35, 102, 0.1) 75%, rgba(188, 24, 136, 0.1) 100%);
+    
+    /* Colori Instagram come singoli valori */
+    --instagram-orange: #f09433;
+    --instagram-red-orange: #e6683c;
+    --instagram-red: #dc2743;
+    --instagram-pink: #cc2366;
+    --instagram-purple: #bc1888;
+}
+
+/* ===================================
+   CLASSI PER ELEMENTI SPECIFICI
+   =================================== */
+
+/* Pulsante partecipa con gradiente */
+.btn-participate {
+    background: var(--instagram-gradient);
+    transition: all 0.3s ease;
+}
+
+.btn-participate:hover {
+    background: var(--instagram-gradient-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(220, 39, 67, 0.3);
+}
+
+/* Avatar con bordo gradiente */
+.avatar-instagram {
+    padding: 3px;
+    background: var(--instagram-gradient);
+    border-radius: 50%;
+}
+
+.avatar-instagram img {
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+/* Badge attivo con gradiente */
+.badge-active {
+    background: var(--instagram-gradient);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Logo con gradiente */
+.logo-gradient {
+    background: var(--instagram-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+}
+
+/* ===================================
+   RESPONSIVE E STATI
+   =================================== */
+
+/* Hover states */
+@media (hover: hover) {
+    .instagram-gradient:hover {
+        background: var(--instagram-gradient-hover);
+    }
+    
+    .avatar-gradient:hover {
+        transform: scale(1.05);
+        transition: transform 0.2s ease;
+    }
+}
+
+/* Focus states per accessibilità */
+.instagram-gradient:focus,
+.btn-participate:focus {
+    outline: 2px solid var(--instagram-pink);
+    outline-offset: 2px;
+}
+
+/* ===================================
+   ANIMAZIONI
+   =================================== */
+
+/* Animazione gradiente per loading states */
+@keyframes gradient-shift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.instagram-gradient-animated {
+    background: linear-gradient(-45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    background-size: 400% 400%;
+    animation: gradient-shift 3s ease infinite;
+}
