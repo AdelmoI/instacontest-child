@@ -53,7 +53,13 @@ get_header(); ?>
         </div>
         <div class="flex gap-4 overflow-x-auto pb-2">
             <?php 
-            $active_contests = instacontest_get_active_contests();
+            // Usa la nuova funzione per contest attivi
+            $active_contests = instacontest_get_active_contests_new();
+            if (empty($active_contests)) {
+                // Fallback alla funzione vecchia se non ci sono contest con start_date
+                $active_contests = instacontest_get_active_contests();
+            }
+            
             if ($active_contests): 
                 foreach ($active_contests as $contest):
                     setup_postdata($contest);
