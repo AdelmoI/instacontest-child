@@ -1,128 +1,199 @@
 <?php
 /**
- * Bottom Navigation Template Part
- * Barra di navigazione fissa in basso
+ * Bottom Navigation Template Part - Con Tailwind CSS
+ * Design moderno e responsive con classi Tailwind
  */
 
 $current_page = '';
 if (is_post_type_archive('contest') || is_home() || is_front_page()) {
+    $current_page = 'home';
+} elseif (is_singular('contest')) {
     $current_page = 'concorsi';
 } elseif (is_page('classifica')) {
-    $current_page = 'classifica';
-} elseif (is_page('regolamento')) {
-    $current_page = 'regolamento';
+    $current_page = 'premi';
 } elseif (is_page('profilo') || is_author()) {
     $current_page = 'profilo';
 }
+
+// Ottieni avatar utente se loggato
+$user_avatar = '';
+$user_points = 0;
+if (is_user_logged_in()) {
+    $current_user = wp_get_current_user();
+    $user_avatar = get_avatar_url($current_user->ID, array('size' => 24));
+    $user_points = instacontest_get_user_points($current_user->ID);
+}
 ?>
 
-<nav class="bottom-navigation" id="bottom-nav">
-    <div class="nav-container">
+<!-- Bottom Navigation con Tailwind CSS -->
+<nav id="bottom-nav" class="fixed bottom-0 w-full bg-white/95 backdrop-blur-lg border-t border-gray-200 z-50 lg:relative lg:mt-8">
+    <!-- Mobile Navigation -->
+    <div class="flex justify-around py-3 px-2 lg:hidden">
+        
+        <!-- Home -->
+        <a href="<?php echo get_post_type_archive_link('contest'); ?>" 
+           class="flex flex-col items-center group transition-all duration-200 <?php echo ($current_page === 'home') ? 'text-blue-500' : 'text-gray-600'; ?>">
+            <div class="relative">
+                <i class="fas fa-home text-xl mb-1 group-hover:scale-110 transition-transform duration-200"></i>
+                <?php if ($current_page === 'home'): ?>
+                    <div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-500 rounded-full"></div>
+                <?php endif; ?>
+            </div>
+            <span class="text-xs font-medium">Home</span>
+        </a>
         
         <!-- Concorsi -->
         <a href="<?php echo get_post_type_archive_link('contest'); ?>" 
-           class="nav-item <?php echo ($current_page === 'concorsi') ? 'active' : ''; ?>">
-            <div class="nav-icon">
+           class="flex flex-col items-center group transition-all duration-200 <?php echo ($current_page === 'concorsi') ? 'text-blue-500' : 'text-gray-600'; ?>">
+            <div class="relative">
+                <i class="fas fa-trophy text-xl mb-1 group-hover:scale-110 transition-transform duration-200"></i>
                 <?php if ($current_page === 'concorsi'): ?>
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                <?php else: ?>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
+                    <div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-500 rounded-full"></div>
                 <?php endif; ?>
             </div>
-            <span class="nav-label">Concorsi</span>
+            <span class="text-xs font-medium">Concorsi</span>
         </a>
         
-        <!-- Classifica -->
+        <!-- Premi / Classifica -->
         <a href="<?php echo get_permalink(get_page_by_path('classifica')); ?>" 
-           class="nav-item <?php echo ($current_page === 'classifica') ? 'active' : ''; ?>">
-            <div class="nav-icon">
-                <?php if ($current_page === 'classifica'): ?>
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M7 13v6h4v-6H7zM9.5 9.5v2h-2v-2h2zM13 7v10h4V7h-4zM15.5 9.5v2h-2v-2h2zM4 17v2h16v-2H4z"/>
-                    </svg>
-                <?php else: ?>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M3 3v18h18"/>
-                        <path d="M18 17V9"/>
-                        <path d="M13 17V5"/>
-                        <path d="M8 17v-3"/>
-                    </svg>
+           class="flex flex-col items-center group transition-all duration-200 <?php echo ($current_page === 'premi') ? 'text-blue-500' : 'text-gray-600'; ?>">
+            <div class="relative">
+                <i class="fas fa-gift text-xl mb-1 group-hover:scale-110 transition-transform duration-200"></i>
+                <?php if ($current_page === 'premi'): ?>
+                    <div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-500 rounded-full"></div>
                 <?php endif; ?>
             </div>
-            <span class="nav-label">Classifica</span>
-        </a>
-        
-        <!-- Regolamento -->
-        <a href="<?php echo get_permalink(get_page_by_path('regolamento')); ?>" 
-           class="nav-item <?php echo ($current_page === 'regolamento') ? 'active' : ''; ?>">
-            <div class="nav-icon">
-                <?php if ($current_page === 'regolamento'): ?>
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
-                        <path d="M14 2v6h6"/>
-                        <path d="M16 13H8"/>
-                        <path d="M16 17H8"/>
-                        <path d="M10 9H8"/>
-                    </svg>
-                <?php else: ?>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
-                        <path d="M14 2v6h6"/>
-                        <path d="M16 13H8"/>
-                        <path d="M16 17H8"/>
-                        <path d="M10 9H8"/>
-                    </svg>
-                <?php endif; ?>
-            </div>
-            <span class="nav-label">Regolamento</span>
+            <span class="text-xs font-medium">Premi</span>
         </a>
         
         <!-- Profilo -->
         <?php if (is_user_logged_in()): ?>
             <a href="<?php echo get_permalink(get_page_by_path('profilo')); ?>" 
-               class="nav-item <?php echo ($current_page === 'profilo') ? 'active' : ''; ?>">
-                <div class="nav-icon">
-                    <?php if ($current_page === 'profilo'): ?>
-                        <svg viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                            <circle cx="12" cy="7" r="4"/>
-                        </svg>
+               class="flex flex-col items-center group transition-all duration-200 relative <?php echo ($current_page === 'profilo') ? 'text-blue-500' : 'text-gray-600'; ?>">
+                <div class="relative">
+                    <?php if ($user_avatar): ?>
+                        <img src="<?php echo esc_url($user_avatar); ?>" 
+                             alt="Profilo" 
+                             class="w-6 h-6 rounded-full mb-1 border-2 <?php echo ($current_page === 'profilo') ? 'border-blue-500' : 'border-gray-300'; ?> group-hover:scale-110 transition-transform duration-200">
                     <?php else: ?>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                            <circle cx="12" cy="7" r="4"/>
-                        </svg>
+                        <i class="fas fa-user text-xl mb-1 group-hover:scale-110 transition-transform duration-200"></i>
+                    <?php endif; ?>
+                    
+                    <!-- Badge punti -->
+                    <?php if ($user_points > 0): ?>
+                        <div class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                            <?php echo $user_points > 99 ? '99+' : $user_points; ?>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <?php if ($current_page === 'profilo'): ?>
+                        <div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-500 rounded-full"></div>
                     <?php endif; ?>
                 </div>
-                <span class="nav-label">Profilo</span>
-                
-                <!-- Badge punti -->
-                <?php 
-                $user_points = instacontest_get_user_points(get_current_user_id());
-                if ($user_points > 0): 
-                ?>
-                    <span class="nav-badge"><?php echo $user_points; ?></span>
-                <?php endif; ?>
+                <span class="text-xs font-medium">Profilo</span>
             </a>
         <?php else: ?>
-            <a href="<?php echo wp_login_url(get_permalink()); ?>" class="nav-item">
-                <div class="nav-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-                        <polyline points="10,17 15,12 10,7"/>
-                        <line x1="15" y1="12" x2="3" y2="12"/>
-                    </svg>
+            <a href="<?php echo wp_login_url(get_permalink()); ?>" 
+               class="flex flex-col items-center group transition-all duration-200 text-gray-600">
+                <div class="relative">
+                    <i class="fas fa-sign-in-alt text-xl mb-1 group-hover:scale-110 transition-transform duration-200"></i>
                 </div>
-                <span class="nav-label">Accedi</span>
+                <span class="text-xs font-medium">Accedi</span>
             </a>
         <?php endif; ?>
         
     </div>
+
+    <!-- Desktop Navigation -->
+    <div class="hidden lg:flex lg:justify-center">
+        <div class="bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 px-8 py-4">
+            <div class="flex space-x-8">
+                
+                <!-- Home -->
+                <a href="<?php echo get_post_type_archive_link('contest'); ?>" 
+                   class="flex flex-col items-center group transition-all duration-300 px-4 py-2 rounded-xl <?php echo ($current_page === 'home') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'; ?>">
+                    <i class="fas fa-home text-2xl mb-2 group-hover:scale-110 transition-transform duration-200"></i>
+                    <span class="text-sm font-medium">Home</span>
+                </a>
+                
+                <!-- Concorsi -->
+                <a href="<?php echo get_post_type_archive_link('contest'); ?>" 
+                   class="flex flex-col items-center group transition-all duration-300 px-4 py-2 rounded-xl <?php echo ($current_page === 'concorsi') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'; ?>">
+                    <i class="fas fa-trophy text-2xl mb-2 group-hover:scale-110 transition-transform duration-200"></i>
+                    <span class="text-sm font-medium">Concorsi</span>
+                </a>
+                
+                <!-- Premi -->
+                <a href="<?php echo get_permalink(get_page_by_path('classifica')); ?>" 
+                   class="flex flex-col items-center group transition-all duration-300 px-4 py-2 rounded-xl <?php echo ($current_page === 'premi') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'; ?>">
+                    <i class="fas fa-gift text-2xl mb-2 group-hover:scale-110 transition-transform duration-200"></i>
+                    <span class="text-sm font-medium">Premi</span>
+                </a>
+                
+                <!-- Profilo -->
+                <?php if (is_user_logged_in()): ?>
+                    <a href="<?php echo get_permalink(get_page_by_path('profilo')); ?>" 
+                       class="flex flex-col items-center group transition-all duration-300 px-4 py-2 rounded-xl relative <?php echo ($current_page === 'profilo') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'; ?>">
+                        <div class="relative">
+                            <?php if ($user_avatar): ?>
+                                <img src="<?php echo esc_url($user_avatar); ?>" 
+                                     alt="Profilo" 
+                                     class="w-8 h-8 rounded-full mb-2 border-2 <?php echo ($current_page === 'profilo') ? 'border-blue-500' : 'border-gray-300'; ?> group-hover:scale-110 transition-transform duration-200">
+                            <?php else: ?>
+                                <i class="fas fa-user text-2xl mb-2 group-hover:scale-110 transition-transform duration-200"></i>
+                            <?php endif; ?>
+                            
+                            <!-- Badge punti desktop -->
+                            <?php if ($user_points > 0): ?>
+                                <div class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold">
+                                    <?php echo $user_points > 99 ? '99+' : $user_points; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <span class="text-sm font-medium">Profilo</span>
+                    </a>
+                <?php else: ?>
+                    <a href="<?php echo wp_login_url(get_permalink()); ?>" 
+                       class="flex flex-col items-center group transition-all duration-300 px-4 py-2 rounded-xl text-gray-600 hover:bg-gray-50">
+                        <i class="fas fa-sign-in-alt text-2xl mb-2 group-hover:scale-110 transition-transform duration-200"></i>
+                        <span class="text-sm font-medium">Accedi</span>
+                    </a>
+                <?php endif; ?>
+                
+            </div>
+        </div>
+    </div>
 </nav>
 
-<!-- Spacer per evitare che il contenuto sia coperto dalla nav -->
-<div class="bottom-nav-spacer"></div>
+<!-- Spacer per mobile -->
+<div class="h-20 lg:hidden"></div>
+
+<!-- JavaScript per animazioni aggiuntive -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animazione di caricamento della bottom nav
+    const bottomNav = document.getElementById('bottom-nav');
+    if (bottomNav) {
+        bottomNav.style.transform = 'translateY(100%)';
+        bottomNav.style.opacity = '0';
+        
+        setTimeout(() => {
+            bottomNav.style.transition = 'all 0.4s ease-out';
+            bottomNav.style.transform = 'translateY(0)';
+            bottomNav.style.opacity = '1';
+        }, 100);
+    }
+    
+    // Animazione touch per mobile
+    const navItems = document.querySelectorAll('#bottom-nav a');
+    navItems.forEach(item => {
+        item.addEventListener('touchstart', function() {
+            this.style.transform = 'scale(0.95)';
+        });
+        
+        item.addEventListener('touchend', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+});
+</script>
