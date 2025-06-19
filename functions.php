@@ -1,7 +1,7 @@
 <?php
 /**
- * INSTACONTEST CHILD THEME - FUNCTIONS.PHP COMPLETO
- * Tutte le funzioni necessarie per i template - prova test2
+ * INSTACONTEST CHILD THEME - FUNCTIONS.PHP CON TAILWIND CSS
+ * Setup con Tailwind CSS e FontAwesome
  */
 
 // Previeni accesso diretto
@@ -10,24 +10,96 @@ if (!defined('ABSPATH')) {
 }
 
 // ========================================
-// 1. ENQUEUE STYLES E SCRIPTS
+// 1. ENQUEUE STYLES E SCRIPTS + TAILWIND + FONTAWESOME
 // ========================================
 
 function instacontest_enqueue_styles() {
     // Carica il CSS del tema parent (Astra)
     wp_enqueue_style('astra-parent-style', get_template_directory_uri() . '/style.css');
     
-    // Carica il CSS del child theme
-    wp_enqueue_style('instacontest-child-style', 
-        get_stylesheet_directory_uri() . '/style.css',
-        array('astra-parent-style'),
-        '1.0.0'
+    // Tailwind CSS CDN
+    wp_enqueue_style('tailwindcss', 'https://cdn.tailwindcss.com', array(), '3.3.0');
+    
+    // FontAwesome CDN
+    wp_enqueue_style('fontawesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css', array(), '6.4.0');
+    
+    // CSS personalizzato per override specifici
+    wp_enqueue_style('instacontest-custom', 
+        get_stylesheet_directory_uri() . '/custom.css',
+        array('tailwindcss', 'fontawesome'),
+        '1.0.2'
     );
 }
 add_action('wp_enqueue_scripts', 'instacontest_enqueue_styles');
 
+function instacontest_enqueue_scripts() {
+    // Tailwind Config Script (per personalizzazioni)
+    wp_add_inline_script('tailwindcss', '
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#667eea",
+                        secondary: "#f5576c", 
+                        success: "#4facfe",
+                        warning: "#43e97b"
+                    },
+                    animation: {
+                        "fade-in": "fadeIn 0.5s ease-in-out",
+                        "slide-up": "slideUp 0.4s ease-out",
+                        "bounce-in": "bounceIn 0.3s ease-out"
+                    }
+                }
+            }
+        }
+    ');
+    
+    // JavaScript personalizzato
+    wp_enqueue_script('instacontest-js', 
+        get_stylesheet_directory_uri() . '/instacontest.js',
+        array('jquery'),
+        '1.0.2',
+        true
+    );
+    
+    // Localizza script per AJAX
+    wp_localize_script('instacontest-js', 'instacontest_ajax', array(
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('instacontest_nonce')
+    ));
+}
+add_action('wp_enqueue_scripts', 'instacontest_enqueue_scripts');
+
 // ========================================
-// 2. REGISTRAZIONE CUSTOM POST TYPE
+// 2. SETUP TEMA CON TAILWIND
+// ========================================
+
+function instacontest_theme_setup() {
+    // Supporto per post thumbnails
+    add_theme_support('post-thumbnails');
+    
+    // Supporto per HTML5
+    add_theme_support('html5', array(
+        'search-form',
+        'comment-form',
+        'comment-list',
+        'gallery',
+        'caption'
+    ));
+    
+    // Supporto per custom logo
+    add_theme_support('custom-logo');
+    
+    // Supporto per title tag
+    add_theme_support('title-tag');
+    
+    // Disabilita alcuni stili Astra che potrebbero confliggere con Tailwind
+    add_theme_support('astra-addon-fonts');
+}
+add_action('after_setup_theme', 'instacontest_theme_setup');
+
+// ========================================
+// 3. REGISTRAZIONE CUSTOM POST TYPE
 // ========================================
 
 function instacontest_register_contest_cpt() {
@@ -67,36 +139,61 @@ function instacontest_register_contest_cpt() {
 add_action('init', 'instacontest_register_contest_cpt');
 
 // ========================================
-// 3. FUNZIONI CONTEST BASE
+// 4. DISABLE ASTRA STYLES CHE POTREBBERO CONFLIGGERE
 // ========================================
 
-// SOSTITUISCI la funzione instacontest_is_contest_active con questa:
+// Disabilita alcuni CSS di Astra per pagine InstaContest
+function instacontest_disable_astra_styles() {
+    if (is_post_type_archive('contest') || is_singular('contest') || 
+        is_page_template('page-classifica.php') || 
+        is_page_template('page-regolamento.php') || 
+        is_page_template('page-profilo.php')) {
+        
+        // Rimuovi alcuni stili Astra
+        wp_dequeue_style('astra-theme-css');
+        
+        // Carica solo gli stili essenziali
+        wp_enqueue_style('astra-base-only', get_template_directory_uri() . '/assets/css/minified/style.min.css');
+    }
+}
+add_action('wp_enqueue_scripts', 'instacontest_disable_astra_styles', 20);
+
+// ========================================
+// 5. FUNZIONI CONTEST (MANTENUTE DAL CODICE PRECEDENTE)
+// ========================================
+
+// Verifica se contest è attivo (VERSIONE FIXED)
 function instacontest_is_contest_active($contest_id) {
     $end_date = get_field('contest_end_date', $contest_id);
     if (!$end_date) {
         return false;
     }
     
-    // Debug: mostra le date (rimuovere dopo fix)
-    if (current_user_can('administrator')) {
-        echo "<!-- DEBUG Contest ID: $contest_id -->";
-        echo "<!-- End Date from ACF: $end_date -->";
-        echo "<!-- Current Time: " . current_time('Y-m-d H:i:s') . " -->";
-        echo "<!-- Timezone: " . get_option('timezone_string') . " -->";
+    $end_timestamp = false;
+    
+    // Se è un oggetto DateTime di ACF
+    if (is_object($end_date) && method_exists($end_date, 'format')) {
+        $end_timestamp = $end_date->getTimestamp();
+    }
+    // Se è una stringa, proviamo a parsarla
+    else if (is_string($end_date)) {
+        $date_clean = $end_date;
+        
+        // Se contiene "am" o "pm", convertiamo
+        if (strpos($end_date, 'am') !== false || strpos($end_date, 'pm') !== false) {
+            $date_clean = date('Y-m-d H:i:s', strtotime($end_date));
+        }
+        
+        $end_timestamp = strtotime($date_clean);
     }
     
-    // Converti data in timestamp usando timezone WordPress
-    $end_timestamp = strtotime($end_date . ' ' . get_option('timezone_string'));
+    if (!$end_timestamp) {
+        $end_timestamp = strtotime($end_date);
+    }
+    
     $current_timestamp = current_time('timestamp');
     
-    // Debug timestamps
-    if (current_user_can('administrator')) {
-        echo "<!-- End Timestamp: $end_timestamp -->";
-        echo "<!-- Current Timestamp: $current_timestamp -->";
-        echo "<!-- Is Active: " . ($current_timestamp < $end_timestamp ? 'YES' : 'NO') . " -->";
-    }
-    
-    return $current_timestamp < $end_timestamp;
+    return $end_timestamp && $current_timestamp < $end_timestamp;
 }
 
 // Verifica se contest è terminato
@@ -116,17 +213,13 @@ function instacontest_get_contest_status($contest_id) {
     $has_winner = instacontest_has_winner($contest_id);
     
     if ($is_active) {
-        return 'active'; // Contest attivo
+        return 'active';
     } elseif (!$has_winner) {
-        return 'selecting'; // Contest finito, selezione vincitore in corso
+        return 'selecting';
     } else {
-        return 'completed'; // Contest finito con vincitore
+        return 'completed';
     }
 }
-
-// ========================================
-// 4. FUNZIONI PER OTTENERE CONTEST
-// ========================================
 
 // Ottieni contest attivi
 function instacontest_get_active_contests() {
@@ -167,7 +260,7 @@ function instacontest_get_ended_contests() {
 }
 
 // ========================================
-// 5. SISTEMA PUNTEGGI
+// 6. SISTEMA PUNTEGGI
 // ========================================
 
 // Ottieni punti utente
@@ -221,13 +314,11 @@ function instacontest_get_user_participations($user_id) {
 function instacontest_get_user_wins($user_id) {
     global $wpdb;
     
-    // Ottieni username dell'utente
     $user = get_user_by('ID', $user_id);
     if (!$user) {
         return 0;
     }
     
-    // Conta i contest dove l'utente è il vincitore
     $wins = $wpdb->get_var($wpdb->prepare("
         SELECT COUNT(*)
         FROM {$wpdb->postmeta}
@@ -239,7 +330,7 @@ function instacontest_get_user_wins($user_id) {
 }
 
 // ========================================
-// 6. UTILITY FUNCTIONS
+// 7. UTILITY FUNCTIONS
 // ========================================
 
 // Formatta data contest italiana
@@ -248,7 +339,16 @@ function instacontest_format_contest_date($date_string) {
         return '';
     }
     
-    return date_i18n('d/m/Y \a\l\l\e H:i', strtotime($date_string));
+    if (is_object($date_string) && method_exists($date_string, 'format')) {
+        return $date_string->format('d/m/Y \a\l\l\e H:i');
+    }
+    
+    $timestamp = strtotime($date_string);
+    if ($timestamp) {
+        return date_i18n('d/m/Y \a\l\l\e H:i', $timestamp);
+    }
+    
+    return $date_string;
 }
 
 // Verifica se utente ha già partecipato
@@ -258,12 +358,10 @@ function instacontest_user_has_participated($user_id, $contest_id) {
 }
 
 // ========================================
-// 7. FUNZIONI PER I TEMPLATE (PLACEHOLDER)
+// 8. FUNZIONI PLACEHOLDER (per evitare errori)
 // ========================================
 
-// Funzioni placeholder per evitare errori - sostituire con logica reale
 function instacontest_get_top_users($limit = 10) {
-    // Placeholder - ritorna array vuoto per ora
     return array();
 }
 
@@ -301,7 +399,7 @@ function instacontest_get_user_notifications($user_id, $unread_only = false) {
 }
 
 // ========================================
-// 8. FLUSH REWRITE RULES
+// 9. FLUSH REWRITE RULES
 // ========================================
 
 function instacontest_flush_rewrite_rules() {
@@ -310,3 +408,30 @@ function instacontest_flush_rewrite_rules() {
 }
 register_activation_hook(__FILE__, 'instacontest_flush_rewrite_rules');
 
+// ========================================
+// 10. PERSONALIZZAZIONI ASTRA PER TAILWIND
+// ========================================
+
+// Disabilita layout Astra per le nostre pagine
+add_filter('astra_page_layout', 'instacontest_disable_astra_layout');
+function instacontest_disable_astra_layout($layout) {
+    if (is_post_type_archive('contest') || is_singular('contest') || 
+        is_page_template('page-classifica.php') || 
+        is_page_template('page-regolamento.php') || 
+        is_page_template('page-profilo.php')) {
+        return 'no-sidebar';
+    }
+    return $layout;
+}
+
+// Disabilita breadcrumbs
+add_filter('astra_disable_breadcrumbs', 'instacontest_disable_breadcrumbs');
+function instacontest_disable_breadcrumbs($disable) {
+    if (is_post_type_archive('contest') || is_singular('contest') || 
+        is_page_template('page-classifica.php') || 
+        is_page_template('page-regolamento.php') || 
+        is_page_template('page-profilo.php')) {
+        return true;
+    }
+    return $disable;
+}
