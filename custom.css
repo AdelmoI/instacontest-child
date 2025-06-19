@@ -1,0 +1,42 @@
+/**
+ * CUSTOM.CSS - InstaContest Child Theme
+ * File CSS personalizzato (attualmente vuoto)
+ */
+
+/* ===================================
+   RESET ASTRA PER PAGINE CONTEST
+   =================================== */
+
+/* Nascondi header/footer Astra per le nostre pagine */
+.instacontest-homepage .site-header,
+.contest-single .site-header,
+.classifica-page .site-header,
+.regolamento-page .site-header,
+.profilo-page .site-header {
+    display: none !important;
+}
+
+.instacontest-homepage .site-footer,
+.contest-single .site-footer,
+.classifica-page .site-footer,
+.regolamento-page .site-footer,
+.profilo-page .site-footer {
+    display: none !important;
+}
+
+/* ===================================
+   BACKGROUND GRADIENT
+   =================================== */
+
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+/* ===================================
+   UTILITY CLASSES
+   =================================== */
+
+/* Per ora il CSS è nella bottom-navigation.php inline */
+/* Qui aggiungeremo stili globali se necessario */
