@@ -378,3 +378,66 @@ function instacontest_flush_rewrite_rules() {
     flush_rewrite_rules();
 }
 register_activation_hook(__FILE__, 'instacontest_flush_rewrite_rules');
+
+
+// ========================================
+// FUNZIONI AGGIORNATE CON CONTEST START DATE
+// ========================================
+
+// Verifica se contest è in arrivo (non ancora iniziato)
+function instacontest_is_contest_coming($contest_id) {
+    $start_date = get_field('contest_start_date', $contest_id);
+    if (!$start_date) {
+        return false; // Se non ha data inizio, non è "coming soon"
+    }
+    
+    $start_timestamp = strtotime($start_date);
+    $current_timestamp = current_time('timestamp');
+    
+    return $current_timestamp < $start_timestamp;
+}
+
+// Ottieni contest in arrivo (coming soon)
+function instacontest_get_coming_contests() {
+    $contests = get_posts(array(
+        'post_type'      => 'contest',
+        'posts_per_page' => -1,
+        'post_status'    => 'publish',
+        'meta_query'     => array(
+            array(
+                'key'     => 'contest_start_date',
+                'value'   => date('Y-m-d H:i:s'),
+                'compare' => '>',
+                'type'    => 'DATETIME'
+            )
+        )
+    ));
+    
+    return $contests;
+}
+
+// Aggiorna funzione contest attivi per usare start_date
+function instacontest_get_active_contests_new() {
+    $contests = get_posts(array(
+        'post_type'      => 'contest',
+        'posts_per_page' => -1,
+        'post_status'    => 'publish',
+        'meta_query'     => array(
+            'relation' => 'AND',
+            array(
+                'key'     => 'contest_start_date',
+                'value'   => date('Y-m-d H:i:s'),
+                'compare' => '<=',
+                'type'    => 'DATETIME'
+            ),
+            array(
+                'key'     => 'contest_end_date',
+                'value'   => date('Y-m-d H:i:s'),
+                'compare' => '>',
+                'type'    => 'DATETIME'
+            )
+        )
+    ));
+    
+    return $contests;
+}
