@@ -1,7 +1,7 @@
 <?php
 /**
  * Bottom Navigation Template Part
- * Stile semplice, sempre fissa in basso
+ * Stile semplice con gradiente Instagram
  */
 
 $current_page = '';
@@ -22,25 +22,25 @@ if (is_post_type_archive('contest') || is_home() || is_front_page()) {
         
         <!-- Home/Concorsi -->
         <a href="<?php echo get_post_type_archive_link('contest'); ?>" class="flex flex-col items-center">
-            <i class="fa-solid fa-home <?php echo ($current_page === 'home') ? 'text-blue-500' : 'text-gray-600'; ?> text-xl mb-1"></i>
-            <span class="<?php echo ($current_page === 'home') ? 'text-blue-500' : 'text-gray-600'; ?> text-xs">Home</span>
+            <i class="fa-solid fa-home <?php echo ($current_page === 'home') ? 'text-instagram-gradient' : 'text-gray-600'; ?> text-xl mb-1"></i>
+            <span class="<?php echo ($current_page === 'home') ? 'text-instagram-gradient' : 'text-gray-600'; ?> text-xs">Home</span>
         </a>
         
         <!-- Classifica -->
         <a href="<?php echo get_permalink(get_page_by_path('classifica')); ?>" class="flex flex-col items-center">
-            <i class="fa-regular fa-chart-bar <?php echo ($current_page === 'classifica') ? 'text-blue-500' : 'text-gray-600'; ?> text-xl mb-1"></i>
-            <span class="<?php echo ($current_page === 'classifica') ? 'text-blue-500' : 'text-gray-600'; ?> text-xs">Classifica</span>
+            <i class="fa-regular fa-chart-bar <?php echo ($current_page === 'classifica') ? 'text-instagram-gradient' : 'text-gray-600'; ?> text-xl mb-1"></i>
+            <span class="<?php echo ($current_page === 'classifica') ? 'text-instagram-gradient' : 'text-gray-600'; ?> text-xs">Classifica</span>
         </a>
         
         <!-- Regolamento -->
         <a href="<?php echo get_permalink(get_page_by_path('regolamento')); ?>" class="flex flex-col items-center">
-            <i class="fa-regular fa-file-lines <?php echo ($current_page === 'regolamento') ? 'text-blue-500' : 'text-gray-600'; ?> text-xl mb-1"></i>
-            <span class="<?php echo ($current_page === 'regolamento') ? 'text-blue-500' : 'text-gray-600'; ?> text-xs">Regolamento</span>
+            <i class="fa-regular fa-file-lines <?php echo ($current_page === 'regolamento') ? 'text-instagram-gradient' : 'text-gray-600'; ?> text-xl mb-1"></i>
+            <span class="<?php echo ($current_page === 'regolamento') ? 'text-instagram-gradient' : 'text-gray-600'; ?> text-xs">Regolamento</span>
         </a>
         
         <!-- Profilo -->
         <?php if (is_user_logged_in()): ?>
-            <a href="<?php echo get_permalink(get_page_by_path('profilo')); ?>" class="flex flex-col items-center relative <?php echo ($current_page === 'profilo') ? 'active' : 'inactive'; ?>">
+            <a href="<?php echo get_permalink(get_page_by_path('profilo')); ?>" class="flex flex-col items-center relative">
                 <div class="relative">
                     <?php echo get_avatar(get_current_user_id(), 24, '', '', array('class' => 'w-6 h-6 rounded-full mb-1')); ?>
                     
@@ -55,7 +55,7 @@ if (is_post_type_archive('contest') || is_home() || is_front_page()) {
                 <span class="<?php echo ($current_page === 'profilo') ? 'text-instagram-gradient' : 'text-gray-600'; ?> text-xs">Profilo</span>
             </a>
         <?php else: ?>
-            <a href="<?php echo wp_login_url(get_permalink()); ?>" class="flex flex-col items-center inactive">
+            <a href="<?php echo wp_login_url(get_permalink()); ?>" class="flex flex-col items-center">
                 <i class="fa-regular fa-user text-gray-600 text-xl mb-1"></i>
                 <span class="text-gray-600 text-xs">Accedi</span>
             </a>
