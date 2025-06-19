@@ -196,4 +196,46 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+
+
+// Force fix bottom navigation layout
+document.addEventListener('DOMContentLoaded', function() {
+    const bottomNav = document.getElementById('bottom-nav');
+    const navContainer = bottomNav.querySelector('div');
+    const navLinks = bottomNav.querySelectorAll('a');
+    
+    // Force styles via JavaScript as backup
+    if (bottomNav) {
+        bottomNav.style.cssText = `
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            z-index: 999999 !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-top: 1px solid #e5e7eb !important;
+        `;
+    }
+    
+    if (navContainer) {
+        navContainer.style.cssText = `
+            display: flex !important;
+            justify-content: space-around !important;
+            align-items: center !important;
+            padding: 12px 8px 8px 8px !important;
+        `;
+    }
+    
+    navLinks.forEach(link => {
+        link.style.cssText = `
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            text-decoration: none !important;
+            width: 25% !important;
+            text-align: center !important;
+        `;
+    });
+});
 </script>
