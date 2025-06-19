@@ -254,6 +254,56 @@ button:focus-visible {
 }
 
 /* ===================================
+   BOTTOM NAVIGATION OVERRIDE ASTRA
+   =================================== */
+
+/* Force Instagram gradient sui link attivi della bottom nav */
+nav#bottom-nav a .text-instagram-gradient,
+nav#bottom-nav a.active,
+nav#bottom-nav a.active i,
+nav#bottom-nav a.active span {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    color: transparent !important;
+}
+
+/* Override specifico per Astra sui link della navigation */
+nav#bottom-nav a,
+nav#bottom-nav a:hover,
+nav#bottom-nav a:focus,
+nav#bottom-nav a:visited {
+    text-decoration: none !important;
+    outline: none !important;
+}
+
+/* Force gray sui link inattivi */
+nav#bottom-nav a.inactive,
+nav#bottom-nav a.inactive i,
+nav#bottom-nav a.inactive span {
+    color: #6b7280 !important;
+}
+
+/* Specifico per le icone */
+nav#bottom-nav i.text-instagram-gradient {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    color: transparent !important;
+}
+
+/* Specifico per gli span */
+nav#bottom-nav span.text-instagram-gradient {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    color: transparent !important;
+}
+
+/* ===================================
    FIX LAYOUT CENTRATO
    =================================== */
 
