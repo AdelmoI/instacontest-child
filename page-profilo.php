@@ -36,11 +36,116 @@ $instagram_username = instacontest_get_user_instagram($user_id);
                 <p class="text-gray-500 text-lg md:text-xl">Ciao <?php echo esc_html($current_user->first_name ?: $current_user->display_name); ?>!</p>
             </div>
 
+            <?php
+            // Gestione upload avatar
+            $upload_success = false;
+            $upload_error = '';
+
+            if (isset($_POST['upload_avatar']) && isset($_FILES['avatar_file'])) {
+                if (!wp_verify_nonce($_POST['avatar_nonce'], 'upload_avatar')) {
+                    $upload_error = 'Errore di sicurezza';
+                } else {
+                    $file = $_FILES['avatar_file'];
+                    
+                    // Validazioni
+                    $allowed_types = array('image/jpeg', 'image/jpg', 'image/png');
+                    $max_size = 2 * 1024 * 1024; // 2MB
+                    
+                    if ($file['error'] !== UPLOAD_ERR_OK) {
+                        $upload_error = 'Errore durante l\'upload';
+                    } elseif (!in_array($file['type'], $allowed_types)) {
+                        $upload_error = 'Solo file JPG e PNG sono permessi';
+                    } elseif ($file['size'] > $max_size) {
+                        $upload_error = 'File troppo grande (max 2MB)';
+                    } else {
+                        // Upload del file
+                        require_once(ABSPATH . 'wp-admin/includes/file.php');
+                        require_once(ABSPATH . 'wp-admin/includes/image.php');
+                        
+                        $upload = wp_handle_upload($file, array('test_form' => false));
+                        
+                        if (!isset($upload['error'])) {
+                            // Crea attachment
+                            $attachment = array(
+                                'post_mime_type' => $file['type'],
+                                'post_title' => 'Avatar - ' . $current_user->display_name,
+                                'post_content' => '',
+                                'post_status' => 'inherit'
+                            );
+                            
+                            $attachment_id = wp_insert_attachment($attachment, $upload['file']);
+                            
+                            if ($attachment_id) {
+                                wp_generate_attachment_metadata($attachment_id, $upload['file']);
+                                update_user_meta($user_id, 'custom_avatar', $attachment_id);
+                                $upload_success = true;
+                            }
+                        } else {
+                            $upload_error = $upload['error'];
+                        }
+                    }
+                }
+            }
+            ?>
+
+            <!-- Messaggi upload -->
+            <?php if ($upload_success): ?>
+                <div class="bg-white border border-green-200 rounded-2xl p-4 mb-6">
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-check-circle text-green-500 mr-3 text-xl"></i>
+                        <div>
+                            <h3 class="text-black font-bold">Avatar aggiornato!</h3>
+                            <p class="text-gray-500 text-sm">La tua immagine profilo è stata caricata</p>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($upload_error): ?>
+                <div class="bg-white border border-red-200 rounded-2xl p-4 mb-6">
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-exclamation-triangle text-red-500 mr-3 text-xl"></i>
+                        <div>
+                            <h3 class="text-black font-bold">Errore upload</h3>
+                            <p class="text-gray-500 text-sm"><?php echo esc_html($upload_error); ?></p>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <!-- Informazioni Utente -->
             <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
                 <div class="flex items-center space-x-4 mb-6">
-                    <div class="p-1 avatar-gradient rounded-full">
-                        <?php echo get_avatar($user_id, 64, '', '', array('class' => 'w-16 h-16 rounded-full border-2 border-white')); ?>
+                    <div class="relative">
+                        <div class="p-1 avatar-gradient rounded-full">
+                            <?php 
+                            // Usa avatar personalizzato se esiste
+                            $custom_avatar_id = get_user_meta($user_id, 'custom_avatar', true);
+                            if ($custom_avatar_id) {
+                                $avatar_url = wp_get_attachment_image_url($custom_avatar_id, 'thumbnail');
+                                echo '<img src="' . esc_url($avatar_url) . '" alt="Avatar" class="w-16 h-16 rounded-full border-2 border-white object-cover">';
+                            } else {
+                                echo get_avatar($user_id, 64, '', '', array('class' => 'w-16 h-16 rounded-full border-2 border-white'));
+                            }
+                            ?>
+                        </div>
+                        
+                        <!-- Pulsante upload avatar -->
+                        <button onclick="openAvatarUpload()" 
+                                class="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center hover:bg-blue-600 transition cursor-pointer border-2 border-white shadow-lg avatar-upload-btn">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                        </button>
+                        
+                        <!-- Form upload nascosto -->
+                        <form method="post" enctype="multipart/form-data" id="avatar-form" style="display: none;">
+                            <?php wp_nonce_field('upload_avatar', 'avatar_nonce'); ?>
+                            <input type="file" 
+                                   id="avatar-upload" 
+                                   name="avatar_file" 
+                                   accept="image/jpeg,image/jpg,image/png"
+                                   onchange="document.getElementById('avatar-form').submit();">
+                            <input type="hidden" name="upload_avatar" value="1">
+                        </form>
                     </div>
                     <div class="flex-1">
                         <h2 class="text-black font-bold text-lg"><?php echo esc_html($current_user->display_name); ?></h2>
@@ -147,22 +252,6 @@ $instagram_username = instacontest_get_user_instagram($user_id);
                 <h3 class="text-black font-bold text-lg mb-4">Impostazioni</h3>
                 
                 <div class="space-y-3">
-                    <a href="#" class="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition">
-                        <div class="flex items-center space-x-3">
-                            <i class="fa-solid fa-user text-gray-600"></i>
-                            <span class="text-black font-medium">Modifica Profilo</span>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-gray-400"></i>
-                    </a>
-                    
-                    <a href="#" class="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition">
-                        <div class="flex items-center space-x-3">
-                            <i class="fa-solid fa-bell text-gray-600"></i>
-                            <span class="text-black font-medium">Notifiche</span>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-gray-400"></i>
-                    </a>
-                    
                     <a href="<?php echo wp_logout_url(home_url()); ?>" class="flex items-center justify-between py-3 px-4 bg-red-50 rounded-xl hover:bg-red-100 transition">
                         <div class="flex items-center space-x-3">
                             <i class="fa-solid fa-sign-out-alt text-red-600"></i>
@@ -186,5 +275,51 @@ $instagram_username = instacontest_get_user_instagram($user_id);
     </section>
 
 </body>
+
+<!-- JavaScript per upload avatar -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarUpload = document.getElementById('avatar-upload');
+    const avatarForm = document.getElementById('avatar-form');
+    const uploadBtn = document.querySelector('.avatar-upload-btn');
+    
+    if (avatarUpload) {
+        avatarUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            
+            if (file) {
+                // Validazioni client-side
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                const maxSize = 2 * 1024 * 1024; // 2MB
+                
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Solo file JPG e PNG sono permessi');
+                    e.target.value = '';
+                    return;
+                }
+                
+                if (file.size > maxSize) {
+                    alert('File troppo grande (max 2MB)');
+                    e.target.value = '';
+                    return;
+                }
+                
+                // Mostra loading
+                if (uploadBtn) {
+                    uploadBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i>';
+                    uploadBtn.style.pointerEvents = 'none';
+                }
+                
+                // Submit form
+                avatarForm.submit();
+            }
+        });
+    }
+});
+
+function openAvatarUpload() {
+    document.getElementById('avatar-upload').click();
+}
+</script>
 
 <?php get_footer(); ?>
