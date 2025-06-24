@@ -37,7 +37,7 @@ while (have_posts()) : the_post();
                     <!-- Status badge -->
                     <div class="flex items-center">
                         <?php if ($status === 'active'): ?>
-                            <span class="instagram-gradient px-3 py-1 rounded-full text-white text-sm font-semibold flex items-center space-x-1">
+                            <span class="bg-green-500 px-3 py-1 rounded-full text-white text-sm font-semibold flex items-center space-x-1">
                                 <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span>
                                 <span>Attivo</span>
                             </span>
@@ -47,7 +47,7 @@ while (have_posts()) : the_post();
                                 <span>In selezione</span>
                             </span>
                         <?php else: ?>
-                            <span class="bg-green-500 px-3 py-1 rounded-full text-white text-sm font-semibold flex items-center space-x-1">
+                            <span class="bg-gray-500 px-3 py-1 rounded-full text-white text-sm font-semibold flex items-center space-x-1">
                                 <span class="w-2 h-2 bg-white rounded-full"></span>
                                 <span>Completato</span>
                             </span>
@@ -108,7 +108,7 @@ while (have_posts()) : the_post();
                         <?php if ($status === 'active'): ?>
                             <!-- CONTEST ATTIVO -->
                             
-                            <!-- Countdown Timer -->
+                            <!-- Countdown Timer - UNA RIGA SU MOBILE -->
                             <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6">
                                 <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
                                     <span class="text-2xl">⏰</span>
@@ -118,25 +118,25 @@ while (have_posts()) : the_post();
                                     <?php echo instacontest_format_contest_date($end_date); ?>
                                 </div>
                                 
-                                <!-- Grid countdown responsive -->
+                                <!-- Grid countdown - 4 colonne sempre -->
                                 <div id="countdown-<?php echo $contest_id; ?>" 
-                                     class="grid grid-cols-2 md:grid-cols-4 gap-4"
+                                     class="grid grid-cols-4 gap-2 md:gap-4"
                                      data-end-date="<?php echo date('Y-m-d H:i:s', strtotime($end_date)); ?>">
-                                    <div class="bg-white rounded-xl p-4 text-center shadow-sm">
-                                        <div class="text-2xl md:text-3xl font-bold text-purple-600 countdown-number days">00</div>
-                                        <div class="text-sm text-gray-600 font-medium">Giorni</div>
+                                    <div class="bg-white rounded-xl p-2 md:p-4 text-center shadow-sm">
+                                        <div class="text-lg md:text-2xl lg:text-3xl font-bold text-purple-600 countdown-number days">00</div>
+                                        <div class="text-xs md:text-sm text-gray-600 font-medium">Giorni</div>
                                     </div>
-                                    <div class="bg-white rounded-xl p-4 text-center shadow-sm">
-                                        <div class="text-2xl md:text-3xl font-bold text-purple-600 countdown-number hours">00</div>
-                                        <div class="text-sm text-gray-600 font-medium">Ore</div>
+                                    <div class="bg-white rounded-xl p-2 md:p-4 text-center shadow-sm">
+                                        <div class="text-lg md:text-2xl lg:text-3xl font-bold text-purple-600 countdown-number hours">00</div>
+                                        <div class="text-xs md:text-sm text-gray-600 font-medium">Ore</div>
                                     </div>
-                                    <div class="bg-white rounded-xl p-4 text-center shadow-sm">
-                                        <div class="text-2xl md:text-3xl font-bold text-purple-600 countdown-number minutes">00</div>
-                                        <div class="text-sm text-gray-600 font-medium">Min</div>
+                                    <div class="bg-white rounded-xl p-2 md:p-4 text-center shadow-sm">
+                                        <div class="text-lg md:text-2xl lg:text-3xl font-bold text-purple-600 countdown-number minutes">00</div>
+                                        <div class="text-xs md:text-sm text-gray-600 font-medium">Min</div>
                                     </div>
-                                    <div class="bg-white rounded-xl p-4 text-center shadow-sm">
-                                        <div class="text-2xl md:text-3xl font-bold text-purple-600 countdown-number seconds">00</div>
-                                        <div class="text-sm text-gray-600 font-medium">Sec</div>
+                                    <div class="bg-white rounded-xl p-2 md:p-4 text-center shadow-sm">
+                                        <div class="text-lg md:text-2xl lg:text-3xl font-bold text-purple-600 countdown-number seconds">00</div>
+                                        <div class="text-xs md:text-sm text-gray-600 font-medium">Sec</div>
                                     </div>
                                 </div>
                             </div>
@@ -167,14 +167,16 @@ while (have_posts()) : the_post();
                                 <?php endif; ?>
                             </div>
 
-                            <!-- Pulsante Partecipa -->
+                            <!-- Pulsante Partecipa con immagine Instagram -->
                             <div class="text-center space-y-4">
                                 <a href="<?php echo esc_url($instagram_url); ?>" 
                                    target="_blank" 
-                                   class="instagram-gradient inline-flex items-center justify-center space-x-3 px-8 py-4 rounded-2xl text-white font-bold text-lg hover:scale-105 transition-transform duration-200 shadow-lg w-full md:w-auto"
+                                   class="block w-full btn-participate font-bold py-3 rounded-xl text-sm text-center flex items-center justify-center space-x-3"
                                    onclick="instacontestTrackParticipation(<?php echo $contest_id; ?>)">
-                                    <span class="text-2xl">📸</span>
-                                    <span>Partecipa su Instagram</span>
+                                    <img src="https://www.instacontest.it/wp-content/uploads/2025/06/instagram-new.png" 
+                                         alt="Instagram" 
+                                         class="w-6 h-6 md:w-8 md:h-8">
+                                    <span class="text-lg">PARTECIPA SU INSTAGRAM</span>
                                 </a>
                                 <p class="text-gray-500 text-sm">
                                     Sarai reindirizzato al post Instagram
@@ -258,9 +260,9 @@ while (have_posts()) : the_post();
                                         
                                         <!-- Pulsante verifica -->
                                         <button type="submit" 
-                                                class="w-full instagram-gradient py-4 rounded-xl text-white font-bold text-lg flex items-center justify-center space-x-2 hover:scale-105 transition-transform">
+                                                class="w-full btn-participate py-4 rounded-xl font-bold text-lg flex items-center justify-center space-x-2">
                                             <span>🔍</span>
-                                            <span>Verifica risultato</span>
+                                            <span>VERIFICA RISULTATO</span>
                                         </button>
                                     </form>
                                 </div>
