@@ -142,13 +142,13 @@ while (have_posts()) : the_post();
 
                             <!-- Come partecipare -->
                             <div class="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center space-x-2">
+                                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center space-x-3">
                                     <span class="text-2xl">📋</span>
-                                    <span>Come partecipare</span>
+                                    <span>COME PARTECIPARE</span>
                                 </h3>
                                 
                                 <!-- Lista azioni numerata -->
-                                <div class="space-y-3">
+                                <div class="mt-6 space-y-1">
                                     <?php
                                     // Raccoglie tutte le azioni compilate
                                     $actions = array();
