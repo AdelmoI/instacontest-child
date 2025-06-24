@@ -132,7 +132,7 @@ $instagram_username = instacontest_get_user_instagram($user_id);
                         
                         <!-- Pulsante upload avatar -->
                         <button onclick="openAvatarUpload()" 
-                                class="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center hover:bg-blue-600 transition cursor-pointer border-2 border-white shadow-lg avatar-upload-btn">
+                                class="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-blue-500 text-white rounded-full flex items-center justify-center hover:bg-blue-600 transition cursor-pointer border-2 border-white shadow-lg avatar-upload-btn">
                             <i class="fa-solid fa-plus text-xs"></i>
                         </button>
                         
