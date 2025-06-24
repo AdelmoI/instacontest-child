@@ -291,10 +291,10 @@ get_header(); ?>
                                 <h4 class="text-black font-bold mb-1 truncate"><?php echo esc_html($prize_name); ?></h4>
                                 <p class="text-gray-500 text-sm mb-3">Terminato il <?php echo get_the_date('d M Y'); ?></p>
                                 
-                                <?php if ($status === 'completed'): ?>
+                               <?php if ($status === 'completed'): ?>
                                     <a href="<?php echo get_permalink($contest_id); ?>" 
-                                       class="w-full instagram-gradient hover:scale-105 text-white font-bold py-3 px-4 rounded-xl text-sm flex items-center justify-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl">
-                                        <i class="fa-solid fa-gift text-base"></i>
+                                       class="btn-discover-winner">
+                                        <i class="fa-solid fa-search"></i>
                                         SCOPRI SE HAI VINTO
                                     </a>
                                 <?php else: ?>
