@@ -443,3 +443,211 @@ function instacontest_get_active_contests_new() {
 }
 
 
+// ========================================
+// AGGIUNGI QUESTE FUNZIONI AL TUO FUNCTIONS.PHP
+// ========================================
+
+// ========================================
+// 11. GESTIONE UTENTI E REGISTRAZIONE
+// ========================================
+
+// Redirect dopo login/registrazione
+function instacontest_login_redirect($redirect_to, $request, $user) {
+    // Se è un admin, vai alla dashboard
+    if (isset($user->roles) && is_array($user->roles)) {
+        if (in_array('administrator', $user->roles)) {
+            return admin_url();
+        }
+    }
+    
+    // Utenti normali vanno al profilo
+    return home_url('/profilo');
+}
+add_filter('login_redirect', 'instacontest_login_redirect', 10, 3);
+
+// Redirect dopo logout
+function instacontest_logout_redirect() {
+    wp_redirect(home_url());
+    exit();
+}
+add_action('wp_logout', 'instacontest_logout_redirect');
+
+// ========================================
+// 12. CREAZIONE PAGINE AUTOMATICA
+// ========================================
+
+// Crea le pagine necessarie se non esistono
+function instacontest_create_user_pages() {
+    
+    // Pagina Login
+    if (!get_page_by_path('login')) {
+        wp_insert_post(array(
+            'post_title'     => 'Login',
+            'post_name'      => 'login',
+            'post_content'   => '[instacontest_login_form]',
+            'post_status'    => 'publish',
+            'post_type'      => 'page',
+            'meta_input'     => array(
+                '_wp_page_template' => 'page-login.php'
+            )
+        ));
+    }
+    
+    // Pagina Registrazione
+    if (!get_page_by_path('register')) {
+        wp_insert_post(array(
+            'post_title'     => 'Registrazione',
+            'post_name'      => 'register',
+            'post_content'   => '[instacontest_register_form]',
+            'post_status'    => 'publish',
+            'post_type'      => 'page',
+            'meta_input'     => array(
+                '_wp_page_template' => 'page-register.php'
+            )
+        ));
+    }
+}
+
+// Esegui al cambio di tema
+add_action('after_switch_theme', 'instacontest_create_user_pages');
+
+// ========================================
+// 13. UTILITY FUNCTIONS PER UTENTI
+// ========================================
+
+// Ottieni username Instagram di un utente
+function instacontest_get_user_instagram($user_id) {
+    $instagram = get_user_meta($user_id, 'instagram_username', true);
+    return !empty($instagram) ? $instagram : '';
+}
+
+// Verifica se utente ha username Instagram
+function instacontest_user_has_instagram($user_id) {
+    $instagram = instacontest_get_user_instagram($user_id);
+    return !empty($instagram);
+}
+
+// Ottieni avatar personalizzato o default
+function instacontest_get_user_avatar($user_id, $size = 96) {
+    $avatar = get_avatar($user_id, $size, '', '', array('class' => 'rounded-full'));
+    return $avatar;
+}
+
+// ========================================
+// 14. SICUREZZA E VALIDAZIONI
+// ========================================
+
+// Validazione username Instagram
+function instacontest_validate_instagram_username($username) {
+    // Rimuovi @ se presente
+    $username = ltrim($username, '@');
+    
+    // Controlli base
+    if (empty($username)) {
+        return false;
+    }
+    
+    if (strlen($username) < 1 || strlen($username) > 30) {
+        return false;
+    }
+    
+    // Solo caratteri alfanumerici, underscore e punto
+    if (!preg_match('/^[a-zA-Z0-9_.]+$/', $username)) {
+        return false;
+    }
+    
+    return true;
+}
+
+// Controlla se username Instagram è già in uso
+function instacontest_instagram_username_exists($username, $exclude_user_id = 0) {
+    global $wpdb;
+    
+    $username = ltrim($username, '@');
+    
+    $query = $wpdb->prepare(
+        "SELECT user_id FROM {$wpdb->usermeta} 
+         WHERE meta_key = 'instagram_username' 
+         AND meta_value = %s",
+        $username
+    );
+    
+    if ($exclude_user_id > 0) {
+        $query .= $wpdb->prepare(" AND user_id != %d", $exclude_user_id);
+    }
+    
+    $result = $wpdb->get_var($query);
+    return !empty($result);
+}
+
+// ========================================
+// 15. SHORTCODES PER FORM (opzionali)
+// ========================================
+
+// Shortcode per form login
+function instacontest_login_form_shortcode() {
+    ob_start();
+    get_template_part('user-templates/login-form');
+    return ob_get_clean();
+}
+add_shortcode('instacontest_login_form', 'instacontest_login_form_shortcode');
+
+// Shortcode per form registrazione
+function instacontest_register_form_shortcode() {
+    ob_start();
+    get_template_part('user-templates/register-form');
+    return ob_get_clean();
+}
+add_shortcode('instacontest_register_form', 'instacontest_register_form_shortcode');
+
+// ========================================
+// 16. PERSONALIZZAZIONI PROFILO ADMIN
+// ========================================
+
+// Aggiungi campo Instagram nel profilo admin
+function instacontest_add_instagram_field($user) {
+    $instagram = get_user_meta($user->ID, 'instagram_username', true);
+    ?>
+    <h3>Informazioni InstaContest</h3>
+    <table class="form-table">
+        <tr>
+            <th><label for="instagram_username">Username Instagram</label></th>
+            <td>
+                <input type="text" name="instagram_username" id="instagram_username" 
+                       value="<?php echo esc_attr($instagram); ?>" class="regular-text" />
+                <p class="description">Il tuo username Instagram (senza @)</p>
+            </td>
+        </tr>
+        <tr>
+            <th><label for="total_points">Punti Totali</label></th>
+            <td>
+                <input type="number" name="total_points" id="total_points" 
+                       value="<?php echo instacontest_get_user_points($user->ID); ?>" class="regular-text" />
+                <p class="description">Punti accumulati dall'utente</p>
+            </td>
+        </tr>
+    </table>
+    <?php
+}
+add_action('show_user_profile', 'instacontest_add_instagram_field');
+add_action('edit_user_profile', 'instacontest_add_instagram_field');
+
+// Salva campo Instagram nel profilo admin
+function instacontest_save_instagram_field($user_id) {
+    if (!current_user_can('edit_user', $user_id)) {
+        return false;
+    }
+    
+    if (isset($_POST['instagram_username'])) {
+        $instagram = sanitize_text_field($_POST['instagram_username']);
+        $instagram = ltrim($instagram, '@');
+        update_user_meta($user_id, 'instagram_username', $instagram);
+    }
+    
+    if (isset($_POST['total_points']) && current_user_can('manage_options')) {
+        $points = intval($_POST['total_points']);
+        update_user_meta($user_id, 'total_points', $points);
+    }
+}
+add_action('personal_options_update', 'instacontest_save_instagram_field');
+add_action('edit_user_profile_update', 'instacontest_save_instagram_field');
