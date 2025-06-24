@@ -148,7 +148,7 @@ while (have_posts()) : the_post();
                                 </h3>
                                 
                                 <!-- Lista azioni numerata -->
-                                <div class="mt-6 space-y-1">
+                                <div class="mt-6 space-y-0">
                                     <?php
                                     // Raccoglie tutte le azioni compilate
                                     $actions = array();
