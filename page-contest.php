@@ -1,7 +1,7 @@
 <?php
 /**
  * Archive Contest Template - Homepage
- * Mostra contest attivi e passati con immagini in evidenza
+ * Mostra contest attivi e passati - SOLO MODIFICHE RICHIESTE
  */
 
 get_header(); ?>
@@ -62,21 +62,20 @@ get_header(); ?>
                             
                             <div class="contest-card active">
                                 <div class="contest-image">
-                                    <!-- Immagine in evidenza principale -->
+                                    <!-- MODIFICA 1: Immagine in evidenza invece del premio -->
                                     <?php if (has_post_thumbnail($contest_id)): ?>
                                         <?php echo get_the_post_thumbnail($contest_id, 'medium', array('alt' => get_the_title($contest_id))); ?>
                                     <?php else: ?>
-                                        <div class="placeholder-image">🎯</div>
+                                        <div class="placeholder-image">🎁</div>
                                     <?php endif; ?>
                                     
                                     <div class="contest-status active-badge">ATTIVO</div>
                                     
-                                    <!-- Piccola immagine premio in overlay -->
+                                    <!-- MODIFICA 2: Piccola immagine premio in overlay -->
                                     <?php if ($prize_image): ?>
-                                        <div class="prize-mini-image">
+                                        <div class="prize-mini-overlay">
                                             <img src="<?php echo esc_url($prize_image['sizes']['thumbnail']); ?>" 
-                                                 alt="<?php echo esc_attr($prize_name); ?>"
-                                                 class="w-12 h-12 object-cover rounded-lg border-2 border-white shadow-sm">
+                                                 alt="<?php echo esc_attr($prize_name); ?>">
                                         </div>
                                     <?php endif; ?>
                                 </div>
@@ -116,8 +115,8 @@ get_header(); ?>
         <section class="contests-section past-contests">
             <div class="container">
                 <h2 class="section-title">
-                    <span class="title-icon">🏆</span>
-                    Contest terminati
+                    <span class="title-icon">📋</span>
+                    In arrivo
                 </h2>
                 
                 <div class="contests-list">
@@ -137,19 +136,18 @@ get_header(); ?>
                             
                             <div class="contest-item past">
                                 <div class="contest-thumb">
-                                    <!-- Immagine in evidenza per contest passati -->
+                                    <!-- MODIFICA 1: Immagine in evidenza per contest passati -->
                                     <?php if (has_post_thumbnail($contest_id)): ?>
                                         <?php echo get_the_post_thumbnail($contest_id, 'thumbnail', array('alt' => get_the_title($contest_id))); ?>
                                     <?php else: ?>
-                                        <div class="placeholder-thumb">🏆</div>
+                                        <div class="placeholder-thumb">🎁</div>
                                     <?php endif; ?>
                                     
-                                    <!-- Piccola immagine premio in overlay -->
+                                    <!-- MODIFICA 2: Piccola immagine premio in overlay per contest passati -->
                                     <?php if ($prize_image): ?>
                                         <div class="prize-mini-thumb">
                                             <img src="<?php echo esc_url($prize_image['sizes']['thumbnail']); ?>" 
-                                                 alt="<?php echo esc_attr($prize_name); ?>"
-                                                 class="w-6 h-6 object-cover rounded border border-white">
+                                                 alt="<?php echo esc_attr($prize_name); ?>">
                                         </div>
                                     <?php endif; ?>
                                 </div>
@@ -163,6 +161,7 @@ get_header(); ?>
                                 
                                 <div class="contest-action">
                                     <?php if ($status === 'completed'): ?>
+                                        <!-- MODIFICA 3: CTA "Scopri se hai vinto" -->
                                         <a href="<?php echo get_permalink($contest_id); ?>" class="btn-result">
                                             Scopri se hai vinto
                                         </a>
@@ -216,21 +215,32 @@ get_header(); ?>
 <!-- Bottom Navigation -->
 <?php get_template_part('template-parts/bottom-navigation'); ?>
 
-<!-- CSS Aggiuntivo per le nuove features -->
+<!-- CSS per le SOLE modifiche aggiunte -->
 <style>
-/* Immagine premio mini in overlay sulla card contest attivi */
+/* MODIFICA 2: Piccola immagine premio in overlay per contest attivi */
 .contest-card .contest-image {
     position: relative;
 }
 
-.prize-mini-image {
+.prize-mini-overlay {
     position: absolute;
     bottom: 8px;
     right: 8px;
-    z-index: 10;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Immagine premio mini per contest passati */
+.prize-mini-overlay img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* MODIFICA 2: Piccola immagine premio in overlay per contest passati */
 .contest-thumb {
     position: relative;
 }
@@ -239,10 +249,21 @@ get_header(); ?>
     position: absolute;
     top: 4px;
     right: 4px;
-    z-index: 10;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid white;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-/* Migliore CTA per contest terminati */
+.prize-mini-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* MODIFICA 3: Stile per il nuovo CTA "Scopri se hai vinto" */
 .btn-result {
     background: linear-gradient(135deg, #10b981, #059669);
     color: white;
@@ -252,33 +273,13 @@ get_header(); ?>
     font-weight: 600;
     text-decoration: none;
     transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
+    display: inline-block;
 }
 
 .btn-result:hover {
     background: linear-gradient(135deg, #059669, #047857);
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
-}
-
-.btn-result::before {
-    content: "🎁";
-    font-size: 10px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .prize-mini-image img {
-        width: 10px;
-        height: 10px;
-    }
-    
-    .prize-mini-thumb img {
-        width: 5px;
-        height: 5px;
-    }
 }
 </style>
 
