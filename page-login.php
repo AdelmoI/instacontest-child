@@ -8,28 +8,15 @@ get_header(); ?>
 
 <body class="bg-gray-50">
 
-    <!-- Header identico alla homepage -->
-    <header id="header" class="fixed top-0 w-full bg-white border-b border-gray-200 z-50">
-        <div class="flex items-center justify-between px-4 py-3 max-w-7xl mx-auto">
-            <a href="<?php echo home_url(); ?>" class="flex items-center space-x-2">
-                <img src="https://www.instacontest.it/wp-content/uploads/2025/06/Progetto-senza-titolo-52.png" 
-                     alt="InstaContest" 
-                     class="h-8 w-auto">
-            </a>
-            <div class="hidden md:flex items-center space-x-6">
-                <a href="<?php echo home_url(); ?>" class="text-gray-600 hover:text-black text-sm font-medium">Home</a>
-                <a href="/register" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-purple-600 hover:to-pink-600 transition">
-                    Registrati
-                </a>
-            </div>
-            <a href="/register" class="text-black text-sm font-medium md:hidden">
-                Registrati
-            </a>
-        </div>
-    </header>
+    <!-- Piccolo logo in alto -->
+    <div class="pt-6 pb-2 text-center">
+        <img src="https://www.instacontest.it/wp-content/uploads/2025/06/Progetto-senza-titolo-52.png" 
+             alt="InstaContest" 
+             class="h-12 w-auto mx-auto">
+    </div>
 
     <!-- Contenuto Login -->
-    <section class="mt-16 px-4 py-6 bg-gray-50 min-h-screen">
+    <section class="px-4 py-6 bg-gray-50 min-h-screen">
         <div class="max-w-md mx-auto md:max-w-lg lg:max-w-xl">
             
             <!-- Header Sezione -->
