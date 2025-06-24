@@ -261,10 +261,7 @@ get_header(); ?>
                     $prize_name = get_field('prize_name', $contest_id);
                     $prize_image = get_field('prize_image', $contest_id);
                     $status = instacontest_get_contest_status($contest_id);
-                    <?php
-                    // CODICE DEBUG - Aggiungi temporaneamente nell'archive-contest.php 
-                    // subito dopo questa riga: $status = instacontest_get_contest_status($contest_id);
-                    
+                
                     // DEBUG: Mostra informazioni contest (SOLO per admin)
                     if (current_user_can('administrator')):
                         $end_date = get_field('contest_end_date', $contest_id);
@@ -282,9 +279,8 @@ get_header(); ?>
                             Status: <?php echo $status; ?><br>
                         </div>
                     <?php endif; ?>
-                    ?>
-                    
-                    <div class="bg-white border border-gray-200 rounded-2xl p-4">
+                
+                <div class="bg-white border border-gray-200 rounded-2xl p-4">
                         <div class="flex items-start gap-4">
                             <!-- Immagine in evidenza come immagine principale -->
                             <?php if (has_post_thumbnail($contest_id)): ?>
