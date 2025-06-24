@@ -356,25 +356,7 @@ while (have_posts()) : the_post();
                         </div>
                         <?php endif; ?>
 
-                        <!-- Partecipanti -->
-                        <div class="bg-white rounded-2xl border border-gray-200 p-6">
-                            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center space-x-2">
-                                <span class="text-xl">👥</span>
-                                <span>Partecipanti</span>
-                            </h3>
-                            <div class="flex items-center justify-between">
-                                <div class="flex -space-x-2">
-                                    <?php for($i = 0; $i < 4; $i++): ?>
-                                        <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full border-2 border-white flex items-center justify-center text-white text-sm font-bold">
-                                            <?php echo chr(65 + $i); ?>
-                                        </div>
-                                    <?php endfor; ?>
-                                </div>
-                                <span class="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                                    +<?php echo rand(500, 2500); ?>
-                                </span>
-                            </div>
-                        </div>
+
 
                     </div>
                 </div>
