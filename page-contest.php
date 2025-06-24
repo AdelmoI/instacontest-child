@@ -117,17 +117,33 @@ get_header(); ?>
                             <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium">APERTO</span>
                         </div>
                         
-                        <?php if ($prize_image): ?>
-                            <img class="w-full h-40 object-cover rounded-xl mb-4" 
-                                 src="<?php echo esc_url($prize_image['sizes']['medium']); ?>" 
-                                 alt="<?php echo esc_attr($prize_name); ?>">
+                        <!-- Immagine in evidenza come immagine principale -->
+                        <?php if (has_post_thumbnail($contest_id)): ?>
+                            <div class="w-full h-40 rounded-xl mb-4 overflow-hidden">
+                                <?php echo get_the_post_thumbnail($contest_id, 'medium', array('class' => 'w-full h-full object-cover')); ?>
+                            </div>
                         <?php else: ?>
                             <div class="w-full h-40 bg-gray-200 rounded-xl mb-4 flex items-center justify-center">
                                 <i class="fa-solid fa-gift text-gray-400 text-4xl"></i>
                             </div>
                         <?php endif; ?>
                         
-                        <h4 class="text-black font-bold mb-3"><?php echo esc_html($prize_name); ?></h4>
+                        <!-- Titolo e immagine premio piccola -->
+                        <div class="flex items-center gap-3 mb-3">
+                            <?php if ($prize_image): ?>
+                                <img class="w-12 h-12 object-cover rounded-lg border-2 border-gray-200" 
+                                     src="<?php echo esc_url($prize_image['sizes']['thumbnail']); ?>" 
+                                     alt="<?php echo esc_attr($prize_name); ?>">
+                            <?php else: ?>
+                                <div class="w-12 h-12 bg-gray-100 rounded-lg border-2 border-gray-200 flex items-center justify-center">
+                                    <i class="fa-solid fa-gift text-gray-400 text-sm"></i>
+                                </div>
+                            <?php endif; ?>
+                            <div class="flex-1">
+                                <h4 class="text-black font-bold text-sm leading-tight"><?php echo esc_html($prize_name); ?></h4>
+                                <p class="text-gray-500 text-xs">€<?php echo number_format($prize_value, 0, ',', '.'); ?></p>
+                            </div>
+                        </div>
                         
                         <div class="bg-gray-100 rounded-lg px-3 py-2 mb-4">
                             <span class="text-red-500 text-sm font-medium">
@@ -182,10 +198,11 @@ get_header(); ?>
                     
                     <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden">
                         <div class="relative">
-                            <?php if ($prize_image): ?>
-                                <img class="w-full h-48 object-cover" 
-                                     src="<?php echo esc_url($prize_image['sizes']['medium']); ?>" 
-                                     alt="<?php echo esc_attr($prize_name); ?>">
+                            <!-- Immagine in evidenza come immagine principale -->
+                            <?php if (has_post_thumbnail($contest_id)): ?>
+                                <div class="w-full h-48 overflow-hidden">
+                                    <?php echo get_the_post_thumbnail($contest_id, 'medium', array('class' => 'w-full h-full object-cover')); ?>
+                                </div>
                             <?php else: ?>
                                 <div class="w-full h-48 bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
                                     <i class="fa-solid fa-clock text-white text-4xl"></i>
@@ -193,6 +210,16 @@ get_header(); ?>
                             <?php endif; ?>
                             
                             <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                            
+                            <!-- Immagine premio piccola nell'overlay -->
+                            <?php if ($prize_image): ?>
+                                <div class="absolute top-4 right-4">
+                                    <img class="w-16 h-16 object-cover rounded-lg border-2 border-white shadow-lg" 
+                                         src="<?php echo esc_url($prize_image['sizes']['thumbnail']); ?>" 
+                                         alt="<?php echo esc_attr($prize_name); ?>">
+                                </div>
+                            <?php endif; ?>
+                            
                             <div class="absolute bottom-4 left-4">
                                 <div class="flex gap-2 mb-2">
                                     <span class="bg-gray-800 text-white px-2 py-1 rounded text-sm monospace"><?php echo str_pad($days, 3, '0', STR_PAD_LEFT); ?></span>
@@ -238,26 +265,36 @@ get_header(); ?>
                     
                     <div class="bg-white border border-gray-200 rounded-2xl p-4">
                         <div class="flex items-start gap-4">
-                            <?php if ($prize_image): ?>
-                                <img class="w-20 h-20 object-cover rounded-xl" 
-                                     src="<?php echo esc_url($prize_image['sizes']['thumbnail']); ?>" 
-                                     alt="<?php echo esc_attr($prize_name); ?>">
+                            <!-- Immagine in evidenza come immagine principale -->
+                            <?php if (has_post_thumbnail($contest_id)): ?>
+                                <div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
+                                    <?php echo get_the_post_thumbnail($contest_id, 'thumbnail', array('class' => 'w-full h-full object-cover')); ?>
+                                </div>
                             <?php else: ?>
-                                <div class="w-20 h-20 bg-gray-200 rounded-xl flex items-center justify-center">
+                                <div class="w-20 h-20 bg-gray-200 rounded-xl flex items-center justify-center flex-shrink-0">
                                     <i class="fa-solid fa-gift text-gray-400 text-2xl"></i>
                                 </div>
                             <?php endif; ?>
                             
-                            <div class="flex-1">
+                            <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2 mb-2">
                                     <span class="bg-red-100 text-red-600 px-2 py-1 rounded-full text-xs font-medium">TERMINATO</span>
+                                    
+                                    <!-- Immagine premio piccola accanto al badge -->
+                                    <?php if ($prize_image): ?>
+                                        <img class="w-8 h-8 object-cover rounded border border-gray-200" 
+                                             src="<?php echo esc_url($prize_image['sizes']['thumbnail']); ?>" 
+                                             alt="<?php echo esc_attr($prize_name); ?>">
+                                    <?php endif; ?>
                                 </div>
-                                <h4 class="text-black font-bold mb-1"><?php echo esc_html($prize_name); ?></h4>
+                                
+                                <h4 class="text-black font-bold mb-1 truncate"><?php echo esc_html($prize_name); ?></h4>
                                 <p class="text-gray-500 text-sm mb-3">Terminato il <?php echo get_the_date('d M Y'); ?></p>
                                 
                                 <?php if ($status === 'completed'): ?>
                                     <a href="<?php echo get_permalink($contest_id); ?>" 
-                                       class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg text-sm inline-block">
+                                       class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-sm inline-flex items-center gap-2 transition-colors">
+                                        <i class="fa-solid fa-search text-xs"></i>
                                         SCOPRI SE HAI VINTO
                                     </a>
                                 <?php else: ?>
