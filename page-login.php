@@ -10,31 +10,35 @@ get_header(); ?>
 
     <!-- Header identico alla homepage -->
     <header id="header" class="fixed top-0 w-full bg-white border-b border-gray-200 z-50">
-        <div class="flex items-center justify-between px-4 py-3 max-w-6xl mx-auto lg:px-8">
+        <div class="flex items-center justify-between px-4 py-3 max-w-7xl mx-auto">
             <a href="<?php echo home_url(); ?>" class="flex items-center space-x-2">
                 <img src="https://www.instacontest.it/wp-content/uploads/2025/06/Progetto-senza-titolo-52.png" 
                      alt="InstaContest" 
-                     class="w-8 h-8 lg:w-10 lg:h-10">
-                <span class="hidden sm:block text-black font-bold text-lg lg:text-xl">InstaContest</span>
+                     class="h-8 w-auto">
             </a>
-            <div></div>
-            <a href="/register" class="text-black text-sm font-medium lg:text-base hover:text-blue-500 transition">
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="<?php echo home_url(); ?>" class="text-gray-600 hover:text-black text-sm font-medium">Home</a>
+                <a href="/register" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-purple-600 hover:to-pink-600 transition">
+                    Registrati
+                </a>
+            </div>
+            <a href="/register" class="text-black text-sm font-medium md:hidden">
                 Registrati
             </a>
         </div>
     </header>
 
     <!-- Contenuto Login -->
-    <section class="mt-16 px-4 py-6 bg-gray-50 min-h-screen lg:py-12">
-        <div class="max-w-md mx-auto lg:max-w-lg">
+    <section class="mt-16 px-4 py-6 bg-gray-50 min-h-screen">
+        <div class="max-w-md mx-auto md:max-w-lg lg:max-w-xl">
             
             <!-- Header Sezione -->
-            <div class="text-center mb-6 lg:mb-8">
-                <div class="w-16 h-16 lg:w-20 lg:h-20 instagram-gradient rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <i class="fa-solid fa-sign-in-alt text-white text-xl lg:text-2xl"></i>
+            <div class="text-center mb-6 md:mb-8">
+                <div class="w-16 h-16 md:w-20 md:h-20 instagram-gradient rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-sign-in-alt text-white text-xl md:text-2xl"></i>
                 </div>
-                <h1 class="text-black font-bold text-2xl lg:text-3xl mb-2">Benvenuto su InstaContest</h1>
-                <p class="text-gray-500 text-lg lg:text-xl">Accedi al tuo account</p>
+                <h1 class="text-black font-bold text-2xl md:text-3xl mb-2">Benvenuto su InstaContest</h1>
+                <p class="text-gray-500 text-lg md:text-xl">Accedi al tuo account</p>
             </div>
 
             <?php
@@ -170,18 +174,18 @@ get_header(); ?>
                 </div>
 
                 <!-- Google OAuth Section -->
-                <div class="mt-6 lg:mt-8">
+                <div class="mt-6">
                     <div class="relative">
                         <div class="absolute inset-0 flex items-center">
                             <div class="w-full border-t border-gray-300"></div>
                         </div>
-                        <div class="relative flex justify-center text-sm lg:text-base">
+                        <div class="relative flex justify-center text-sm">
                             <span class="px-2 bg-gray-50 text-gray-500">oppure</span>
                         </div>
                     </div>
                     
                     <div class="mt-6">
-                        <button class="w-full bg-white border border-gray-200 text-gray-600 font-medium py-3 lg:py-4 px-6 rounded-xl hover:bg-gray-50 transition duration-200 shadow-sm opacity-50 cursor-not-allowed text-sm lg:text-base" disabled>
+                        <button class="w-full bg-white border border-gray-200 text-gray-600 font-medium py-3 px-6 rounded-xl hover:bg-gray-50 transition duration-200 shadow-sm opacity-50 cursor-not-allowed" disabled>
                             <i class="fab fa-google mr-2 text-red-500"></i>
                             Accedi con Google (Coming Soon)
                         </button>
@@ -189,10 +193,10 @@ get_header(); ?>
                 </div>
 
                 <!-- Link alla registrazione -->
-                <div class="text-center mt-6 lg:mt-8">
-                    <p class="text-gray-600 text-sm lg:text-base">
+                <div class="text-center mt-6">
+                    <p class="text-gray-600">
                         Non hai ancora un account? 
-                        <a href="/register" class="text-blue-500 hover:text-blue-600 font-medium transition">Registrati qui</a>
+                        <a href="/register" class="text-blue-500 hover:text-blue-600 font-medium">Registrati qui</a>
                     </p>
                 </div>
             <?php endif; ?>
