@@ -13,7 +13,6 @@ while (have_posts()) : the_post();
     $prize_value = get_field('prize_value', $contest_id);
     $prize_image = get_field('prize_image', $contest_id);
     $end_date = get_field('contest_end_date', $contest_id);
-    $instructions = get_field('participation_instructions', $contest_id);
     $instagram_url = get_field('instagram_post_url', $contest_id);
     $participation_points = get_field('participation_points', $contest_id) ?: 5;
     $winner_points = get_field('winner_points', $contest_id) ?: 50;
@@ -147,8 +146,37 @@ while (have_posts()) : the_post();
                                     <span class="text-2xl">📋</span>
                                     <span>Come partecipare</span>
                                 </h3>
-                                <div class="prose prose-gray max-w-none text-gray-700 leading-relaxed">
-                                    <?php echo wpautop($instructions); ?>
+                                
+                                <!-- Lista azioni numerata -->
+                                <div class="space-y-4">
+                                    <?php
+                                    // Raccoglie tutte le azioni compilate
+                                    $actions = array();
+                                    for ($i = 1; $i <= 5; $i++) {
+                                        $action = get_field('action_' . $i, $contest_id);
+                                        if (!empty($action)) {
+                                            $actions[] = $action;
+                                        }
+                                    }
+                                    
+                                    // Mostra le azioni se esistono
+                                    if (!empty($actions)): 
+                                        foreach ($actions as $index => $action): 
+                                            $number = $index + 1;
+                                    ?>
+                                        <div class="flex items-start space-x-4">
+                                            <div class="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                                                <span class="text-white font-bold text-sm"><?php echo $number; ?></span>
+                                            </div>
+                                            <div class="flex-1">
+                                                <p class="text-gray-700 font-medium leading-relaxed"><?php echo esc_html($action); ?></p>
+                                            </div>
+                                        </div>
+                                    <?php 
+                                        endforeach;
+                                    else: ?>
+                                        <p class="text-gray-500 italic">Istruzioni di partecipazione non ancora disponibili.</p>
+                                    <?php endif; ?>
                                 </div>
                                 
                                 <!-- Punti info per utenti loggati -->
