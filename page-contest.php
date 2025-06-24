@@ -1,7 +1,7 @@
 <?php
 /**
- * Archive Contest Template - Homepage con Featured Image
- * Mostra contest attivi e passati
+ * Archive Contest Template - Homepage
+ * Mostra contest attivi e passati con immagini in evidenza
  */
 
 get_header(); ?>
@@ -62,44 +62,31 @@ get_header(); ?>
                             
                             <div class="contest-card active">
                                 <div class="contest-image">
-                                    <!-- Featured Image principale -->
+                                    <!-- Immagine in evidenza principale -->
                                     <?php if (has_post_thumbnail($contest_id)): ?>
-                                        <?php echo get_the_post_thumbnail($contest_id, 'medium', array(
-                                            'class' => 'w-full h-full object-cover'
-                                        )); ?>
-                                    <?php elseif ($prize_image): ?>
-                                        <!-- Fallback alla prize image se non c'è featured -->
-                                        <img src="<?php echo esc_url($prize_image['sizes']['medium']); ?>" 
-                                             alt="<?php echo esc_attr($prize_name); ?>"
-                                             class="w-full h-full object-cover">
+                                        <?php echo get_the_post_thumbnail($contest_id, 'medium', array('alt' => get_the_title($contest_id))); ?>
                                     <?php else: ?>
-                                        <div class="placeholder-image">🎁</div>
+                                        <div class="placeholder-image">🎯</div>
                                     <?php endif; ?>
                                     
-                                    <!-- Badge status -->
                                     <div class="contest-status active-badge">ATTIVO</div>
                                     
-                                    <!-- Piccola immagine premio nell'angolo -->
-                                    <?php if ($prize_image && has_post_thumbnail($contest_id)): ?>
-                                        <div class="prize-thumbnail">
+                                    <!-- Piccola immagine premio in overlay -->
+                                    <?php if ($prize_image): ?>
+                                        <div class="prize-mini-image">
                                             <img src="<?php echo esc_url($prize_image['sizes']['thumbnail']); ?>" 
-                                                 alt="Premio: <?php echo esc_attr($prize_name); ?>"
-                                                 class="w-12 h-12 object-cover rounded-lg border-2 border-white shadow-lg">
+                                                 alt="<?php echo esc_attr($prize_name); ?>"
+                                                 class="w-12 h-12 object-cover rounded-lg border-2 border-white shadow-sm">
                                         </div>
                                     <?php endif; ?>
                                 </div>
                                 
                                 <div class="contest-info">
-                                    <h3 class="contest-title"><?php echo esc_html(get_the_title($contest_id)); ?></h3>
-                                    
-                                    <!-- Info premio -->
-                                    <div class="prize-info">
-                                        <div class="prize-name"><?php echo esc_html($prize_name); ?></div>
-                                        <div class="prize-meta">
-                                            <span class="prize-value">€<?php echo number_format($prize_value, 0, ',', '.'); ?></span>
-                                            <span class="contest-points">+<?php echo $participation_points; ?> punti</span>
-                                        </div>
-                                    </div>
+                                    <h3 class="contest-title"><?php echo esc_html($prize_name); ?></h3>
+                                    <p class="contest-meta">
+                                        <span class="prize-value">Valore: €<?php echo number_format($prize_value, 0, ',', '.'); ?></span>
+                                        <span class="contest-points">+<?php echo $participation_points; ?> punti</span>
+                                    </p>
                                     
                                     <div class="contest-countdown-mini" 
                                          data-end-date="<?php echo date('Y-m-d H:i:s', strtotime($end_date)); ?>">
@@ -108,8 +95,7 @@ get_header(); ?>
                                     </div>
                                     
                                     <a href="<?php echo get_permalink($contest_id); ?>" class="btn-contest-action">
-                                        <span class="btn-icon">🎯</span>
-                                        <span>Partecipa Ora</span>
+                                        Partecipa
                                     </a>
                                 </div>
                             </div>
@@ -140,11 +126,10 @@ get_header(); ?>
                     if ($ended_contests): 
                         $count = 0;
                         foreach ($ended_contests as $contest):
-                            if ($count >= 8) break; // Mostra max 8 contest passati
+                            if ($count >= 5) break; // Mostra max 5 contest passati
                             setup_postdata($contest);
                             $contest_id = $contest->ID;
                             $prize_name = get_field('prize_name', $contest_id);
-                            $prize_value = get_field('prize_value', $contest_id);
                             $prize_image = get_field('prize_image', $contest_id);
                             $has_winner = instacontest_has_winner($contest_id);
                             $status = instacontest_get_contest_status($contest_id);
@@ -152,50 +137,37 @@ get_header(); ?>
                             
                             <div class="contest-item past">
                                 <div class="contest-thumb">
-                                    <!-- Featured Image come thumbnail -->
+                                    <!-- Immagine in evidenza per contest passati -->
                                     <?php if (has_post_thumbnail($contest_id)): ?>
-                                        <?php echo get_the_post_thumbnail($contest_id, 'thumbnail', array(
-                                            'class' => 'w-full h-full object-cover'
-                                        )); ?>
-                                    <?php elseif ($prize_image): ?>
-                                        <img src="<?php echo esc_url($prize_image['sizes']['thumbnail']); ?>" 
-                                             alt="<?php echo esc_attr($prize_name); ?>"
-                                             class="w-full h-full object-cover">
+                                        <?php echo get_the_post_thumbnail($contest_id, 'thumbnail', array('alt' => get_the_title($contest_id))); ?>
                                     <?php else: ?>
-                                        <div class="placeholder-thumb">🎁</div>
+                                        <div class="placeholder-thumb">🏆</div>
                                     <?php endif; ?>
                                     
-                                    <!-- Piccola icona premio -->
-                                    <?php if ($prize_image && has_post_thumbnail($contest_id)): ?>
-                                        <div class="mini-prize-icon">
+                                    <!-- Piccola immagine premio in overlay -->
+                                    <?php if ($prize_image): ?>
+                                        <div class="prize-mini-thumb">
                                             <img src="<?php echo esc_url($prize_image['sizes']['thumbnail']); ?>" 
-                                                 alt="Premio" class="w-6 h-6 object-cover rounded">
+                                                 alt="<?php echo esc_attr($prize_name); ?>"
+                                                 class="w-6 h-6 object-cover rounded border border-white">
                                         </div>
                                     <?php endif; ?>
                                 </div>
                                 
                                 <div class="contest-details">
-                                    <h4 class="contest-name"><?php echo esc_html(get_the_title($contest_id)); ?></h4>
-                                    <div class="contest-prize-info">
-                                        <span class="small-prize-name"><?php echo esc_html($prize_name); ?></span>
-                                        <span class="small-prize-value">€<?php echo number_format($prize_value, 0, ',', '.'); ?></span>
-                                    </div>
+                                    <h4 class="contest-name"><?php echo esc_html($prize_name); ?></h4>
                                     <p class="contest-date">
-                                        <?php echo get_the_date('d/m/Y', $contest_id); ?>
+                                        <?php echo get_the_date('d/m/Y'); ?>
                                     </p>
                                 </div>
                                 
                                 <div class="contest-action">
                                     <?php if ($status === 'completed'): ?>
-                                        <a href="<?php echo get_permalink($contest_id); ?>" class="btn-check-winner">
-                                            <span class="btn-icon">🔍</span>
-                                            <span class="btn-text">Scopri se hai vinto</span>
+                                        <a href="<?php echo get_permalink($contest_id); ?>" class="btn-result">
+                                            Scopri se hai vinto
                                         </a>
                                     <?php elseif ($status === 'selecting'): ?>
-                                        <span class="status-selecting">
-                                            <span class="loading-dot"></span>
-                                            <span>In corso...</span>
-                                        </span>
+                                        <span class="status-selecting">In corso...</span>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -210,16 +182,6 @@ get_header(); ?>
                         </div>
                     <?php endif; ?>
                 </div>
-                
-                <!-- Link per vedere tutti i contest passati -->
-                <?php if ($ended_contests && count($ended_contests) > 8): ?>
-                    <div class="view-all-past">
-                        <a href="#" class="btn-view-all" onclick="showAllPastContests()">
-                            <span>Vedi tutti i contest terminati</span>
-                            <span class="arrow">→</span>
-                        </a>
-                    </div>
-                <?php endif; ?>
             </div>
         </section>
 
@@ -251,233 +213,73 @@ get_header(); ?>
     </main>
 </div>
 
-<!-- CSS Aggiuntivo per le nuove funzionalità -->
+<!-- Bottom Navigation -->
+<?php get_template_part('template-parts/bottom-navigation'); ?>
+
+<!-- CSS Aggiuntivo per le nuove features -->
 <style>
-/* Prize thumbnail nell'angolo della card */
-.contest-image {
+/* Immagine premio mini in overlay sulla card contest attivi */
+.contest-card .contest-image {
     position: relative;
 }
 
-.prize-thumbnail {
+.prize-mini-image {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    bottom: 8px;
+    right: 8px;
     z-index: 10;
 }
 
-/* Mini icona premio per contest passati */
+/* Immagine premio mini per contest passati */
 .contest-thumb {
     position: relative;
 }
 
-.mini-prize-icon {
+.prize-mini-thumb {
     position: absolute;
-    bottom: 4px;
+    top: 4px;
     right: 4px;
-    background: white;
-    border-radius: 4px;
-    padding: 2px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 10;
 }
 
-/* Miglioramenti info premio */
-.prize-info {
-    margin: 12px 0;
-}
-
-.prize-name {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--gray-700);
-    margin-bottom: 4px;
-}
-
-.prize-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.prize-value {
-    font-weight: 700;
-    color: var(--success-color);
-    font-size: 1rem;
-}
-
-.contest-points {
-    background: var(--primary-gradient);
+/* Migliore CTA per contest terminati */
+.btn-result {
+    background: linear-gradient(135deg, #10b981, #059669);
     color: white;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 0.75rem;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
     font-weight: 600;
-}
-
-/* Contest passati - info premio piccola */
-.contest-prize-info {
-    margin: 4px 0;
-}
-
-.small-prize-name {
-    font-size: 0.8rem;
-    color: var(--gray-600);
-    display: block;
-}
-
-.small-prize-value {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--success-color);
-}
-
-/* Pulsante "Scopri se hai vinto" */
-.btn-check-winner {
-    background: var(--instagram-gradient);
-    color: white;
-    padding: 8px 16px;
-    border-radius: 12px;
     text-decoration: none;
-    font-size: 0.85rem;
-    font-weight: 600;
+    transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(220, 39, 67, 0.2);
+    gap: 4px;
 }
 
-.btn-check-winner:hover {
+.btn-result:hover {
+    background: linear-gradient(135deg, #059669, #047857);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(220, 39, 67, 0.3);
-    color: white;
+    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
 }
 
-.btn-check-winner .btn-icon {
-    font-size: 1rem;
+.btn-result::before {
+    content: "🎁";
+    font-size: 10px;
 }
 
-/* Status in corso animato */
-.status-selecting {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--gray-600);
-    font-size: 0.85rem;
-}
-
-.loading-dot {
-    width: 8px;
-    height: 8px;
-    background: var(--warning-color);
-    border-radius: 50%;
-    animation: pulse 1.5s ease-in-out infinite;
-}
-
-/* Link vedi tutti */
-.view-all-past {
-    text-align: center;
-    margin-top: 24px;
-}
-
-.btn-view-all {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--primary-color);
-    text-decoration: none;
-    font-weight: 600;
-    padding: 12px 24px;
-    border: 2px solid var(--primary-color);
-    border-radius: 12px;
-    transition: all 0.3s ease;
-}
-
-.btn-view-all:hover {
-    background: var(--primary-color);
-    color: white;
-    transform: translateY(-1px);
-}
-
-.btn-view-all .arrow {
-    transition: transform 0.3s ease;
-}
-
-.btn-view-all:hover .arrow {
-    transform: translateX(4px);
-}
-
-/* Responsive */
+/* Responsive adjustments */
 @media (max-width: 768px) {
-    .prize-thumbnail img {
-        width: 40px;
-        height: 40px;
+    .prize-mini-image img {
+        width: 10px;
+        height: 10px;
     }
     
-    .mini-prize-icon img {
-        width: 20px;
-        height: 20px;
-    }
-    
-    .btn-check-winner {
-        padding: 6px 12px;
-        font-size: 0.8rem;
+    .prize-mini-thumb img {
+        width: 5px;
+        height: 5px;
     }
 }
 </style>
-
-<!-- JavaScript per countdown e funzionalità extra -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Inizializza countdown per contest cards
-    const countdownElements = document.querySelectorAll('[data-end-date]');
-    
-    countdownElements.forEach(function(element) {
-        const endDate = new Date(element.getAttribute('data-end-date')).getTime();
-        
-        const timer = setInterval(function() {
-            const now = new Date().getTime();
-            const distance = endDate - now;
-            
-            if (distance < 0) {
-                clearInterval(timer);
-                const timerElement = element.querySelector('.countdown-timer-mini');
-                if (timerElement) {
-                    timerElement.textContent = 'Scaduto';
-                    timerElement.style.color = '#ef4444';
-                }
-                return;
-            }
-            
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            
-            let display = '';
-            if (days > 0) {
-                display = `${days}g ${hours}h`;
-            } else if (hours > 0) {
-                display = `${hours}h ${minutes}m`;
-            } else {
-                display = `${minutes}m`;
-            }
-            
-            const timerElement = element.querySelector('.countdown-timer-mini');
-            if (timerElement) {
-                timerElement.textContent = display;
-            }
-        }, 1000);
-    });
-});
-
-// Funzione per mostrare tutti i contest passati
-function showAllPastContests() {
-    // Implementare logica per caricare via AJAX altri contest
-    // Per ora redirect a una pagina dedicata
-    alert('Funzionalità in arrivo: pagina con tutti i contest terminati');
-}
-</script>
-
-<!-- Bottom Navigation -->
-<?php get_template_part('template-parts/bottom-navigation'); ?>
 
 <?php get_footer(); ?>
