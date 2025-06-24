@@ -651,3 +651,114 @@ function instacontest_save_instagram_field($user_id) {
 }
 add_action('personal_options_update', 'instacontest_save_instagram_field');
 add_action('edit_user_profile_update', 'instacontest_save_instagram_field');
+
+
+// ========================================
+// AGGIUNGI AL FUNCTIONS.PHP - SISTEMA AVATAR PERSONALIZZATO
+// ========================================
+
+// Override avatar di WordPress con avatar personalizzato
+function instacontest_custom_avatar($avatar, $id_or_email, $size, $default, $alt, $args) {
+    // Ottieni user ID
+    $user_id = false;
+    if (is_numeric($id_or_email)) {
+        $user_id = (int) $id_or_email;
+    } elseif (is_string($id_or_email)) {
+        $user = get_user_by('email', $id_or_email);
+        if ($user) {
+            $user_id = $user->ID;
+        }
+    } elseif ($id_or_email instanceof WP_User) {
+        $user_id = $id_or_email->ID;
+    }
+    
+    if ($user_id) {
+        $custom_avatar_id = get_user_meta($user_id, 'custom_avatar', true);
+        if ($custom_avatar_id) {
+            $custom_avatar_url = wp_get_attachment_image_url($custom_avatar_id, 'thumbnail');
+            if ($custom_avatar_url) {
+                $class = isset($args['class']) ? $args['class'] : 'avatar avatar-' . $size . ' photo';
+                return '<img alt="' . esc_attr($alt) . '" src="' . esc_url($custom_avatar_url) . '" class="' . esc_attr($class) . '" height="' . esc_attr($size) . '" width="' . esc_attr($size) . '" style="object-fit: cover;" />';
+            }
+        }
+    }
+    
+    return $avatar;
+}
+add_filter('get_avatar', 'instacontest_custom_avatar', 10, 6);
+
+// Funzione per ottenere URL avatar personalizzato
+function instacontest_get_user_avatar_url($user_id, $size = 'thumbnail') {
+    $custom_avatar_id = get_user_meta($user_id, 'custom_avatar', true);
+    if ($custom_avatar_id) {
+        return wp_get_attachment_image_url($custom_avatar_id, $size);
+    }
+    return false;
+}
+
+// Pulizia attachment quando si cambia avatar
+function instacontest_cleanup_old_avatar($user_id, $new_avatar_id) {
+    $old_avatar_id = get_user_meta($user_id, 'custom_avatar', true);
+    
+    if ($old_avatar_id && $old_avatar_id != $new_avatar_id) {
+        // Elimina vecchio attachment
+        wp_delete_attachment($old_avatar_id, true);
+    }
+}
+
+// Hook per pulizia avatar
+add_action('update_user_meta', function($meta_id, $user_id, $meta_key, $meta_value) {
+    if ($meta_key === 'custom_avatar' && $meta_value) {
+        instacontest_cleanup_old_avatar($user_id, $meta_value);
+    }
+}, 10, 4);
+
+// Aggiungi campo avatar nel profilo admin
+function instacontest_add_avatar_field_admin($user) {
+    $custom_avatar_id = get_user_meta($user->ID, 'custom_avatar', true);
+    $avatar_url = $custom_avatar_id ? wp_get_attachment_image_url($custom_avatar_id, 'thumbnail') : '';
+    ?>
+    <h3>Avatar Personalizzato</h3>
+    <table class="form-table">
+        <tr>
+            <th><label for="custom_avatar_preview">Avatar Attuale</label></th>
+            <td>
+                <div style="margin-bottom: 10px;">
+                    <?php if ($avatar_url): ?>
+                        <img src="<?php echo esc_url($avatar_url); ?>" style="width: 96px; height: 96px; border-radius: 50%; object-fit: cover;" />
+                        <p class="description">Avatar personalizzato caricato dal profilo frontend</p>
+                    <?php else: ?>
+                        <?php echo get_avatar($user->ID, 96); ?>
+                        <p class="description">Avatar predefinito WordPress/Gravatar</p>
+                    <?php endif; ?>
+                </div>
+                <?php if ($custom_avatar_id): ?>
+                    <button type="button" onclick="if(confirm('Sei sicuro di voler rimuovere l\'avatar personalizzato?')) { document.getElementById('remove_custom_avatar').value='1'; this.form.submit(); }" class="button">
+                        Rimuovi Avatar Personalizzato
+                    </button>
+                    <input type="hidden" id="remove_custom_avatar" name="remove_custom_avatar" value="0">
+                <?php endif; ?>
+            </td>
+        </tr>
+    </table>
+    <?php
+}
+add_action('show_user_profile', 'instacontest_add_avatar_field_admin');
+add_action('edit_user_profile', 'instacontest_add_avatar_field_admin');
+
+// Salva rimozione avatar da admin
+function instacontest_save_avatar_admin($user_id) {
+    if (!current_user_can('edit_user', $user_id)) {
+        return false;
+    }
+    
+    if (isset($_POST['remove_custom_avatar']) && $_POST['remove_custom_avatar'] == '1') {
+        $old_avatar_id = get_user_meta($user_id, 'custom_avatar', true);
+        if ($old_avatar_id) {
+            wp_delete_attachment($old_avatar_id, true);
+            delete_user_meta($user_id, 'custom_avatar');
+        }
+    }
+}
+add_action('personal_options_update', 'instacontest_save_avatar_admin');
+add_action('edit_user_profile_update', 'instacontest_save_avatar_admin');
