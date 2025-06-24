@@ -261,7 +261,6 @@ get_header(); ?>
                     $prize_name = get_field('prize_name', $contest_id);
                     $prize_image = get_field('prize_image', $contest_id);
                     $status = instacontest_get_contest_status($contest_id);
-            <?php endif; ?>
                 
                 <div class="bg-white border border-gray-200 rounded-2xl p-4">
                         <div class="flex items-start gap-4">
