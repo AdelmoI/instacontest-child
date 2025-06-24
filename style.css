@@ -1,1 +1,553 @@
+/*
+Theme Name: InstaContest Child
+Description: Child theme di Astra per InstaContest - Contest Instagram con sistema punteggi
+Template: astra
+Version: 1.0.0
+Author: InstaContest Team
+*/
+
+/* ===================================
+   IMPORT PARENT THEME
+   =================================== */
+@import url('../astra/style.css');
+
+/* ===================================
+   RESET ASTRA ELEMENTS
+   =================================== */
+
+/* Nascondi header e footer Astra per le nostre pagine */
+.instacontest-homepage .site-header,
+.contest-single .site-header,
+.classifica-page .site-header,
+.regolamento-page .site-header,
+.profilo-page .site-header,
+.instacontest-homepage .site-footer,
+.contest-single .site-footer,
+.classifica-page .site-footer,
+.regolamento-page .site-footer,
+.profilo-page .site-footer {
+    display: none;
+}
+
+/* Reset container Astra */
+.instacontest-homepage .ast-container,
+.contest-single .ast-container,
+.classifica-page .ast-container,
+.regolamento-page .ast-container,
+.profilo-page .ast-container {
+    padding: 0;
+    max-width: 100%;
+}
+
+/* Nascondi breadcrumbs e elementi Astra */
+.ast-breadcrumbs-wrapper,
+.ast-single-post-navigation-wrapper {
+    display: none;
+}
+
+/* ===================================
+   GLOBAL STYLES
+   =================================== */
+
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    padding-bottom: 80px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* Container reset per tutte le pagine */
+.container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* ===================================
+   CONTEST CARDS STYLES
+   =================================== */
+
+.contest-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.contest-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* ===================================
+   ANIMAZIONI E TRANSIZIONI
+   =================================== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ===================================
+   UTILITIES
+   =================================== */
+
+/* Text gradient utility */
+.text-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Glassmorphism utility */
+.glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Shadow utilities */
+.shadow-contest {
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
+}
+
+.shadow-contest-hover {
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+}
+
+/* ===================================
+   RESPONSIVE
+   =================================== */
+
+@media (min-width: 576px) {
+    .container {
+        max-width: 540px;
+        padding: 0 1.5rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .container {
+        max-width: 720px;
+    }
+}
+
+@media (min-width: 992px) {
+    body {
+        padding-bottom: 0;
+    }
+}
+
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1140px;
+    }
+}
+
+/* ===================================
+   SCROLLBAR CUSTOM
+   =================================== */
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* ===================================
+   ACCESSIBILITÀ
+   =================================== */
+
+/* Focus states per navigazione keyboard */
+a:focus-visible,
+button:focus-visible {
+    outline: 2px solid rgb(59, 130, 246);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ===================================
+   PRINT STYLES
+   =================================== */
+
+@media print {
+    body {
+        background: white;
+        padding-bottom: 0;
+    }
+}
+
+
+/* ===================================
+   INSTAGRAM GRADIENT UTILITIES
+   =================================== */
+
+/* Gradiente Instagram per background */
+.instagram-gradient {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+
+/* Gradiente Instagram per testo */
+.text-instagram-gradient {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Fallback per browser che non supportano text gradient */
+.text-instagram-gradient {
+    color: #e6683c;
+}
+
+/* Override per supporto moderno */
+@supports (-webkit-background-clip: text) {
+    .text-instagram-gradient {
+        background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        color: transparent;
+    }
+}
+
+/* ===================================
+   BOTTOM NAVIGATION OVERRIDE ASTRA
+   =================================== */
+
+/* Force Instagram gradient sui link attivi della bottom nav */
+nav#bottom-nav a .text-instagram-gradient,
+nav#bottom-nav a.active,
+nav#bottom-nav a.active i,
+nav#bottom-nav a.active span {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    color: transparent !important;
+}
+
+/* Override specifico per Astra sui link della navigation */
+nav#bottom-nav a,
+nav#bottom-nav a:hover,
+nav#bottom-nav a:focus,
+nav#bottom-nav a:visited {
+    text-decoration: none !important;
+    outline: none !important;
+}
+
+/* Force gray sui link inattivi */
+nav#bottom-nav a.inactive,
+nav#bottom-nav a.inactive i,
+nav#bottom-nav a.inactive span {
+    color: #6b7280 !important;
+}
+
+/* Specifico per le icone */
+nav#bottom-nav i.text-instagram-gradient {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    color: transparent !important;
+}
+
+/* Specifico per gli span */
+nav#bottom-nav span.text-instagram-gradient {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    color: transparent !important;
+}
+
+/* ===================================
+   FIX LAYOUT CENTRATO
+   =================================== */
+
+/* Assicura che tutto sia centrato correttamente */
+body,
+.site-content,
+#primary,
+.site-main {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* Reset specifico per i container delle pagine contest */
+.instacontest-homepage,
+.contest-single,
+.classifica-page,
+.regolamento-page,
+.profilo-page {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+/* Container responsive corretto */
+.container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 1rem;
+    box-sizing: border-box;
+}
+
+@media (min-width: 576px) {
+    .container {
+        max-width: 540px;
+        padding: 0 1.5rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .container {
+        max-width: 720px;
+    }
+}
+
+@media (min-width: 992px) {
+    .container {
+        max-width: 960px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1140px;
+    }
+}
+
+
+/* ===================================
+   GRADIENTI INSTAGRAM PER INSTACONTEST
+   =================================== */
+
+/* Aggiungi queste classi al tuo style.css esistente */
+
+/* Gradiente principale Instagram */
+.instagram-gradient {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+
+/* Gradiente per avatar e bordi */
+.avatar-gradient {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+
+/* Gradiente hover per pulsanti */
+.instagram-gradient-hover {
+    background: linear-gradient(45deg, #e6893c 0%, #d55a35 25%, #c5213c 50%, #b51c5f 75%, #a51681 100%);
+}
+
+/* Versione più chiara per sfondi */
+.instagram-gradient-light {
+    background: linear-gradient(45deg, rgba(240, 148, 51, 0.1) 0%, rgba(230, 104, 60, 0.1) 25%, rgba(220, 39, 67, 0.1) 50%, rgba(204, 35, 102, 0.1) 75%, rgba(188, 24, 136, 0.1) 100%);
+}
+
+/* Gradiente per testo */
+.instagram-text-gradient {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ===================================
+   UTILITY CLASSES AGGIUNTIVE
+   =================================== */
+
+/* Bordo con gradiente Instagram */
+.instagram-border {
+    border: 2px solid transparent;
+    background: linear-gradient(white, white) padding-box,
+                linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) border-box;
+}
+
+/* Box shadow con colori Instagram */
+.instagram-shadow {
+    box-shadow: 0 10px 25px rgba(220, 39, 67, 0.3);
+}
+
+/* ===================================
+   AGGIORNAMENTO VARIABILI CSS
+   =================================== */
+
+/* Aggiungi queste variabili al tuo :root esistente */
+:root {
+    /* ... le tue variabili esistenti ... */
+    
+    /* Gradienti Instagram */
+    --instagram-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    --instagram-gradient-hover: linear-gradient(45deg, #e6893c 0%, #d55a35 25%, #c5213c 50%, #b51c5f 75%, #a51681 100%);
+    --instagram-gradient-light: linear-gradient(45deg, rgba(240, 148, 51, 0.1) 0%, rgba(230, 104, 60, 0.1) 25%, rgba(220, 39, 67, 0.1) 50%, rgba(204, 35, 102, 0.1) 75%, rgba(188, 24, 136, 0.1) 100%);
+    
+    /* Colori Instagram come singoli valori */
+    --instagram-orange: #f09433;
+    --instagram-red-orange: #e6683c;
+    --instagram-red: #dc2743;
+    --instagram-pink: #cc2366;
+    --instagram-purple: #bc1888;
+}
+
+/* ===================================
+   CLASSI PER ELEMENTI SPECIFICI
+   =================================== */
+
+/* Pulsante partecipa con gradiente */
+.btn-participate {
+    background: var(--instagram-gradient);
+    transition: all 0.3s ease;
+}
+
+.btn-participate:hover {
+    background: var(--instagram-gradient-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(220, 39, 67, 0.3);
+}
+
+/* Avatar con bordo gradiente */
+.avatar-instagram {
+    padding: 3px;
+    background: var(--instagram-gradient);
+    border-radius: 50%;
+}
+
+.avatar-instagram img {
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+/* Badge attivo con gradiente */
+.badge-active {
+    background: var(--instagram-gradient);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Logo con gradiente */
+.logo-gradient {
+    background: var(--instagram-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+}
+
+/* ===================================
+   RESPONSIVE E STATI
+   =================================== */
+
+/* Hover states */
+@media (hover: hover) {
+    .instagram-gradient:hover {
+        background: var(--instagram-gradient-hover);
+    }
+    
+    .avatar-gradient:hover {
+        transform: scale(1.05);
+        transition: transform 0.2s ease;
+    }
+}
+
+/* Focus states per accessibilità */
+.instagram-gradient:focus,
+.btn-participate:focus {
+    outline: 2px solid var(--instagram-pink);
+    outline-offset: 2px;
+}
+
+/* ===================================
+   ANIMAZIONI
+   =================================== */
+
+/* Animazione gradiente per loading states */
+@keyframes gradient-shift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.instagram-gradient-animated {
+    background: linear-gradient(-45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    background-size: 400% 400%;
+    animation: gradient-shift 3s ease infinite;
+}
+
+
+/* Gradiente stile Instagram per il bordo dell’avatar */
+.avatar-gradient{
+    /* spessore del bordo = padding del wrapper */
+    padding:2px;
+    /* gradiente a 45° con i tuoi colori */
+    background:linear-gradient(45deg,
+        #f09433 0%,
+        #e6683c 25%,
+        #dc2743 50%,
+        #cc2366 75%,
+        #bc1888 100%);
+}
+
+
+
+
+
 
