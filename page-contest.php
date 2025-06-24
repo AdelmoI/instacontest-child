@@ -261,24 +261,7 @@ get_header(); ?>
                     $prize_name = get_field('prize_name', $contest_id);
                     $prize_image = get_field('prize_image', $contest_id);
                     $status = instacontest_get_contest_status($contest_id);
-                
-                    // DEBUG: Mostra informazioni contest (SOLO per admin)
-                    if (current_user_can('administrator')):
-                        $end_date = get_field('contest_end_date', $contest_id);
-                        $winner_username = get_field('winner_username', $contest_id);
-                        $is_active = instacontest_is_contest_active($contest_id);
-                        $has_winner = instacontest_has_winner($contest_id);
-                    ?>
-                        <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; border: 1px solid #ccc; font-size: 12px;">
-                            <strong>DEBUG Contest ID: <?php echo $contest_id; ?></strong><br>
-                            Contest: <?php echo $prize_name; ?><br>
-                            End Date: <?php echo $end_date; ?><br>
-                            Winner Username: "<?php echo $winner_username; ?>"<br>
-                            Is Active: <?php echo $is_active ? 'YES' : 'NO'; ?><br>
-                            Has Winner: <?php echo $has_winner ? 'YES' : 'NO'; ?><br>
-                            Status: <?php echo $status; ?><br>
-                        </div>
-                    <?php endif; ?>
+            <?php endif; ?>
                 
                 <div class="bg-white border border-gray-200 rounded-2xl p-4">
                         <div class="flex items-start gap-4">
