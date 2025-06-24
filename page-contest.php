@@ -261,8 +261,9 @@ get_header(); ?>
                     $prize_name = get_field('prize_name', $contest_id);
                     $prize_image = get_field('prize_image', $contest_id);
                     $status = instacontest_get_contest_status($contest_id);
-                
-                <div class="bg-white border border-gray-200 rounded-2xl p-4">
+                    ?>
+                    
+                    <div class="bg-white border border-gray-200 rounded-2xl p-4">  
                         <div class="flex items-start gap-4">
                             <!-- Immagine in evidenza come immagine principale -->
                             <?php if (has_post_thumbnail($contest_id)): ?>
@@ -292,13 +293,14 @@ get_header(); ?>
                                 
                                 <?php if ($status === 'completed'): ?>
                                     <a href="<?php echo get_permalink($contest_id); ?>" 
-                                       class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-sm inline-flex items-center gap-2 transition-colors">
-                                        <i class="fa-solid fa-search text-xs"></i>
+                                       class="w-full instagram-gradient hover:scale-105 text-white font-bold py-3 px-4 rounded-xl text-sm flex items-center justify-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl">
+                                        <i class="fa-solid fa-gift text-base"></i>
                                         SCOPRI SE HAI VINTO
                                     </a>
                                 <?php else: ?>
-                                    <span class="bg-gray-200 text-gray-600 font-bold py-2 px-4 rounded-lg text-sm inline-block">
-                                        In elaborazione...
+                                    <span class="w-full bg-gray-200 text-gray-600 font-bold py-3 px-4 rounded-xl text-sm flex items-center justify-center">
+                                        <i class="fa-solid fa-clock text-sm mr-2"></i>
+                                        Vincitore in fase di selezione...
                                     </span>
                                 <?php endif; ?>
                             </div>
