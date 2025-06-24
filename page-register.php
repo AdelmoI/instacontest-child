@@ -1,48 +1,24 @@
 <?php
 /**
  * Template Name: Registrazione
- * Pagina di registrazione con stile identico alla homepage
+ * Pagina di registrazione con stile identico al login
  */
 
 get_header(); ?>
 
 <body class="bg-gray-50">
 
-    <!-- Header identico alla homepage -->
-    <header id="header" class="fixed top-0 w-full bg-white border-b border-gray-200 z-50">
-        <div class="flex items-center justify-between px-4 py-3 max-w-7xl mx-auto">
-            <a href="<?php echo home_url(); ?>" class="flex items-center space-x-2">
-                <img src="https://www.instacontest.it/wp-content/uploads/2025/06/Progetto-senza-titolo-52.png" 
-                     alt="InstaContest" 
-                     class="h-8 w-auto">
-            </a>
-            <div class="hidden md:flex items-center space-x-6">
-                <a href="<?php echo home_url(); ?>" class="text-gray-600 hover:text-black text-sm font-medium">Home</a>
-                <a href="/login" class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-600 hover:to-purple-600 transition">
-                    Accedi
-                </a>
-            </div>
-            <a href="/login" class="text-black text-sm font-medium md:hidden">
-                Accedi
-            </a>
-        </div>
-    </header>="text-black text-sm font-medium">
-                Accedi
-            </a>
-        </div>
-    </header>
-
     <!-- Contenuto Registrazione -->
-    <section class="mt-16 px-4 py-6 bg-gray-50 min-h-screen">
-        <div class="max-w-md mx-auto">
+    <section class="px-4 py-6 bg-gray-50 min-h-screen">
+        <div class="max-w-md mx-auto md:max-w-lg lg:max-w-xl">
             
             <!-- Header Sezione -->
-            <div class="text-center mb-6">
-                <div class="w-16 h-16 instagram-gradient rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <i class="fa-solid fa-user-plus text-white text-xl"></i>
-                </div>
-                <h1 class="text-black font-bold text-2xl mb-2">Registrati su InstaContest</h1>
-                <p class="text-gray-500 text-lg">Partecipa ai contest e accumula punti!</p>
+            <div class="text-center mb-6 md:mb-8">
+                <img src="https://www.instacontest.it/wp-content/uploads/2025/06/Progetto-senza-titolo-52.png" 
+                     alt="InstaContest" 
+                     class="w-18 h-18 md:w-24 md:h-24 object-contain mx-auto mb-4">
+                <h1 class="text-black font-bold text-2xl md:text-3xl mb-2">Registrati su InstaContest</h1>
+                <p class="text-gray-500 text-lg md:text-xl">Partecipa ai contest e accumula punti!</p>
             </div>
 
             <?php
@@ -94,7 +70,7 @@ get_header(); ?>
                             wp_set_auth_cookie($user_id);
                             
                             $success = true;
-                            echo '<script>setTimeout(function(){ window.location.href = "' . home_url('/profilo') . '"; }, 2000);</script>';
+                            echo '<script>setTimeout(function(){ window.location.href = "' . home_url('/profilo') . '"; }, 1000);</script>';
                         } else {
                             $errors[] = 'Errore durante la registrazione. Riprova.';
                         }
@@ -135,33 +111,33 @@ get_header(); ?>
 
             <!-- Form di registrazione -->
             <?php if (!$success): ?>
-                <div class="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
+                <div class="bg-white border border-gray-200 rounded-2xl p-6">
                     <form method="post" class="space-y-6">
                         <?php wp_nonce_field('instacontest_register', 'register_nonce'); ?>
                         
                         <!-- Nome e Cognome -->
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label for="nome" class="block text-black font-medium text-sm md:text-base mb-2">
+                                <label for="nome" class="block text-black font-medium text-sm mb-2">
                                     Nome <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" 
                                        id="nome" 
                                        name="nome" 
                                        value="<?php echo isset($_POST['nome']) ? esc_attr($_POST['nome']) : ''; ?>"
-                                       class="w-full px-4 py-3 md:py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-50 text-base" 
+                                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-50" 
                                        placeholder="Mario"
                                        required>
                             </div>
                             <div>
-                                <label for="cognome" class="block text-black font-medium text-sm md:text-base mb-2">
+                                <label for="cognome" class="block text-black font-medium text-sm mb-2">
                                     Cognome <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" 
                                        id="cognome" 
                                        name="cognome" 
                                        value="<?php echo isset($_POST['cognome']) ? esc_attr($_POST['cognome']) : ''; ?>"
-                                       class="w-full px-4 py-3 md:py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-50 text-base" 
+                                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-50" 
                                        placeholder="Rossi"
                                        required>
                             </div>
@@ -169,28 +145,28 @@ get_header(); ?>
 
                         <!-- Email -->
                         <div>
-                            <label for="email" class="block text-black font-medium text-sm md:text-base mb-2">
+                            <label for="email" class="block text-black font-medium text-sm mb-2">
                                 Email <span class="text-red-500">*</span>
                             </label>
                             <input type="email" 
                                    id="email" 
                                    name="email" 
                                    value="<?php echo isset($_POST['email']) ? esc_attr($_POST['email']) : ''; ?>"
-                                   class="w-full px-4 py-3 md:py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-50 text-base" 
+                                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-50" 
                                    placeholder="mario.rossi@email.com"
                                    required>
                         </div>
 
                         <!-- Password -->
                         <div>
-                            <label for="password" class="block text-black font-medium text-sm md:text-base mb-2">
+                            <label for="password" class="block text-black font-medium text-sm mb-2">
                                 Password <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
                                 <input type="password" 
                                        id="password" 
                                        name="password" 
-                                       class="w-full px-4 py-3 md:py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-50 pr-12 text-base" 
+                                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-50 pr-12" 
                                        placeholder="Minimo 6 caratteri"
                                        required>
                                 <button type="button" 
@@ -199,12 +175,12 @@ get_header(); ?>
                                     <i class="fa-solid fa-eye" id="password-toggle-icon"></i>
                                 </button>
                             </div>
-                            <p class="text-xs md:text-sm text-gray-500 mt-1">Almeno 6 caratteri</p>
+                            <p class="text-xs text-gray-500 mt-1">Almeno 6 caratteri</p>
                         </div>
 
                         <!-- Username Instagram -->
                         <div>
-                            <label for="instagram_username" class="block text-black font-medium text-sm md:text-base mb-2">
+                            <label for="instagram_username" class="block text-black font-medium text-sm mb-2">
                                 Username Instagram <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
@@ -213,11 +189,11 @@ get_header(); ?>
                                        id="instagram_username" 
                                        name="instagram_username" 
                                        value="<?php echo isset($_POST['instagram_username']) ? esc_attr($_POST['instagram_username']) : ''; ?>"
-                                       class="w-full pl-8 pr-4 py-3 md:py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-50 text-base" 
+                                       class="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-50" 
                                        placeholder="mariorossi"
                                        required>
                             </div>
-                            <p class="text-xs md:text-sm text-gray-500 mt-1">Necessario per partecipare ai contest</p>
+                            <p class="text-xs text-gray-500 mt-1">Necessario per partecipare ai contest</p>
                         </div>
 
                         <!-- Privacy -->
@@ -227,7 +203,7 @@ get_header(); ?>
                                    name="privacy" 
                                    class="mt-1 rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-4 h-4"
                                    required>
-                            <label for="privacy" class="text-sm md:text-base text-gray-600">
+                            <label for="privacy" class="text-sm text-gray-600">
                                 Accetto i <a href="/regolamento" class="text-blue-500 hover:text-blue-600 underline">termini e condizioni</a> e la privacy policy
                             </label>
                         </div>
@@ -235,7 +211,7 @@ get_header(); ?>
                         <!-- Submit Button -->
                         <button type="submit" 
                                 name="instacontest_register"
-                                class="w-full btn-participate font-bold py-3 md:py-4 rounded-xl text-sm md:text-base">
+                                class="w-full btn-participate font-bold py-3 rounded-xl text-sm">
                             REGISTRATI
                         </button>
 
@@ -263,7 +239,7 @@ get_header(); ?>
 
                 <!-- Link al login -->
                 <div class="text-center mt-6">
-                    <p class="text-gray-600 text-sm md:text-base">
+                    <p class="text-gray-600">
                         Hai già un account? 
                         <a href="/login" class="text-blue-500 hover:text-blue-600 font-medium">Accedi qui</a>
                     </p>
