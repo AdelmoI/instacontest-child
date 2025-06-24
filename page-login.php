@@ -21,8 +21,10 @@ get_header(); ?>
             
             <!-- Header Sezione -->
             <div class="text-center mb-6 md:mb-8">
-                <div class="w-16 h-16 md:w-20 md:h-20 instagram-gradient rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <i class="fa-solid fa-sign-in-alt text-white text-xl md:text-2xl"></i>
+                <div class="w-16 h-16 md:w-20 md:h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg border border-gray-100">
+                    <img src="https://www.instacontest.it/wp-content/uploads/2025/06/Progetto-senza-titolo-52.png" 
+                         alt="InstaContest" 
+                         class="w-12 h-12 md:w-16 md:h-16 object-contain">
                 </div>
                 <h1 class="text-black font-bold text-2xl md:text-3xl mb-2">Benvenuto su InstaContest</h1>
                 <p class="text-gray-500 text-lg md:text-xl">Accedi al tuo account</p>
