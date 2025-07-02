@@ -347,11 +347,6 @@ function instacontest_format_contest_date($date_string) {
     return $date_string;
 }
 
-function instacontest_user_has_participated($user_id, $contest_id) {
-    $participated = get_user_meta($user_id, 'participated_contest_' . $contest_id, true);
-    return !empty($participated);
-}
-
 // ========================================
 // 9. FUNZIONI PLACEHOLDER (per evitare errori)
 // ========================================
