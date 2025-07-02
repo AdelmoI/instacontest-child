@@ -842,14 +842,36 @@ function instacontest_process_winner_form() {
             
             // Marca che ha ricevuto i punti per questo contest
             update_user_meta($user_id, 'won_contest_' . $contest_id, true);
+            
+            // Redirect con flag "nuovi punti"
+            $redirect_url = get_permalink($contest_id);
+            $redirect_url = add_query_arg(array(
+                'winner_check' => 'won',
+                'new_points' => '1'
+            ), $redirect_url);
+            
+            // Debug per admin
+            if (current_user_can('administrator')) {
+                error_log("DEBUG: Punti vittoria assegnati ($winner_points) per contest $contest_id all'utente $user_id");
+            }
+        } else {
+            // Redirect normale (punti già ricevuti)
+            $redirect_url = get_permalink($contest_id);
+            $redirect_url = add_query_arg('winner_check', 'won', $redirect_url);
+            
+            // Debug per admin
+            if (current_user_can('administrator')) {
+                error_log("DEBUG: Punti vittoria già assegnati per contest $contest_id all'utente $user_id");
+            }
         }
+    } else {
+        // Non ha vinto o non è loggato
+        $redirect_url = get_permalink($contest_id);
+        $result = $has_won ? 'won' : 'lost';
+        $redirect_url = add_query_arg('winner_check', $result, $redirect_url);
     }
     
     // Redirect con risultato
-    $redirect_url = get_permalink($contest_id);
-    $result = $has_won ? 'won' : 'lost';
-    $redirect_url = add_query_arg('winner_check', $result, $redirect_url);
-    
     wp_redirect($redirect_url);
     exit;
 }
