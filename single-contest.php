@@ -9,16 +9,6 @@ get_header();
 while (have_posts()) : the_post();
     $contest_id = get_the_ID();
     $status = instacontest_get_contest_status($contest_id);
-    // Debug per amministratori
-    if (current_user_can('administrator')) {
-        echo "<!-- DEBUG CONTEST INFO -->";
-        echo "<!-- Contest ID: $contest_id -->";
-        echo "<!-- Status: $status -->";
-        echo "<!-- Winner Username: '" . get_field('winner_username', $contest_id) . "' -->";
-        echo "<!-- Has Winner: " . (instacontest_has_winner($contest_id) ? 'YES' : 'NO') . " -->";
-        echo "<!-- GET winner_check: " . (isset($_GET['winner_check']) ? $_GET['winner_check'] : 'NOT SET') . " -->";
-        echo "<!-- Current URL: " . $_SERVER['REQUEST_URI'] . " -->";
-    }
     $prize_name = get_field('prize_name', $contest_id);
     $prize_value = get_field('prize_value', $contest_id);
     $prize_image = get_field('prize_image', $contest_id);
