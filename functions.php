@@ -976,7 +976,7 @@ function instacontest_handle_participation() {
     error_log("POST data: " . print_r($_POST, true));
     
     // Verifica nonce per sicurezza
-    if (!wp_verify_nonce($_POST['nonce'], 'track_participation')) {
+    if (!wp_verify_nonce($_POST['nonce'], 'instacontest_nonce')) {
         error_log("ERRORE: Nonce non valido");
         wp_die('Errore di sicurezza');
     }
