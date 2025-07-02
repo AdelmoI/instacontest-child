@@ -156,8 +156,8 @@ get_header(); ?>
                         <div class="space-y-3">
                             <!-- Pulsante PARTECIPA ORA - Instagram -->
                             <a href="<?php echo esc_url($instagram_url); ?>" 
-                           target="_blank" 
-                           onclick="return instacontestTrackParticipation(<?php echo $contest_id; ?>)">
+                            target="_blank"
+                            onclick="instacontestTrackParticipation(<?php echo $contest_id; ?>)"
                             class="block w-full btn-participate font-bold py-3 rounded-xl text-sm text-center flex items-center justify-center space-x-2">
                                 <img src="https://www.instacontest.it/wp-content/uploads/2025/06/instagram-new.png" 
                                     alt="Instagram" 
@@ -368,14 +368,11 @@ get_header(); ?>
 <!-- Bottom Navigation -->
 <?php get_template_part('template-parts/bottom-navigation'); ?>
 
-<!-- JavaScript per countdown e tracking -->
+<!-- JavaScript per tracking partecipazione -->
 <script>
 // Tracking partecipazione AGGIORNATO
 function instacontestTrackParticipation(contestId) {
     <?php if (is_user_logged_in()): ?>
-    // Previeni il redirect immediato
-    event.preventDefault();
-    
     fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
         method: 'POST',
         headers: {
@@ -386,25 +383,13 @@ function instacontestTrackParticipation(contestId) {
     .then(response => response.json())
     .then(data => {
         if (data.success && data.data.first_time && data.data.points_awarded > 0) {
-            // Mostra notifica punti guadagnati
+            // Mostra notifica punti guadagnati (solo se è la prima volta)
             showPointsNotification(data.data.points_awarded, data.data.new_total);
         }
-        
-        // Dopo aver processato, vai su Instagram
-        setTimeout(() => {
-            window.open(event.target.href, '_blank');
-        }, 1000);
     })
     .catch(error => {
         console.log('Tracking error:', error);
-        // Anche in caso di errore, vai su Instagram
-        window.open(event.target.href, '_blank');
     });
-    
-    return false;
-    <?php else: ?>
-    // Se non è loggato, vai direttamente su Instagram
-    return true;
     <?php endif; ?>
 }
 
