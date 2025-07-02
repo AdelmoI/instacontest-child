@@ -957,3 +957,82 @@ function instacontest_debug_contest_winner($contest_id) {
     echo "<!-- Status: '$status' -->";
     echo "<!-- Has Winner: " . (instacontest_has_winner($contest_id) ? 'YES' : 'NO') . " -->";
 }
+
+
+// ========================================
+// HANDLER AJAX PER TRACKING PARTECIPAZIONE E PUNTI
+// Aggiungi questa sezione al tuo functions.php
+// ========================================
+
+// Handler AJAX per utenti loggati
+add_action('wp_ajax_instacontest_track_participation', 'instacontest_handle_participation');
+
+// Handler AJAX per utenti non loggati (opzionale)
+add_action('wp_ajax_nopriv_instacontest_track_participation', 'instacontest_handle_participation');
+
+function instacontest_handle_participation() {
+    // Verifica nonce per sicurezza
+    if (!wp_verify_nonce($_POST['nonce'], 'track_participation')) {
+        wp_die('Errore di sicurezza');
+    }
+    
+    // Verifica se contest_id è presente
+    if (!isset($_POST['contest_id']) || empty($_POST['contest_id'])) {
+        wp_die('Contest ID mancante');
+    }
+    
+    $contest_id = intval($_POST['contest_id']);
+    
+    // Se utente non è loggato, termina qui (nessun punto)
+    if (!is_user_logged_in()) {
+        wp_send_json_success(array(
+            'message' => 'Partecipazione registrata (ospite)',
+            'points_awarded' => 0
+        ));
+        return;
+    }
+    
+    $user_id = get_current_user_id();
+    
+    // Verifica se ha già partecipato a questo contest
+    $already_participated = instacontest_user_has_participated($user_id, $contest_id);
+    
+    if (!$already_participated) {
+        // PRIMA PARTECIPAZIONE - Assegna punti
+        
+        // Ottieni punti partecipazione dal contest
+        $participation_points = get_field('participation_points', $contest_id) ?: 5;
+        
+        // Aggiungi punti all'utente
+        $new_total = instacontest_add_points_to_user($user_id, $participation_points);
+        
+        // Marca come partecipato
+        update_user_meta($user_id, 'participated_contest_' . $contest_id, true);
+        
+        // Debug per admin
+        if (current_user_can('administrator')) {
+            error_log("DEBUG: Punti partecipazione assegnati ($participation_points) per contest $contest_id all'utente $user_id");
+        }
+        
+        wp_send_json_success(array(
+            'message' => 'Partecipazione registrata! Hai guadagnato ' . $participation_points . ' punti!',
+            'points_awarded' => $participation_points,
+            'new_total' => $new_total,
+            'first_time' => true
+        ));
+        
+    } else {
+        // GIÀ PARTECIPATO - Nessun punto extra
+        
+        // Debug per admin
+        if (current_user_can('administrator')) {
+            error_log("DEBUG: Utente $user_id ha già partecipato al contest $contest_id");
+        }
+        
+        wp_send_json_success(array(
+            'message' => 'Hai già partecipato a questo contest',
+            'points_awarded' => 0,
+            'first_time' => false
+        ));
+    }
+}
