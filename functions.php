@@ -762,3 +762,167 @@ function instacontest_save_avatar_admin($user_id) {
 }
 add_action('personal_options_update', 'instacontest_save_avatar_admin');
 add_action('edit_user_profile_update', 'instacontest_save_avatar_admin');
+
+
+// ========================================
+// FUNZIONE GESTIONE FORM VERIFICA VINCITORE
+// Aggiungi questa sezione al tuo functions.php
+// ========================================
+
+// Hook per processare il form quando viene inviato
+add_action('init', 'instacontest_process_winner_form');
+
+function instacontest_process_winner_form() {
+    // Verifica se il form è stato inviato
+    if (!isset($_POST['instacontest_check_winner_nonce']) || 
+        !wp_verify_nonce($_POST['instacontest_check_winner_nonce'], 'instacontest_check_winner')) {
+        return;
+    }
+    
+    // Verifica che tutti i campi richiesti siano presenti
+    if (!isset($_POST['contest_id']) || 
+        !isset($_POST['nome']) || 
+        !isset($_POST['cognome']) || 
+        !isset($_POST['email']) || 
+        !isset($_POST['telefono']) || 
+        !isset($_POST['username_ig'])) {
+        return;
+    }
+    
+    // Sanitizza i dati
+    $contest_id = intval($_POST['contest_id']);
+    $nome = sanitize_text_field($_POST['nome']);
+    $cognome = sanitize_text_field($_POST['cognome']);
+    $email = sanitize_email($_POST['email']);
+    $telefono = sanitize_text_field($_POST['telefono']);
+    $username_ig = sanitize_text_field($_POST['username_ig']);
+    
+    // Rimuovi @ se presente all'inizio dello username
+    $username_ig = ltrim($username_ig, '@');
+    
+    // Ottieni l'username vincitore dal contest
+    $winner_username = get_field('winner_username', $contest_id);
+    
+    // Rimuovi @ anche dall'username vincitore se presente
+    $winner_username = ltrim($winner_username, '@');
+    
+    // Debug per admin (rimuovere in produzione)
+    if (current_user_can('administrator')) {
+        error_log("DEBUG Contest ID: $contest_id");
+        error_log("DEBUG Username inserito: $username_ig");
+        error_log("DEBUG Username vincitore: $winner_username");
+    }
+    
+    // Verifica se ha vinto (case-insensitive)
+    $has_won = false;
+    if (!empty($winner_username) && !empty($username_ig)) {
+        $has_won = (strtolower($username_ig) === strtolower($winner_username));
+    }
+    
+    // Salva i dati del partecipante nel database (opzionale)
+    instacontest_save_participant_data($contest_id, array(
+        'nome' => $nome,
+        'cognome' => $cognome,
+        'email' => $email,
+        'telefono' => $telefono,
+        'username_ig' => $username_ig,
+        'has_won' => $has_won,
+        'check_date' => current_time('mysql')
+    ));
+    
+    // Se ha vinto e è loggato, aggiungi punti extra
+    if ($has_won && is_user_logged_in()) {
+        $winner_points = get_field('winner_points', $contest_id) ?: 50;
+        instacontest_add_points_to_user(get_current_user_id(), $winner_points);
+    }
+    
+    // Redirect con risultato
+    $redirect_url = get_permalink($contest_id);
+    $result = $has_won ? 'won' : 'lost';
+    $redirect_url = add_query_arg('winner_check', $result, $redirect_url);
+    
+    wp_redirect($redirect_url);
+    exit;
+}
+
+// ========================================
+// FUNZIONE SALVATAGGIO DATI PARTECIPANTI
+// ========================================
+
+function instacontest_save_participant_data($contest_id, $data) {
+    global $wpdb;
+    
+    // Nome tabella per i partecipanti
+    $table_name = $wpdb->prefix . 'instacontest_participants';
+    
+    // Crea tabella se non esiste
+    instacontest_create_participants_table();
+    
+    // Inserisci dati
+    $wpdb->insert(
+        $table_name,
+        array(
+            'contest_id' => $contest_id,
+            'nome' => $data['nome'],
+            'cognome' => $data['cognome'],
+            'email' => $data['email'],
+            'telefono' => $data['telefono'],
+            'username_ig' => $data['username_ig'],
+            'has_won' => $data['has_won'] ? 1 : 0,
+            'check_date' => $data['check_date']
+        ),
+        array('%d', '%s', '%s', '%s', '%s', '%s', '%d', '%s')
+    );
+}
+
+// ========================================
+// CREAZIONE TABELLA PARTECIPANTI
+// ========================================
+
+function instacontest_create_participants_table() {
+    global $wpdb;
+    
+    $table_name = $wpdb->prefix . 'instacontest_participants';
+    
+    $charset_collate = $wpdb->get_charset_collate();
+    
+    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        contest_id bigint(20) NOT NULL,
+        nome varchar(100) NOT NULL,
+        cognome varchar(100) NOT NULL,
+        email varchar(100) NOT NULL,
+        telefono varchar(20) NOT NULL,
+        username_ig varchar(100) NOT NULL,
+        has_won tinyint(1) DEFAULT 0,
+        check_date datetime DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (id),
+        KEY contest_id (contest_id),
+        KEY username_ig (username_ig)
+    ) $charset_collate;";
+    
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
+}
+
+// Crea tabella all'attivazione del tema
+add_action('after_switch_theme', 'instacontest_create_participants_table');
+
+// ========================================
+// FUNZIONI UTILITY PER DEBUG
+// ========================================
+
+// Funzione per testare se un contest ha vincitore
+function instacontest_debug_contest_winner($contest_id) {
+    if (!current_user_can('administrator')) {
+        return;
+    }
+    
+    $winner_username = get_field('winner_username', $contest_id);
+    $status = instacontest_get_contest_status($contest_id);
+    
+    echo "<!-- DEBUG Contest $contest_id -->";
+    echo "<!-- Winner Username: '$winner_username' -->";
+    echo "<!-- Status: '$status' -->";
+    echo "<!-- Has Winner: " . (instacontest_has_winner($contest_id) ? 'YES' : 'NO') . " -->";
+}
