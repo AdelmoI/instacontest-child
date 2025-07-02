@@ -114,25 +114,8 @@ get_header(); ?>
                     ?>
                     
                     <div class="bg-white border border-gray-200 rounded-2xl p-4 min-w-80 relative">
-                        <!-- Doppia CTA -->
-                        <div class="space-y-3">
-                            <!-- Pulsante PARTECIPA ORA - Instagram -->
-                            <a href="<?php echo esc_url($instagram_url); ?>" 
-                            target="_blank"
-                            onclick="instacontestTrackParticipation(<?php echo $contest_id; ?>)"
-                            class="block w-full btn-participate font-bold py-3 rounded-xl text-sm text-center flex items-center justify-center space-x-2">
-                                <img src="https://www.instacontest.it/wp-content/uploads/2025/06/instagram-new.png" 
-                                    alt="Instagram" 
-                                    class="w-5 h-5">
-                                <span>PARTECIPA ORA</span>
-                            </a>
-                            
-                            <!-- Pulsante SCOPRI IL CONCORSO - Contest Page -->
-                            <a href="<?php echo get_permalink($contest_id); ?>"
-                            class="block w-full bg-white border-2 border-gray-300 text-gray-700 font-bold py-3 rounded-xl text-sm text-center hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 flex items-center justify-center space-x-2">
-                                <i class="fa-solid fa-eye text-gray-600"></i>
-                                <span>SCOPRI IL CONCORSO</span>
-                            </a>
+                        <div class="absolute top-4 right-4">
+                            <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium">APERTO</span>
                         </div>
                         
                         <!-- Immagine in evidenza come immagine principale -->
@@ -169,10 +152,26 @@ get_header(); ?>
                             </span>
                         </div>
                         
-                        <a href="<?php echo get_permalink($contest_id); ?>"
-                           class="block w-full btn-participate font-bold py-3 rounded-xl text-sm text-center">
-                           PARTECIPA ORA
-                        </a>
+                        <!-- Doppia CTA -->
+                        <div class="space-y-3">
+                            <!-- Pulsante PARTECIPA ORA - Instagram -->
+                            <a href="<?php echo esc_url($instagram_url); ?>" 
+                            target="_blank"
+                            onclick="instacontestTrackParticipation(<?php echo $contest_id; ?>)"
+                            class="block w-full btn-participate font-bold py-3 rounded-xl text-sm text-center flex items-center justify-center space-x-2">
+                                <img src="https://www.instacontest.it/wp-content/uploads/2025/06/instagram-new.png" 
+                                    alt="Instagram" 
+                                    class="w-5 h-5">
+                                <span>PARTECIPA ORA</span>
+                            </a>
+                            
+                            <!-- Pulsante SCOPRI IL CONCORSO - Contest Page -->
+                            <a href="<?php echo get_permalink($contest_id); ?>"
+                            class="block w-full bg-white border-2 border-gray-300 text-gray-700 font-bold py-3 rounded-xl text-sm text-center hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-eye text-gray-600"></i>
+                                <span>SCOPRI IL CONCORSO</span>
+                            </a>
+                        </div>
 
                     </div>
                     
