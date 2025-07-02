@@ -486,7 +486,7 @@ function instacontestTrackParticipation(contestId) {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: 'action=instacontest_track_participation&contest_id=' + contestId + '&nonce=<?php echo wp_create_nonce('track_participation'); ?>'
+        body: 'action=instacontest_track_participation&contest_id=' + contestId + '&nonce=<?php echo wp_create_nonce('instacontest_nonce'); ?>'
     })
     .then(response => response.json())
     .then(data => {
