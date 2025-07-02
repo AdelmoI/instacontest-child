@@ -157,7 +157,6 @@ get_header(); ?>
                             <!-- Pulsante PARTECIPA ORA - Instagram -->
                             <a href="<?php echo esc_url($instagram_url); ?>" 
                            target="_blank" 
-                           class="..."
                            onclick="return instacontestTrackParticipation(<?php echo $contest_id; ?>)">
                             class="block w-full btn-participate font-bold py-3 rounded-xl text-sm text-center flex items-center justify-center space-x-2">
                                 <img src="https://www.instacontest.it/wp-content/uploads/2025/06/instagram-new.png" 
