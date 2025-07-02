@@ -296,40 +296,82 @@ while (have_posts()) : the_post();
                                 </div>
 
                                 <!-- Risultato verifica -->
-                                <?php if (isset($_GET['winner_check'])): ?>
-                                    <div class="mt-8">
+                                 <?php if (isset($_GET['winner_check'])): ?>
+                                    <div class="winner-result-section">
                                         <?php if ($_GET['winner_check'] === 'won'): ?>
-                                            <div class="bg-green-50 border-2 border-green-200 rounded-2xl p-8 text-center space-y-4">
-                                                <div class="text-6xl">🎉</div>
-                                                <h2 class="text-3xl font-bold text-green-800">CONGRATULAZIONI!</h2>
-                                                <h3 class="text-xl font-semibold text-green-700">HAI VINTO!</h3>
-                                                <p class="text-green-600 text-lg">Verrai contattato presto per la consegna del premio.</p>
+                                            <div class="result-card winner">
+                                                <div class="result-icon">🎉</div>
+                                                <h2>CONGRATULAZIONI!</h2>
+                                                <h3>HAI VINTO!</h3>
+                                                <p>Verrai contattato presto per la consegna del premio.</p>
+                                                
                                                 <?php if (is_user_logged_in()): ?>
-                                                    <div class="bg-yellow-100 rounded-xl p-4 inline-flex items-center space-x-2">
-                                                        <span class="text-2xl">⭐</span>
-                                                        <span class="text-yellow-800 font-medium text-lg">
-                                                            +<?php echo $winner_points; ?> punti extra!
-                                                        </span>
-                                                    </div>
+                                                    <?php 
+                                                    $points_earned = isset($_GET['points_earned']) ? $_GET['points_earned'] : '';
+                                                    $winner_points = get_field('winner_points', $contest_id) ?: 50;
+                                                    ?>
+                                                    
+                                                    <?php if ($points_earned === 'yes'): ?>
+                                                        <div class="points-earned success">
+                                                            <span class="points-icon">⭐</span>
+                                                            <span>Hai guadagnato <?php echo $winner_points; ?> punti extra!</span>
+                                                        </div>
+                                                    <?php elseif ($points_earned === 'already'): ?>
+                                                        <div class="points-earned info">
+                                                            <span class="points-icon">✅</span>
+                                                            <span>Avevi già ricevuto i <?php echo $winner_points; ?> punti per questa vittoria</span>
+                                                        </div>
+                                                    <?php endif; ?>
                                                 <?php endif; ?>
+                                                
+                                                <div class="winner-actions">
+                                                    <a href="<?php echo get_post_type_archive_link('contest'); ?>" class="btn-back-contests primary">
+                                                        🎯 Vedi altri concorsi
+                                                    </a>
+                                                    <?php if (is_user_logged_in()): ?>
+                                                        <a href="<?php echo get_permalink(get_page_by_path('classifica')); ?>" class="btn-leaderboard">
+                                                            📊 Vai alla classifica
+                                                        </a>
+                                                    <?php endif; ?>
+                                                </div>
                                             </div>
-                                        <?php else: ?>
-                                            <div class="bg-gray-50 border-2 border-gray-200 rounded-2xl p-8 text-center space-y-4">
-                                                <div class="text-5xl">😔</div>
-                                                <h2 class="text-2xl font-bold text-gray-800">Mi dispiace</h2>
-                                                <h3 class="text-xl font-semibold text-gray-700">Non hai vinto questa volta</h3>
-                                                <p class="text-gray-600 text-lg">Continua a partecipare ai nostri contest!</p>
-                                                <a href="<?php echo get_post_type_archive_link('contest'); ?>" 
-                                                   class="inline-block bg-purple-600 text-white px-8 py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors">
-                                                    Vedi altri concorsi
-                                                </a>
+                                            
+                                        <?php elseif ($_GET['winner_check'] === 'lost'): ?>
+                                            <div class="result-card loser">
+                                                <div class="result-icon">😔</div>
+                                                <h2>Mi dispiace</h2>
+                                                <h3>Non hai vinto questa volta</h3>
+                                                <p>Ma non mollare! Continua a partecipare ai nostri contest.</p>
+                                                
+                                                <?php if (is_user_logged_in()): ?>
+                                                    <?php 
+                                                    $user_id = get_current_user_id();
+                                                    $has_participated = instacontest_user_has_participated($user_id, $contest_id);
+                                                    $participation_points = get_field('participation_points', $contest_id) ?: 5;
+                                                    ?>
+                                                    
+                                                    <?php if ($has_participated): ?>
+                                                        <div class="participation-reminder">
+                                                            <span class="participation-icon">🎯</span>
+                                                            <span>Comunque hai guadagnato <?php echo $participation_points; ?> punti partecipando!</span>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                <?php endif; ?>
+                                                
+                                                <div class="loser-actions">
+                                                    <a href="<?php echo get_post_type_archive_link('contest'); ?>" class="btn-back-contests primary">
+                                                        🔥 Contest attivi
+                                                    </a>
+                                                    <?php if (is_user_logged_in()): ?>
+                                                        <a href="<?php echo get_permalink(get_page_by_path('profilo')); ?>" class="btn-profile">
+                                                            👤 Il tuo profilo
+                                                        </a>
+                                                    <?php endif; ?>
+                                                </div>
                                             </div>
                                         <?php endif; ?>
                                     </div>
                                 <?php endif; ?>
-
-                            </div>
-                        <?php endif; ?>
 
                     </div>
 
