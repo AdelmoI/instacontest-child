@@ -908,21 +908,3 @@ function instacontest_create_participants_table() {
 // Crea tabella all'attivazione del tema
 add_action('after_switch_theme', 'instacontest_create_participants_table');
 
-// ========================================
-// FUNZIONI UTILITY PER DEBUG
-// ========================================
-
-// Funzione per testare se un contest ha vincitore
-function instacontest_debug_contest_winner($contest_id) {
-    if (!current_user_can('administrator')) {
-        return;
-    }
-    
-    $winner_username = get_field('winner_username', $contest_id);
-    $status = instacontest_get_contest_status($contest_id);
-    
-    echo "<!-- DEBUG Contest $contest_id -->";
-    echo "<!-- Winner Username: '$winner_username' -->";
-    echo "<!-- Status: '$status' -->";
-    echo "<!-- Has Winner: " . (instacontest_has_winner($contest_id) ? 'YES' : 'NO') . " -->";
-}
