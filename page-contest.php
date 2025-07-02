@@ -370,6 +370,7 @@ get_header(); ?>
 
 <!-- JavaScript per tracking partecipazione -->
 <script>
+// Tracking partecipazione AGGIORNATO
 function instacontestTrackParticipation(contestId) {
     <?php if (is_user_logged_in()): ?>
     fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
@@ -378,8 +379,52 @@ function instacontestTrackParticipation(contestId) {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: 'action=instacontest_track_participation&contest_id=' + contestId + '&nonce=<?php echo wp_create_nonce('track_participation'); ?>'
-    }).catch(error => console.log('Tracking error:', error));
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.data.first_time && data.data.points_awarded > 0) {
+            // Mostra notifica punti guadagnati (solo se è la prima volta)
+            showPointsNotification(data.data.points_awarded, data.data.new_total);
+        }
+    })
+    .catch(error => {
+        console.log('Tracking error:', error);
+    });
     <?php endif; ?>
+}
+
+// Funzione per mostrare notifica punti
+function showPointsNotification(points, totalPoints) {
+    // Crea elemento notifica
+    const notification = document.createElement('div');
+    notification.innerHTML = `
+        <div class="fixed top-4 right-4 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300">
+            <div class="flex items-center space-x-2">
+                <span class="text-2xl">🎯</span>
+                <div>
+                    <div class="font-bold">+${points} punti!</div>
+                    <div class="text-sm opacity-90">Totale: ${totalPoints} punti</div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    const notificationElement = notification.querySelector('div');
+    
+    // Anima l'entrata
+    setTimeout(() => {
+        notificationElement.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Rimuovi dopo 4 secondi
+    setTimeout(() => {
+        notificationElement.classList.add('translate-x-full');
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 4000);
 }
 </script>
 
