@@ -148,7 +148,7 @@ while (have_posts()) : the_post();
                                 </h3>
                                 
                                 <!-- Lista azioni numerata -->
-                                <div class="mt-6 space-y-4">
+                                <div class="mt-6 space-y-0">
                                     <?php
                                     // Raccoglie tutte le azioni compilate
                                     $actions = array();
@@ -199,17 +199,13 @@ while (have_posts()) : the_post();
                             <div class="text-center space-y-4">
                                 <a href="<?php echo esc_url($instagram_url); ?>" 
                                    target="_blank" 
-                                   class="block w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-3"
+                                   class="block w-full btn-participate font-bold py-3 rounded-xl text-sm text-center flex items-center justify-center space-x-3"
                                    onclick="instacontestTrackParticipation(<?php echo $contest_id; ?>)">
                                     <img src="https://www.instacontest.it/wp-content/uploads/2025/06/instagram-new.png" 
                                          alt="Instagram" 
                                          class="w-6 h-6 md:w-8 md:h-8">
-                                    <span>PARTECIPA SU INSTAGRAM</span>
+                                    <span class="text-lg">PARTECIPA SU INSTAGRAM</span>
                                 </a>
-                                
-                                <!-- Div per feedback partecipazione -->
-                                <div id="participation-feedback"></div>
-                                
                                 <p class="text-gray-500 text-sm">
                                     Sarai reindirizzato al post Instagram
                                 </p>
@@ -248,7 +244,7 @@ while (have_posts()) : the_post();
                                 </div>
 
                                 <!-- Form verifica vincitore -->
-                                <div class="winner-form-section bg-white rounded-2xl border border-gray-200 p-6">
+                                <div class="bg-white rounded-2xl border border-gray-200 p-6">
                                     <form method="post" action="" class="space-y-6">
                                         <?php wp_nonce_field('instacontest_check_winner', 'instacontest_check_winner_nonce'); ?>
                                         <input type="hidden" name="contest_id" value="<?php echo $contest_id; ?>">
@@ -292,98 +288,41 @@ while (have_posts()) : the_post();
                                         
                                         <!-- Pulsante verifica -->
                                         <button type="submit" 
-                                                class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2">
+                                                class="w-full btn-participate py-4 rounded-xl font-bold text-lg flex items-center justify-center space-x-2">
                                             <span>🔍</span>
                                             <span>VERIFICA RISULTATO</span>
                                         </button>
                                     </form>
                                 </div>
 
-                                <!-- Risultato verifica - SEZIONE MIGLIORATA CON TAILWIND -->
+                                <!-- Risultato verifica -->
                                 <?php if (isset($_GET['winner_check'])): ?>
-                                    <div class="winner-result-section">
+                                    <div class="mt-8">
                                         <?php if ($_GET['winner_check'] === 'won'): ?>
-                                            <!-- HAI VINTO -->
-                                            <div class="bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-2xl p-8 text-center space-y-6">
-                                                <div class="text-8xl animate-bounce">🎉</div>
-                                                <div class="space-y-2">
-                                                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800">CONGRATULAZIONI!</h2>
-                                                    <h3 class="text-xl md:text-2xl font-semibold text-yellow-600">HAI VINTO!</h3>
-                                                    <p class="text-gray-600">Verrai contattato presto per la consegna del premio.</p>
-                                                </div>
-                                                
+                                            <div class="bg-green-50 border-2 border-green-200 rounded-2xl p-8 text-center space-y-4">
+                                                <div class="text-6xl">🎉</div>
+                                                <h2 class="text-3xl font-bold text-green-800">CONGRATULAZIONI!</h2>
+                                                <h3 class="text-xl font-semibold text-green-700">HAI VINTO!</h3>
+                                                <p class="text-green-600 text-lg">Verrai contattato presto per la consegna del premio.</p>
                                                 <?php if (is_user_logged_in()): ?>
-                                                    <?php 
-                                                    $points_earned = isset($_GET['points_earned']) ? $_GET['points_earned'] : '';
-                                                    ?>
-                                                    
-                                                    <?php if ($points_earned === 'yes'): ?>
-                                                        <div class="bg-green-100 border border-green-300 rounded-xl p-4 flex items-center justify-center space-x-3">
-                                                            <span class="text-2xl">⭐</span>
-                                                            <span class="font-semibold text-green-800">Hai guadagnato <?php echo $winner_points; ?> punti extra!</span>
-                                                        </div>
-                                                    <?php elseif ($points_earned === 'already'): ?>
-                                                        <div class="bg-blue-100 border border-blue-300 rounded-xl p-4 flex items-center justify-center space-x-3">
-                                                            <span class="text-2xl">✅</span>
-                                                            <span class="font-semibold text-blue-800">Avevi già ricevuto i <?php echo $winner_points; ?> punti per questa vittoria</span>
-                                                        </div>
-                                                    <?php endif; ?>
+                                                    <div class="bg-yellow-100 rounded-xl p-4 inline-flex items-center space-x-2">
+                                                        <span class="text-2xl">⭐</span>
+                                                        <span class="text-yellow-800 font-medium text-lg">
+                                                            +<?php echo $winner_points; ?> punti extra!
+                                                        </span>
+                                                    </div>
                                                 <?php endif; ?>
-                                                
-                                                <div class="flex flex-col md:flex-row gap-4 justify-center">
-                                                    <a href="<?php echo get_post_type_archive_link('contest'); ?>" 
-                                                       class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2">
-                                                        <span>🎯</span>
-                                                        <span>Vedi altri concorsi</span>
-                                                    </a>
-                                                    <?php if (is_user_logged_in()): ?>
-                                                        <a href="<?php echo get_permalink(get_page_by_path('classifica')); ?>" 
-                                                           class="bg-white border-2 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2">
-                                                            <span>📊</span>
-                                                            <span>Vai alla classifica</span>
-                                                        </a>
-                                                    <?php endif; ?>
-                                                </div>
                                             </div>
-                                            
-                                        <?php elseif ($_GET['winner_check'] === 'lost'): ?>
-                                            <!-- HAI PERSO -->
-                                            <div class="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-300 rounded-2xl p-8 text-center space-y-6">
-                                                <div class="text-8xl">😔</div>
-                                                <div class="space-y-2">
-                                                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Mi dispiace</h2>
-                                                    <h3 class="text-xl font-semibold text-purple-600">Non hai vinto questa volta</h3>
-                                                    <p class="text-gray-600">Ma non mollare! Continua a partecipare ai nostri contest.</p>
-                                                </div>
-                                                
-                                                <?php if (is_user_logged_in()): ?>
-                                                    <?php 
-                                                    $user_id = get_current_user_id();
-                                                    $has_participated = instacontest_user_has_participated($user_id, $contest_id);
-                                                    ?>
-                                                    
-                                                    <?php if ($has_participated): ?>
-                                                        <div class="bg-blue-100 border border-blue-300 rounded-xl p-4 flex items-center justify-center space-x-3">
-                                                            <span class="text-2xl">🎯</span>
-                                                            <span class="font-semibold text-blue-800">Comunque hai guadagnato <?php echo $participation_points; ?> punti partecipando!</span>
-                                                        </div>
-                                                    <?php endif; ?>
-                                                <?php endif; ?>
-                                                
-                                                <div class="flex flex-col md:flex-row gap-4 justify-center">
-                                                    <a href="<?php echo get_post_type_archive_link('contest'); ?>" 
-                                                       class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2">
-                                                        <span>🔥</span>
-                                                        <span>Contest attivi</span>
-                                                    </a>
-                                                    <?php if (is_user_logged_in()): ?>
-                                                        <a href="<?php echo get_permalink(get_page_by_path('profilo')); ?>" 
-                                                           class="bg-white border-2 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2">
-                                                            <span>👤</span>
-                                                            <span>Il tuo profilo</span>
-                                                        </a>
-                                                    <?php endif; ?>
-                                                </div>
+                                        <?php else: ?>
+                                            <div class="bg-gray-50 border-2 border-gray-200 rounded-2xl p-8 text-center space-y-4">
+                                                <div class="text-5xl">😔</div>
+                                                <h2 class="text-2xl font-bold text-gray-800">Mi dispiace</h2>
+                                                <h3 class="text-xl font-semibold text-gray-700">Non hai vinto questa volta</h3>
+                                                <p class="text-gray-600 text-lg">Continua a partecipare ai nostri contest!</p>
+                                                <a href="<?php echo get_post_type_archive_link('contest'); ?>" 
+                                                   class="inline-block bg-purple-600 text-white px-8 py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors">
+                                                    Vedi altri concorsi
+                                                </a>
                                             </div>
                                         <?php endif; ?>
                                     </div>
@@ -445,6 +384,8 @@ while (have_posts()) : the_post();
                         </div>
                         <?php endif; ?>
 
+
+
                     </div>
                 </div>
             </div>
@@ -452,6 +393,51 @@ while (have_posts()) : the_post();
 
     </main>
 </div>
+
+<!-- JavaScript per countdown e tracking -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Countdown timer
+    const countdownElement = document.querySelector('[data-end-date]');
+    if (countdownElement) {
+        const endDate = new Date(countdownElement.getAttribute('data-end-date')).getTime();
+        
+        const timer = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = endDate - now;
+            
+            if (distance < 0) {
+                clearInterval(timer);
+                countdownElement.innerHTML = '<div class="col-span-4 text-red-500 font-bold text-center">Contest Scaduto</div>';
+                return;
+            }
+            
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+            countdownElement.querySelector('.days').textContent = days.toString().padStart(2, '0');
+            countdownElement.querySelector('.hours').textContent = hours.toString().padStart(2, '0');
+            countdownElement.querySelector('.minutes').textContent = minutes.toString().padStart(2, '0');
+            countdownElement.querySelector('.seconds').textContent = seconds.toString().padStart(2, '0');
+        }, 1000);
+    }
+});
+
+// Tracking partecipazione
+function instacontestTrackParticipation(contestId) {
+    <?php if (is_user_logged_in()): ?>
+    fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'action=instacontest_track_participation&contest_id=' + contestId + '&nonce=<?php echo wp_create_nonce('track_participation'); ?>'
+    }).catch(error => console.log('Tracking error:', error));
+    <?php endif; ?>
+}
+</script>
 
 <!-- Bottom Navigation -->
 <?php get_template_part('template-parts/bottom-navigation'); ?>
