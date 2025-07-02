@@ -322,45 +322,40 @@ while (have_posts()) : the_post();
                                     <!-- MOSTRA RISULTATO SOLO SE C'È IL PARAMETRO -->
                                     <div class="winner-result-section mx-4">
                                         <?php if ($_GET['winner_check'] === 'won'): ?>
-                                            <!-- HA VINTO -->
-                                            <div class="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-8 text-center shadow-lg">
-                                                <div class="text-6xl mb-4">🎉</div>
-                                                <h2 class="text-3xl font-bold text-green-800 mb-2">CONGRATULAZIONI!</h2>
-                                                <h3 class="text-xl font-semibold text-green-700 mb-4">HAI VINTO!</h3>
-                                                <p class="text-green-600 mb-6">Verrai contattato presto per la consegna del premio.</p>
-                                                
-                                                <?php if (is_user_logged_in()): ?>
-                                                    <?php 
-                                                    $user_id = get_current_user_id();
-                                                    $points_already_awarded = get_user_meta($user_id, 'won_contest_' . $contest_id, true);
-                                                    ?>
-                                                    
-                                                    <?php if (!$points_already_awarded): ?>
-                                                        <!-- PRIMI PUNTI - Appena assegnati -->
-                                                        <div class="bg-yellow-100 border border-yellow-300 rounded-lg p-4 mb-4 animate-pulse">
-                                                            <div class="flex items-center justify-center gap-2 text-yellow-800">
-                                                                <i class="fas fa-star text-yellow-500 animate-spin"></i>
-                                                                <span class="font-semibold">🎉 Hai appena guadagnato <?php echo $winner_points; ?> punti extra! 🎉</span>
-                                                            </div>
+                                        <!-- HA VINTO -->
+                                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-8 text-center shadow-lg">
+                                            <div class="text-6xl mb-4">🎉</div>
+                                            <h2 class="text-3xl font-bold text-green-800 mb-2">CONGRATULAZIONI!</h2>
+                                            <h3 class="text-xl font-semibold text-green-700 mb-4">HAI VINTO!</h3>
+                                            <p class="text-green-600 mb-6">Verrai contattato presto per la consegna del premio.</p>
+                                            
+                                            <?php if (is_user_logged_in()): ?>
+                                                <?php if (isset($_GET['new_points']) && $_GET['new_points'] === '1'): ?>
+                                                    <!-- PRIMI PUNTI - Appena assegnati -->
+                                                    <div class="bg-yellow-100 border border-yellow-300 rounded-lg p-4 mb-4 animate-pulse">
+                                                        <div class="flex items-center justify-center gap-2 text-yellow-800">
+                                                            <i class="fas fa-star text-yellow-500 animate-spin"></i>
+                                                            <span class="font-semibold">🎉 Hai appena guadagnato <?php echo $winner_points; ?> punti extra! 🎉</span>
                                                         </div>
-                                                    <?php else: ?>
-                                                        <!-- PUNTI GIÀ RICEVUTI -->
-                                                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                                                            <div class="flex items-center justify-center gap-2 text-blue-700">
-                                                                <i class="fas fa-check-circle text-blue-500"></i>
-                                                                <span class="font-semibold">Hai già ricevuto i <?php echo $winner_points; ?> punti per questa vittoria</span>
-                                                            </div>
+                                                    </div>
+                                                <?php else: ?>
+                                                    <!-- PUNTI GIÀ RICEVUTI -->
+                                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                                                        <div class="flex items-center justify-center gap-2 text-blue-700">
+                                                            <i class="fas fa-check-circle text-blue-500"></i>
+                                                            <span class="font-semibold">Hai già ricevuto i <?php echo $winner_points; ?> punti per questa vittoria</span>
                                                         </div>
-                                                    <?php endif; ?>
+                                                    </div>
                                                 <?php endif; ?>
-                                                
-                                                <a href="<?php echo get_post_type_archive_link('contest'); ?>" 
-                                                class="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold">
-                                                    <i class="fas fa-trophy"></i>
-                                                    <span>Vedi altri concorsi</span>
-                                                </a>
-                                            </div>
-                                        <?php elseif ($_GET['winner_check'] === 'lost'): ?>
+                                            <?php endif; ?>
+                                            
+                                            <a href="<?php echo get_post_type_archive_link('contest'); ?>" 
+                                            class="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold">
+                                                <i class="fas fa-trophy"></i>
+                                                <span>Vedi altri concorsi</span>
+                                            </a>
+                                        </div>
+                                    <?php elseif ($_GET['winner_check'] === 'lost'): ?>
                                             <!-- HA PERSO -->
                                             <div class="bg-gradient-to-br from-gray-50 to-slate-50 border-2 border-gray-200 rounded-xl p-8 text-center shadow-lg">
                                                 <div class="text-6xl mb-4">😔</div>
