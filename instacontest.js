@@ -128,9 +128,14 @@ document.addEventListener('DOMContentLoaded', function() {
             element.classList.add('expired');
         }
         
-        const fullCountdown = element.querySelector('.countdown-number');
-        if (fullCountdown) {
-            element.innerHTML = '<div class="countdown-expired">Contest Terminato</div>';
+        // Per countdown completo su pagina singola
+        const countdownNumbers = element.querySelectorAll('.countdown-number');
+        if (countdownNumbers.length > 0) {
+            element.innerHTML = `
+                <div class="col-span-4 bg-red-100 border border-red-300 rounded-xl p-4 text-center">
+                    <div class="text-red-600 font-bold text-lg">Contest Scaduto</div>
+                </div>
+            `;
         }
     }
     
@@ -163,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // ========================================
-    // TRACKING PARTECIPAZIONE CONTEST - NUOVO
+    // TRACKING PARTECIPAZIONE CONTEST - TAILWIND
     // ========================================
     
     // Funzione per tracciare partecipazione contest con AJAX
@@ -176,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Mostra feedback immediato
-        showParticipationFeedback('⏳ Registrando partecipazione...');
+        showParticipationFeedback('⏳ Registrando partecipazione...', 'info');
         
         // Richiesta AJAX
         fetch(instacontest_ajax.ajax_url, {
@@ -195,9 +200,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 if (data.data.first_time) {
                     showParticipationFeedback(`🎉 +${data.data.points} punti guadagnati!`, 'success');
+                    showToast(`+${data.data.points} punti! 🎯`, 'success');
                     // Aggiorna punti nella UI se presente
                     updateUserPointsDisplay(data.data.points);
-                    showToast(`+${data.data.points} punti! 🎯`, 'success');
                 } else {
                     showParticipationFeedback('✅ Già partecipato a questo contest', 'info');
                     showToast('Già partecipato!', 'info');
@@ -212,38 +217,40 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     
     // ========================================
-    // FEEDBACK E ANIMAZIONI - NUOVO
+    // FEEDBACK E ANIMAZIONI - TAILWIND STYLE
     // ========================================
     
-    // Mostra feedback partecipazione
+    // Mostra feedback partecipazione con Tailwind
     function showParticipationFeedback(message, type = 'info') {
+        const feedbackContainer = document.getElementById('participation-feedback');
+        if (!feedbackContainer) return;
+        
         // Rimuovi feedback esistenti
-        const existingFeedback = document.querySelector('.participation-feedback');
-        if (existingFeedback) {
-            existingFeedback.remove();
-        }
+        feedbackContainer.innerHTML = '';
+        
+        // Classi Tailwind per ogni tipo
+        const typeClasses = {
+            'success': 'bg-green-100 border border-green-300 text-green-800',
+            'error': 'bg-red-100 border border-red-300 text-red-800',
+            'info': 'bg-blue-100 border border-blue-300 text-blue-800',
+            'warning': 'bg-yellow-100 border border-yellow-300 text-yellow-800'
+        };
+        
+        const classes = typeClasses[type] || typeClasses['info'];
         
         // Crea nuovo feedback
-        const feedback = document.createElement('div');
-        feedback.className = `participation-feedback ${type}`;
-        feedback.innerHTML = `
-            <div class="feedback-content">
-                <span class="feedback-message">${message}</span>
+        feedbackContainer.innerHTML = `
+            <div class="${classes} rounded-xl p-4 text-center font-semibold animate-pulse">
+                ${message}
             </div>
         `;
         
-        // Inserisci dopo il pulsante partecipa
-        const participateBtn = document.querySelector('.btn-participate');
-        if (participateBtn && participateBtn.parentNode) {
-            participateBtn.parentNode.insertBefore(feedback, participateBtn.nextSibling);
-            
-            // Rimuovi dopo 3 secondi
-            setTimeout(() => {
-                if (feedback.parentNode) {
-                    feedback.remove();
-                }
-            }, 3000);
-        }
+        // Rimuovi dopo 4 secondi
+        setTimeout(() => {
+            if (feedbackContainer) {
+                feedbackContainer.innerHTML = '';
+            }
+        }, 4000);
     }
     
     // Aggiorna display punti utente
@@ -280,54 +287,46 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // ========================================
-    // UTILITY FUNCTIONS
+    // TOAST NOTIFICATIONS - TAILWIND STYLE
     // ========================================
     
-    // Smooth scroll per link interni
-    function smoothScrollTo(target) {
-        const element = document.querySelector(target);
-        if (element) {
-            element.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    }
-    
-    // Notifica toast migliorata
+    // Notifica toast con Tailwind
     function showToast(message, type = 'info') {
         const toast = document.createElement('div');
-        toast.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: white;
-            padding: 1rem 1.5rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-            z-index: 10000;
-            max-width: 300px;
-            transform: translateX(100%);
-            transition: all 0.3s ease;
-            border-left: 4px solid ${getToastColor(type)};
-            font-weight: 500;
-        `;
         
+        // Classi base Tailwind
+        const baseClasses = 'fixed top-4 right-4 z-50 max-w-sm p-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full';
+        
+        // Classi per tipo
+        const typeClasses = {
+            'success': 'bg-green-500 text-white',
+            'error': 'bg-red-500 text-white', 
+            'info': 'bg-blue-500 text-white',
+            'warning': 'bg-yellow-500 text-white'
+        };
+        
+        const classes = typeClasses[type] || typeClasses['info'];
+        
+        toast.className = `${baseClasses} ${classes}`;
         toast.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <span style="font-size: 1.2rem;">${getToastIcon(type)}</span>
-                <span>${message}</span>
+            <div class="flex items-center space-x-2">
+                <span class="text-lg">${getToastIcon(type)}</span>
+                <span class="font-medium">${message}</span>
             </div>
         `;
         
         document.body.appendChild(toast);
         
         // Animazione di entrata
-        setTimeout(() => toast.style.transform = 'translateX(0)', 100);
+        setTimeout(() => {
+            toast.classList.remove('translate-x-full');
+            toast.classList.add('translate-x-0');
+        }, 100);
         
         // Rimozione automatica
         setTimeout(() => {
-            toast.style.transform = 'translateX(100%)';
+            toast.classList.remove('translate-x-0');
+            toast.classList.add('translate-x-full');
             setTimeout(() => {
                 if (document.body.contains(toast)) {
                     document.body.removeChild(toast);
@@ -346,14 +345,19 @@ document.addEventListener('DOMContentLoaded', function() {
         return icons[type] || icons['info'];
     }
     
-    function getToastColor(type) {
-        const colors = {
-            'success': '#28a745',
-            'error': '#dc3545',
-            'warning': '#ffc107',
-            'info': '#17a2b8'
-        };
-        return colors[type] || colors['info'];
+    // ========================================
+    // UTILITY FUNCTIONS
+    // ========================================
+    
+    // Smooth scroll per link interni
+    function smoothScrollTo(target) {
+        const element = document.querySelector(target);
+        if (element) {
+            element.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
     }
     
     // ========================================
