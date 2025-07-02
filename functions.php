@@ -830,10 +830,19 @@ function instacontest_process_winner_form() {
         'check_date' => current_time('mysql')
     ));
     
-    // Se ha vinto e è loggato, aggiungi punti extra
+   // Se ha vinto e è loggato, aggiungi punti extra SOLO LA PRIMA VOLTA
     if ($has_won && is_user_logged_in()) {
-        $winner_points = get_field('winner_points', $contest_id) ?: 50;
-        instacontest_add_points_to_user(get_current_user_id(), $winner_points);
+        $user_id = get_current_user_id();
+        $points_already_awarded = get_user_meta($user_id, 'won_contest_' . $contest_id, true);
+        
+        // Controlla se non ha già ricevuto i punti per questo contest
+        if (!$points_already_awarded) {
+            $winner_points = get_field('winner_points', $contest_id) ?: 50;
+            instacontest_add_points_to_user($user_id, $winner_points);
+            
+            // Marca che ha ricevuto i punti per questo contest
+            update_user_meta($user_id, 'won_contest_' . $contest_id, true);
+        }
     }
     
     // Redirect con risultato
