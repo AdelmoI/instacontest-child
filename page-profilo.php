@@ -182,6 +182,14 @@ $instagram_username = instacontest_get_user_instagram($user_id);
             <!-- Contest Partecipati -->
             <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
                 <h3 class="text-black font-bold text-lg mb-4">I tuoi Contest</h3>
+
+                <!-- AGGIUNGI QUESTO BLOCCO QUI -->
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-4">
+                    <p class="text-yellow-800 text-sm">
+                        <span class="font-semibold">⚠️ Ricorda:</span> Segui tutte le regole del contest per validare la partecipazione.
+                    </p>
+                </div>
+                <!-- FINE BLOCCO DA AGGIUNGERE -->
                 
                 <?php
                 // Ottieni contest a cui l'utente ha partecipato
