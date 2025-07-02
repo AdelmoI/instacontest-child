@@ -200,7 +200,7 @@ while (have_posts()) : the_post();
                                 <a href="<?php echo esc_url($instagram_url); ?>" 
                                    target="_blank" 
                                    class="block w-full btn-participate font-bold py-3 rounded-xl text-sm text-center flex items-center justify-center space-x-3"
-                                   onclick="instacontestTrackParticipation(<?php echo $contest_id; ?>)">
+                                   onclick="return instacontestTrackParticipation(<?php echo $contest_id; ?>)">
                                     <img src="https://www.instacontest.it/wp-content/uploads/2025/06/instagram-new.png" 
                                          alt="Instagram" 
                                          class="w-6 h-6 md:w-8 md:h-8">
