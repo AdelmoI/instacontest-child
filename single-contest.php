@@ -330,12 +330,28 @@ while (have_posts()) : the_post();
                                                 <p class="text-green-600 mb-6">Verrai contattato presto per la consegna del premio.</p>
                                                 
                                                 <?php if (is_user_logged_in()): ?>
-                                                    <div class="bg-yellow-100 border border-yellow-300 rounded-lg p-4 mb-4">
-                                                        <div class="flex items-center justify-center gap-2 text-yellow-800">
-                                                            <i class="fas fa-star text-yellow-500"></i>
-                                                            <span class="font-semibold">Hai guadagnato <?php echo $winner_points; ?> punti extra!</span>
+                                                    <?php 
+                                                    $user_id = get_current_user_id();
+                                                    $points_already_awarded = get_user_meta($user_id, 'won_contest_' . $contest_id, true);
+                                                    ?>
+                                                    
+                                                    <?php if (!$points_already_awarded): ?>
+                                                        <!-- PRIMI PUNTI - Appena assegnati -->
+                                                        <div class="bg-yellow-100 border border-yellow-300 rounded-lg p-4 mb-4 animate-pulse">
+                                                            <div class="flex items-center justify-center gap-2 text-yellow-800">
+                                                                <i class="fas fa-star text-yellow-500 animate-spin"></i>
+                                                                <span class="font-semibold">🎉 Hai appena guadagnato <?php echo $winner_points; ?> punti extra! 🎉</span>
+                                                            </div>
                                                         </div>
-                                                    </div>
+                                                    <?php else: ?>
+                                                        <!-- PUNTI GIÀ RICEVUTI -->
+                                                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                                                            <div class="flex items-center justify-center gap-2 text-blue-700">
+                                                                <i class="fas fa-check-circle text-blue-500"></i>
+                                                                <span class="font-semibold">Hai già ricevuto i <?php echo $winner_points; ?> punti per questa vittoria</span>
+                                                            </div>
+                                                        </div>
+                                                    <?php endif; ?>
                                                 <?php endif; ?>
                                                 
                                                 <a href="<?php echo get_post_type_archive_link('contest'); ?>" 
@@ -344,7 +360,6 @@ while (have_posts()) : the_post();
                                                     <span>Vedi altri concorsi</span>
                                                 </a>
                                             </div>
-                                            
                                         <?php elseif ($_GET['winner_check'] === 'lost'): ?>
                                             <!-- HA PERSO -->
                                             <div class="bg-gradient-to-br from-gray-50 to-slate-50 border-2 border-gray-200 rounded-xl p-8 text-center shadow-lg">
