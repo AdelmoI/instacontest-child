@@ -765,12 +765,9 @@ add_action('edit_user_profile_update', 'instacontest_save_avatar_admin');
 
 
 // ========================================
-// FUNZIONE GESTIONE FORM VERIFICA VINCITORE
-// Aggiungi questa sezione al tuo functions.php
+// FUNZIONE GESTIONE FORM VERIFICA VINCITORE - MIGLIORATA
+// Sostituisci la funzione esistente con questa
 // ========================================
-
-// Hook per processare il form quando viene inviato
-add_action('init', 'instacontest_process_winner_form');
 
 function instacontest_process_winner_form() {
     // Verifica se il form è stato inviato
@@ -802,16 +799,7 @@ function instacontest_process_winner_form() {
     
     // Ottieni l'username vincitore dal contest
     $winner_username = get_field('winner_username', $contest_id);
-    
-    // Rimuovi @ anche dall'username vincitore se presente
     $winner_username = ltrim($winner_username, '@');
-    
-    // Debug per admin (rimuovere in produzione)
-    if (current_user_can('administrator')) {
-        error_log("DEBUG Contest ID: $contest_id");
-        error_log("DEBUG Username inserito: $username_ig");
-        error_log("DEBUG Username vincitore: $winner_username");
-    }
     
     // Verifica se ha vinto (case-insensitive)
     $has_won = false;
@@ -819,7 +807,7 @@ function instacontest_process_winner_form() {
         $has_won = (strtolower($username_ig) === strtolower($winner_username));
     }
     
-    // Salva i dati del partecipante nel database (opzionale)
+    // Salva i dati del partecipante nel database
     instacontest_save_participant_data($contest_id, array(
         'nome' => $nome,
         'cognome' => $cognome,
@@ -830,81 +818,123 @@ function instacontest_process_winner_form() {
         'check_date' => current_time('mysql')
     ));
     
-    // Se ha vinto e è loggato, aggiungi punti extra
+    // NUOVO: Assegna punti solo se ha vinto E se è la prima volta che vince questo contest
     if ($has_won && is_user_logged_in()) {
-        $winner_points = get_field('winner_points', $contest_id) ?: 50;
-        instacontest_add_points_to_user(get_current_user_id(), $winner_points);
+        $user_id = get_current_user_id();
+        $already_won_key = 'won_contest_' . $contest_id;
+        
+        // Controlla se ha già vinto questo contest
+        if (!get_user_meta($user_id, $already_won_key, true)) {
+            $winner_points = get_field('winner_points', $contest_id) ?: 50;
+            instacontest_add_points_to_user($user_id, $winner_points);
+            
+            // Segna che ha già vinto questo contest
+            update_user_meta($user_id, $already_won_key, time());
+            
+            // Flag per mostrare che ha guadagnato punti
+            $redirect_url = get_permalink($contest_id);
+            $redirect_url = add_query_arg(array(
+                'winner_check' => 'won',
+                'points_earned' => 'yes'
+            ), $redirect_url);
+        } else {
+            // Ha vinto ma ha già preso i punti
+            $redirect_url = get_permalink($contest_id);
+            $redirect_url = add_query_arg(array(
+                'winner_check' => 'won',
+                'points_earned' => 'already'
+            ), $redirect_url);
+        }
+    } else {
+        // Non ha vinto
+        $redirect_url = get_permalink($contest_id);
+        $redirect_url = add_query_arg('winner_check', 'lost', $redirect_url);
     }
-    
-    // Redirect con risultato
-    $redirect_url = get_permalink($contest_id);
-    $result = $has_won ? 'won' : 'lost';
-    $redirect_url = add_query_arg('winner_check', $result, $redirect_url);
     
     wp_redirect($redirect_url);
     exit;
 }
 
 // ========================================
-// FUNZIONE SALVATAGGIO DATI PARTECIPANTI
+// AJAX HANDLER PER TRACKING PARTECIPAZIONE
 // ========================================
 
-function instacontest_save_participant_data($contest_id, $data) {
-    global $wpdb;
+// Hook per utenti loggati e non loggati
+add_action('wp_ajax_instacontest_track_participation', 'instacontest_handle_participation');
+add_action('wp_ajax_nopriv_instacontest_track_participation', 'instacontest_handle_participation');
+
+function instacontest_handle_participation() {
+    // Verifica nonce
+    if (!wp_verify_nonce($_POST['nonce'], 'track_participation')) {
+        wp_die('Errore di sicurezza');
+    }
     
-    // Nome tabella per i partecipanti
-    $table_name = $wpdb->prefix . 'instacontest_participants';
+    $contest_id = intval($_POST['contest_id']);
     
-    // Crea tabella se non esiste
-    instacontest_create_participants_table();
+    // Solo per utenti loggati
+    if (is_user_logged_in()) {
+        $user_id = get_current_user_id();
+        $participation_key = 'participated_contest_' . $contest_id;
+        
+        // Controlla se ha già partecipato
+        if (!get_user_meta($user_id, $participation_key, true)) {
+            // Prima partecipazione - assegna punti
+            $participation_points = get_field('participation_points', $contest_id) ?: 5;
+            instacontest_add_points_to_user($user_id, $participation_points);
+            
+            // Segna come partecipato
+            update_user_meta($user_id, $participation_key, time());
+            
+            wp_send_json_success(array(
+                'message' => 'Punti assegnati!',
+                'points' => $participation_points,
+                'first_time' => true
+            ));
+        } else {
+            wp_send_json_success(array(
+                'message' => 'Già partecipato',
+                'points' => 0,
+                'first_time' => false
+            ));
+        }
+    }
     
-    // Inserisci dati
-    $wpdb->insert(
-        $table_name,
-        array(
-            'contest_id' => $contest_id,
-            'nome' => $data['nome'],
-            'cognome' => $data['cognome'],
-            'email' => $data['email'],
-            'telefono' => $data['telefono'],
-            'username_ig' => $data['username_ig'],
-            'has_won' => $data['has_won'] ? 1 : 0,
-            'check_date' => $data['check_date']
-        ),
-        array('%d', '%s', '%s', '%s', '%s', '%s', '%d', '%s')
-    );
+    wp_send_json_success(array(
+        'message' => 'Partecipazione registrata',
+        'points' => 0,
+        'first_time' => false
+    ));
 }
 
 // ========================================
-// CREAZIONE TABELLA PARTECIPANTI
+// FUNZIONE PER CONTROLLARE SE HA GIÀ PARTECIPATO
 // ========================================
 
-function instacontest_create_participants_table() {
-    global $wpdb;
-    
-    $table_name = $wpdb->prefix . 'instacontest_participants';
-    
-    $charset_collate = $wpdb->get_charset_collate();
-    
-    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
-        id mediumint(9) NOT NULL AUTO_INCREMENT,
-        contest_id bigint(20) NOT NULL,
-        nome varchar(100) NOT NULL,
-        cognome varchar(100) NOT NULL,
-        email varchar(100) NOT NULL,
-        telefono varchar(20) NOT NULL,
-        username_ig varchar(100) NOT NULL,
-        has_won tinyint(1) DEFAULT 0,
-        check_date datetime DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (id),
-        KEY contest_id (contest_id),
-        KEY username_ig (username_ig)
-    ) $charset_collate;";
-    
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
+function instacontest_user_has_participated($user_id, $contest_id) {
+    $participated = get_user_meta($user_id, 'participated_contest_' . $contest_id, true);
+    return !empty($participated);
 }
 
-// Crea tabella all'attivazione del tema
-add_action('after_switch_theme', 'instacontest_create_participants_table');
+// ========================================
+// FUNZIONE PER CONTROLLARE SE HA GIÀ VINTO
+// ========================================
 
+function instacontest_user_has_won_contest($user_id, $contest_id) {
+    $won = get_user_meta($user_id, 'won_contest_' . $contest_id, true);
+    return !empty($won);
+}
+
+// ========================================
+// ENQUEUE SCRIPT AJAX
+// ========================================
+
+function instacontest_enqueue_ajax_script() {
+    wp_enqueue_script('instacontest-ajax', get_stylesheet_directory_uri() . '/js/instacontest.js', array('jquery'), '1.0.0', true);
+    
+    // Localizza script per AJAX
+    wp_localize_script('instacontest-ajax', 'instacontest_ajax', array(
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('track_participation')
+    ));
+}
+add_action('wp_enqueue_scripts', 'instacontest_enqueue_ajax_script');
