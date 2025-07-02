@@ -233,96 +233,139 @@ while (have_posts()) : the_post();
                             </div>
 
                         <?php else: ?>
-                            <!-- CONTEST COMPLETATO -->
-                            <div class="space-y-8">
+                            <!-- CONTEST COMPLETATO - FORM VINCITORE -->
+                            <div class="contest-completed-content">
                                 
                                 <!-- Annuncio vincitore -->
-                                <div class="text-center space-y-4">
-                                    <div class="text-6xl">🏆</div>
-                                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Contest Terminato!</h2>
-                                    <p class="text-lg text-gray-600">Il vincitore è stato selezionato. Scopri se sei tu!</p>
+                                <div class="winner-announcement">
+                                    <div class="flex flex-col items-center text-center py-8">
+                                        <div class="text-6xl mb-4">🏆</div>
+                                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Contest Terminato!</h2>
+                                        <p class="text-gray-600">Il vincitore è stato selezionato. Scopri se sei tu!</p>
+                                    </div>
                                 </div>
 
-                                <!-- Form verifica vincitore -->
-                                <div class="bg-white rounded-2xl border border-gray-200 p-6">
-                                    <form method="post" action="" class="space-y-6">
-                                        <?php wp_nonce_field('instacontest_check_winner', 'instacontest_check_winner_nonce'); ?>
-                                        <input type="hidden" name="contest_id" value="<?php echo $contest_id; ?>">
+                                <?php if (!isset($_GET['winner_check'])): ?>
+                                    <!-- MOSTRA FORM SOLO SE NON C'È RISULTATO -->
+                                    <div class="winner-form-section bg-white rounded-lg shadow-lg p-6 mx-4 mb-6">
+                                        <div class="text-center mb-6">
+                                            <h3 class="text-xl font-semibold text-gray-800 mb-2">Verifica la tua partecipazione</h3>
+                                            <p class="text-gray-600">Inserisci i tuoi dati per scoprire se hai vinto</p>
+                                        </div>
                                         
-                                        <h3 class="text-xl font-bold text-gray-800">Verifica la tua partecipazione</h3>
-                                        
-                                        <!-- Nome e Cognome -->
-                                        <div class="grid md:grid-cols-2 gap-4">
-                                            <div>
-                                                <label for="nome" class="block text-sm font-medium text-gray-700 mb-2">Nome</label>
-                                                <input type="text" id="nome" name="nome" required
-                                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <form method="post" action="" class="space-y-4">
+                                            <?php wp_nonce_field('instacontest_check_winner', 'instacontest_check_winner_nonce'); ?>
+                                            <input type="hidden" name="contest_id" value="<?php echo $contest_id; ?>">
+                                            
+                                            <!-- Prima riga: Nome e Cognome -->
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <label for="nome" class="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                                                    <input type="text" 
+                                                        id="nome" 
+                                                        name="nome" 
+                                                        required
+                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
+                                                </div>
+                                                <div>
+                                                    <label for="cognome" class="block text-sm font-medium text-gray-700 mb-1">Cognome</label>
+                                                    <input type="text" 
+                                                        id="cognome" 
+                                                        name="cognome" 
+                                                        required
+                                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
+                                                </div>
                                             </div>
+                                            
+                                            <!-- Email -->
                                             <div>
-                                                <label for="cognome" class="block text-sm font-medium text-gray-700 mb-2">Cognome</label>
-                                                <input type="text" id="cognome" name="cognome" required
-                                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                                <input type="email" 
+                                                    id="email" 
+                                                    name="email" 
+                                                    required
+                                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
                                             </div>
-                                        </div>
-                                        
-                                        <!-- Email -->
-                                        <div>
-                                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                                            <input type="email" id="email" name="email" required
-                                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                                        </div>
-                                        
-                                        <!-- Telefono -->
-                                        <div>
-                                            <label for="telefono" class="block text-sm font-medium text-gray-700 mb-2">Telefono</label>
-                                            <input type="tel" id="telefono" name="telefono" required
-                                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                                        </div>
-                                        
-                                        <!-- Username Instagram -->
-                                        <div>
-                                            <label for="username_ig" class="block text-sm font-medium text-gray-700 mb-2">Username Instagram</label>
-                                            <input type="text" id="username_ig" name="username_ig" placeholder="@tusername" required
-                                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                                        </div>
-                                        
-                                        <!-- Pulsante verifica -->
-                                        <button type="submit" 
-                                                class="w-full btn-participate py-4 rounded-xl font-bold text-lg flex items-center justify-center space-x-2">
-                                            <span>🔍</span>
-                                            <span>VERIFICA RISULTATO</span>
-                                        </button>
-                                    </form>
-                                </div>
-
-                                <!-- Risultato verifica -->
-                                <?php if (isset($_GET['winner_check'])): ?>
-                                    <div class="mt-8">
+                                            
+                                            <!-- Telefono -->
+                                            <div>
+                                                <label for="telefono" class="block text-sm font-medium text-gray-700 mb-1">Telefono</label>
+                                                <input type="tel" 
+                                                    id="telefono" 
+                                                    name="telefono" 
+                                                    required
+                                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
+                                            </div>
+                                            
+                                            <!-- Username Instagram -->
+                                            <div>
+                                                <label for="username_ig" class="block text-sm font-medium text-gray-700 mb-1">Username Instagram</label>
+                                                <div class="relative">
+                                                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">@</span>
+                                                    <input type="text" 
+                                                        id="username_ig" 
+                                                        name="username_ig" 
+                                                        placeholder="tusername" 
+                                                        required
+                                                        class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Pulsante verifica -->
+                                            <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold py-4 px-6 rounded-lg hover:from-blue-600 hover:to-cyan-600 transform hover:scale-105 transition-all duration-200 shadow-lg flex items-center justify-center gap-2">
+                                                <i class="fas fa-search"></i>
+                                                <span>Verifica risultato</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                <?php else: ?>
+                                    <!-- MOSTRA RISULTATO SOLO SE C'È IL PARAMETRO -->
+                                    <div class="winner-result-section mx-4">
                                         <?php if ($_GET['winner_check'] === 'won'): ?>
-                                            <div class="bg-green-50 border-2 border-green-200 rounded-2xl p-8 text-center space-y-4">
-                                                <div class="text-6xl">🎉</div>
-                                                <h2 class="text-3xl font-bold text-green-800">CONGRATULAZIONI!</h2>
-                                                <h3 class="text-xl font-semibold text-green-700">HAI VINTO!</h3>
-                                                <p class="text-green-600 text-lg">Verrai contattato presto per la consegna del premio.</p>
+                                            <!-- HA VINTO -->
+                                            <div class="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-8 text-center shadow-lg">
+                                                <div class="text-6xl mb-4">🎉</div>
+                                                <h2 class="text-3xl font-bold text-green-800 mb-2">CONGRATULAZIONI!</h2>
+                                                <h3 class="text-xl font-semibold text-green-700 mb-4">HAI VINTO!</h3>
+                                                <p class="text-green-600 mb-6">Verrai contattato presto per la consegna del premio.</p>
+                                                
                                                 <?php if (is_user_logged_in()): ?>
-                                                    <div class="bg-yellow-100 rounded-xl p-4 inline-flex items-center space-x-2">
-                                                        <span class="text-2xl">⭐</span>
-                                                        <span class="text-yellow-800 font-medium text-lg">
-                                                            +<?php echo $winner_points; ?> punti extra!
-                                                        </span>
+                                                    <div class="bg-yellow-100 border border-yellow-300 rounded-lg p-4 mb-4">
+                                                        <div class="flex items-center justify-center gap-2 text-yellow-800">
+                                                            <i class="fas fa-star text-yellow-500"></i>
+                                                            <span class="font-semibold">Hai guadagnato <?php echo $winner_points; ?> punti extra!</span>
+                                                        </div>
                                                     </div>
                                                 <?php endif; ?>
-                                            </div>
-                                        <?php else: ?>
-                                            <div class="bg-gray-50 border-2 border-gray-200 rounded-2xl p-8 text-center space-y-4">
-                                                <div class="text-5xl">😔</div>
-                                                <h2 class="text-2xl font-bold text-gray-800">Mi dispiace</h2>
-                                                <h3 class="text-xl font-semibold text-gray-700">Non hai vinto questa volta</h3>
-                                                <p class="text-gray-600 text-lg">Continua a partecipare ai nostri contest!</p>
+                                                
                                                 <a href="<?php echo get_post_type_archive_link('contest'); ?>" 
-                                                   class="inline-block bg-purple-600 text-white px-8 py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors">
-                                                    Vedi altri concorsi
+                                                class="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold">
+                                                    <i class="fas fa-trophy"></i>
+                                                    <span>Vedi altri concorsi</span>
                                                 </a>
+                                            </div>
+                                            
+                                        <?php elseif ($_GET['winner_check'] === 'lost'): ?>
+                                            <!-- HA PERSO -->
+                                            <div class="bg-gradient-to-br from-gray-50 to-slate-50 border-2 border-gray-200 rounded-xl p-8 text-center shadow-lg">
+                                                <div class="text-6xl mb-4">😔</div>
+                                                <h2 class="text-2xl font-bold text-gray-700 mb-2">Mi dispiace</h2>
+                                                <h3 class="text-lg font-semibold text-gray-600 mb-4">Non hai vinto questa volta</h3>
+                                                <p class="text-gray-500 mb-6">Continua a partecipare ai nostri contest per aumentare le tue possibilità!</p>
+                                                
+                                                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                                                    <a href="<?php echo get_post_type_archive_link('contest'); ?>" 
+                                                    class="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                                                        <i class="fas fa-list"></i>
+                                                        <span>Vedi altri concorsi</span>
+                                                    </a>
+                                                    
+                                                    <button onclick="window.location.reload()" 
+                                                            class="inline-flex items-center gap-2 bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-semibold">
+                                                        <i class="fas fa-redo"></i>
+                                                        <span>Riprova verifica</span>
+                                                    </button>
+                                                </div>
                                             </div>
                                         <?php endif; ?>
                                     </div>
