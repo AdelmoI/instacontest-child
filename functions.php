@@ -938,3 +938,27 @@ function instacontest_enqueue_ajax_script() {
     ));
 }
 add_action('wp_enqueue_scripts', 'instacontest_enqueue_ajax_script');
+
+
+// ========================================
+// FUNZIONE GESTIONE FORM VERIFICA VINCITORE - MIGLIORATA
+// ========================================
+
+add_action('init', 'instacontest_process_winner_form');
+
+function instacontest_process_winner_form() {
+    // [Il codice della funzione dall'artifact precedente]
+}
+
+// ========================================
+// AJAX HANDLER PER TRACKING PARTECIPAZIONE
+// ========================================
+
+add_action('wp_ajax_instacontest_track_participation', 'instacontest_handle_participation');
+add_action('wp_ajax_nopriv_instacontest_track_participation', 'instacontest_handle_participation');
+
+function instacontest_handle_participation() {
+    // [Il codice dall'artifact precedente]
+}
+
+// [E tutte le altre funzioni dell'artifact]
