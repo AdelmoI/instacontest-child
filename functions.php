@@ -971,13 +971,8 @@ add_action('wp_ajax_instacontest_track_participation', 'instacontest_handle_part
 add_action('wp_ajax_nopriv_instacontest_track_participation', 'instacontest_handle_participation');
 
 function instacontest_handle_participation() {
-    // DEBUG - RIMUOVI DOPO TEST
-    error_log("=== AJAX CHIAMATO ===");
-    error_log("POST data: " . print_r($_POST, true));
-    
     // Verifica nonce per sicurezza
     if (!wp_verify_nonce($_POST['nonce'], 'instacontest_nonce')) {
-        error_log("ERRORE: Nonce non valido");
         wp_die('Errore di sicurezza');
     }
     
