@@ -101,6 +101,7 @@ get_header(); ?>
                     $prize_name = get_field('prize_name', $contest_id);
                     $prize_value = get_field('prize_value', $contest_id);
                     $prize_image = get_field('prize_image', $contest_id);
+                    $instagram_url = get_field('instagram_post_url', $contest_id); // NUOVA RIGA
                     $participation_points = get_field('participation_points', $contest_id) ?: 5;
                     
                     // Calcola countdown
@@ -113,8 +114,25 @@ get_header(); ?>
                     ?>
                     
                     <div class="bg-white border border-gray-200 rounded-2xl p-4 min-w-80 relative">
-                        <div class="absolute top-4 right-4">
-                            <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium">APERTO</span>
+                        <!-- Doppia CTA -->
+                        <div class="space-y-3">
+                            <!-- Pulsante PARTECIPA ORA - Instagram -->
+                            <a href="<?php echo esc_url($instagram_url); ?>" 
+                            target="_blank"
+                            onclick="instacontestTrackParticipation(<?php echo $contest_id; ?>)"
+                            class="block w-full btn-participate font-bold py-3 rounded-xl text-sm text-center flex items-center justify-center space-x-2">
+                                <img src="https://www.instacontest.it/wp-content/uploads/2025/06/instagram-new.png" 
+                                    alt="Instagram" 
+                                    class="w-5 h-5">
+                                <span>PARTECIPA ORA</span>
+                            </a>
+                            
+                            <!-- Pulsante SCOPRI IL CONCORSO - Contest Page -->
+                            <a href="<?php echo get_permalink($contest_id); ?>"
+                            class="block w-full bg-white border-2 border-gray-300 text-gray-700 font-bold py-3 rounded-xl text-sm text-center hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-eye text-gray-600"></i>
+                                <span>SCOPRI IL CONCORSO</span>
+                            </a>
                         </div>
                         
                         <!-- Immagine in evidenza come immagine principale -->
@@ -350,5 +368,20 @@ get_header(); ?>
 
 <!-- Bottom Navigation -->
 <?php get_template_part('template-parts/bottom-navigation'); ?>
+
+<!-- JavaScript per tracking partecipazione -->
+<script>
+function instacontestTrackParticipation(contestId) {
+    <?php if (is_user_logged_in()): ?>
+    fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'action=instacontest_track_participation&contest_id=' + contestId + '&nonce=<?php echo wp_create_nonce('track_participation'); ?>'
+    }).catch(error => console.log('Tracking error:', error));
+    <?php endif; ?>
+}
+</script>
 
 <?php get_footer(); ?>
