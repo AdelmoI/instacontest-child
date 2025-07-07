@@ -68,9 +68,11 @@ get_header(); ?>
 
     <!-- Open Contests Section -->
     <section id="open-contests" class="px-4 py-6 bg-white">
-        <div class="flex items-center justify-between mb-4">
+  <div class="flex items-center justify-between mb-4">
             <h3 class="text-black font-medium text-lg">Concorsi aperti</h3>
-            <span class="text-blue-500 text-sm">Guarda tutti</span>
+            <a href="<?php echo get_post_type_archive_link('contest'); ?>" class="text-blue-500 text-sm hover:text-blue-600 font-medium">
+                Guarda tutti
+            </a>
         </div>
         <div class="flex gap-4 overflow-x-auto pb-2">
             <?php 
