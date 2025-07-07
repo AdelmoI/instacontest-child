@@ -40,7 +40,7 @@ if (is_post_type_archive('contest') || is_home() || is_front_page()) {
         
         <!-- Profilo -->
         <?php if (is_user_logged_in()): ?>
-            <a href="<?php echo get_permalink(get_page_by_path('profilo')); ?>" class="flex flex-col items-center relative">
+            <a href="<?php echo home_url('/profilo'); ?>" class="flex flex-col items-center relative">
                 <div class="relative">
                     <?php echo get_avatar(get_current_user_id(), 24, '', '', array('class' => 'w-6 h-6 rounded-full mb-1')); ?>
                     
@@ -55,7 +55,7 @@ if (is_post_type_archive('contest') || is_home() || is_front_page()) {
                 <span class="<?php echo ($current_page === 'profilo') ? 'text-instagram-gradient' : 'text-gray-600'; ?> text-xs">Profilo</span>
             </a>
         <?php else: ?>
-            <a href="<?php echo wp_login_url(get_permalink()); ?>" class="flex flex-col items-center">
+            <a href="<?php echo home_url('/login'); ?>" class="flex flex-col items-center">
                 <i class="fa-regular fa-user text-gray-600 text-xl mb-1"></i>
                 <span class="text-gray-600 text-xs">Accedi</span>
             </a>
