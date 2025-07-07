@@ -8,17 +8,6 @@ get_header(); ?>
 
 <body class="bg-gray-50">
 
-    <!-- Header -->
-    <header id="header" class="fixed top-0 w-full bg-white border-b border-gray-200 z-50">
-        <div class="flex items-center justify-between px-4 py-3">
-            <div class="w-10 h-10 instagram-gradient rounded-lg flex items-center justify-center">
-                <span class="text-white font-bold text-sm">IC</span>
-            </div>
-            <div></div>
-            <i class="fa-solid fa-bars text-black text-xl"></i>
-        </div>
-    </header>
-
 <!-- Profile Section -->
 <section id="profile" class="mt-16 px-4 py-6 bg-white">
     <div class="flex items-center gap-4">
