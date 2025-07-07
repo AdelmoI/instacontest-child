@@ -365,9 +365,6 @@ get_header(); ?>
 
 </body>
 
-<!-- Bottom Navigation -->
-<?php get_template_part('template-parts/bottom-navigation'); ?>
-
 <!-- JavaScript per tracking partecipazione -->
 <script>
 // Tracking partecipazione AGGIORNATO
