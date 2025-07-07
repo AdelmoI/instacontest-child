@@ -286,7 +286,5 @@ document.getElementById('around-user-modal').addEventListener('click', function(
 });
 </script>
 
-<!-- Bottom Navigation -->
-<?php get_template_part('template-parts/bottom-navigation'); ?>
 
 <?php get_footer(); ?>
