@@ -1347,3 +1347,50 @@ function instacontest_ajax_load_around_user() {
     
     wp_send_json_success(array('html' => $html));
 }
+
+
+/**
+ * BOTTOM NAVIGATION GLOBALE
+ * Aggiungi questa sezione al tuo functions.php
+ */
+
+/**
+ * Includi bottom navigation su tutte le pagine (tranne admin)
+ */
+function instacontest_add_bottom_navigation() {
+    // Non mostrare su pagine admin, login WordPress standard, 404, ecc.
+    if (is_admin() || 
+        is_login() || 
+        is_404() || 
+        (function_exists('is_woocommerce') && (is_cart() || is_checkout())) ||
+        wp_doing_ajax()) {
+        return;
+    }
+    
+    // Non mostrare su alcune pagine specifiche se necessario
+    $excluded_pages = array('wp-login.php', 'wp-register.php');
+    $current_page = basename($_SERVER['PHP_SELF']);
+    if (in_array($current_page, $excluded_pages)) {
+        return;
+    }
+    
+    // Include la bottom navigation
+    get_template_part('template-parts/bottom-navigation');
+}
+
+/**
+ * Hook per aggiungere la bottom navigation prima del footer
+ */
+add_action('wp_footer', 'instacontest_add_bottom_navigation', 5);
+
+/**
+ * Aggiungi classe CSS per il padding bottom su tutte le pagine
+ */
+function instacontest_add_bottom_nav_body_class($classes) {
+    // Aggiungi classe solo se non siamo in admin o pagine escluse
+    if (!is_admin() && !is_login() && !is_404()) {
+        $classes[] = 'has-bottom-nav';
+    }
+    return $classes;
+}
+add_filter('body_class', 'instacontest_add_bottom_nav_body_class');
