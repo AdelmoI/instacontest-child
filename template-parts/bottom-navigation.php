@@ -13,33 +13,16 @@ if (is_post_type_archive('contest') || is_home() || is_front_page()) {
     $current_page = 'regolamento';
 } elseif (is_page('profilo') || is_author()) {
     $current_page = 'profilo';
+} elseif (is_page('login')) {
+    $current_page = 'login';
+} elseif (is_page('register')) {
+    $current_page = 'register';
 }
 ?>
 
-<!-- Bottom Navigation -->
-<nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 w-full bg-white border-t border-gray-200 z-50">
-    <div class="flex justify-around items-center py-3 px-4 max-w-full mx-auto">
-        
-        <!-- Home/Concorsi -->
-        <a href="<?php echo get_post_type_archive_link('contest'); ?>" class="flex flex-col items-center">
-            <i class="fa-solid fa-home <?php echo ($current_page === 'home') ? 'text-instagram-gradient' : 'text-gray-600'; ?> text-xl mb-1"></i>
-            <span class="<?php echo ($current_page === 'home') ? 'text-instagram-gradient' : 'text-gray-600'; ?> text-xs">Home</span>
-        </a>
-        
-        <!-- Classifica -->
-        <a href="<?php echo get_permalink(get_page_by_path('classifica')); ?>" class="flex flex-col items-center">
-            <i class="fa-regular fa-chart-bar <?php echo ($current_page === 'classifica') ? 'text-instagram-gradient' : 'text-gray-600'; ?> text-xl mb-1"></i>
-            <span class="<?php echo ($current_page === 'classifica') ? 'text-instagram-gradient' : 'text-gray-600'; ?> text-xs">Classifica</span>
-        </a>
-        
-        <!-- Regolamento -->
-        <a href="<?php echo get_permalink(get_page_by_path('regolamento')); ?>" class="flex flex-col items-center">
-            <i class="fa-regular fa-file-lines <?php echo ($current_page === 'regolamento') ? 'text-instagram-gradient' : 'text-gray-600'; ?> text-xl mb-1"></i>
-            <span class="<?php echo ($current_page === 'regolamento') ? 'text-instagram-gradient' : 'text-gray-600'; ?> text-xs">Regolamento</span>
-        </a>
-        
-        <!-- Profilo -->
+<!-- Profilo / Login -->
         <?php if (is_user_logged_in()): ?>
+            <!-- UTENTE LOGGATO - Vai al profilo -->
             <a href="<?php echo get_permalink(get_page_by_path('profilo')); ?>" class="flex flex-col items-center relative">
                 <div class="relative">
                     <?php echo get_avatar(get_current_user_id(), 24, '', '', array('class' => 'w-6 h-6 rounded-full mb-1')); ?>
@@ -55,14 +38,33 @@ if (is_post_type_archive('contest') || is_home() || is_front_page()) {
                 <span class="<?php echo ($current_page === 'profilo') ? 'text-instagram-gradient' : 'text-gray-600'; ?> text-xs">Profilo</span>
             </a>
         <?php else: ?>
-            <a href="<?php echo wp_login_url(get_permalink()); ?>" class="flex flex-col items-center">
-                <i class="fa-regular fa-user text-gray-600 text-xl mb-1"></i>
-                <span class="text-gray-600 text-xs">Accedi</span>
+            <!-- UTENTE NON LOGGATO - Link intelligente -->
+            <?php 
+            // Determina se mostrare Login o Registrati
+            $show_register = false;
+            
+            // Se siamo sulla pagina login, mostra "Registrati"
+            if (is_page('login')) {
+                $show_register = true;
+                $link_url = get_permalink(get_page_by_path('register'));
+                $link_text = 'Registrati';
+                $icon_class = 'fa-user-plus';
+            } 
+            // Se siamo sulla pagina registrazione, mostra "Accedi"
+            elseif (is_page('register')) {
+                $link_url = get_permalink(get_page_by_path('login'));
+                $link_text = 'Accedi';
+                $icon_class = 'fa-sign-in-alt';
+            }
+            // Altrimenti, link predefinito al login
+            else {
+                $link_url = get_permalink(get_page_by_path('login'));
+                $link_text = 'Accedi';
+                $icon_class = 'fa-sign-in-alt';
+            }
+            ?>
+            <a href="<?php echo $link_url; ?>" class="flex flex-col items-center">
+                <i class="fa-solid <?php echo $icon_class; ?> text-gray-600 text-xl mb-1"></i>
+                <span class="text-gray-600 text-xs"><?php echo $link_text; ?></span>
             </a>
         <?php endif; ?>
-        
-    </div>
-</nav>
-
-<!-- Spacer per evitare che il contenuto sia coperto dalla nav -->
-<div class="pb-20"></div>
