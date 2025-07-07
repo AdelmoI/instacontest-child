@@ -1036,3 +1036,269 @@ function instacontest_handle_participation() {
         ));
     }
 }
+
+
+// ========================================
+// SISTEMA CLASSIFICA CON CACHE ORARIA
+// Aggiungi queste funzioni al tuo functions.php esistente
+// ========================================
+
+/**
+ * Ottieni top 10 utenti con cache oraria
+ */
+function instacontest_get_top_users($limit = 10) {
+    $cache_key = 'instacontest_top_users_' . $limit;
+    $cached_result = get_transient($cache_key);
+    
+    if ($cached_result !== false) {
+        return $cached_result;
+    }
+    
+    global $wpdb;
+    
+    $results = $wpdb->get_results($wpdb->prepare("
+        SELECT u.ID as user_id, 
+               u.display_name, 
+               u.user_login,
+               CAST(COALESCE(um.meta_value, '0') AS UNSIGNED) as total_points
+        FROM {$wpdb->users} u
+        LEFT JOIN {$wpdb->usermeta} um ON u.ID = um.user_id AND um.meta_key = 'total_points'
+        WHERE CAST(COALESCE(um.meta_value, '0') AS UNSIGNED) > 0
+        ORDER BY total_points DESC, u.user_registered ASC
+        LIMIT %d
+    ", $limit));
+    
+    // Calcola posizioni e aggiungi dati extra
+    $top_users = array();
+    foreach ($results as $index => $user) {
+        $user_data = array(
+            'position' => $index + 1,
+            'user_id' => $user->user_id,
+            'display_name' => $user->display_name,
+            'user_login' => $user->user_login,
+            'total_points' => intval($user->total_points),
+            'participations' => instacontest_get_user_participations($user->user_id),
+            'wins' => instacontest_get_user_wins($user->user_id),
+            'instagram' => instacontest_get_user_instagram($user->user_id)
+        );
+        $top_users[] = $user_data;
+    }
+    
+    // Cache per 1 ora
+    set_transient($cache_key, $top_users, HOUR_IN_SECONDS);
+    
+    return $top_users;
+}
+
+/**
+ * Ottieni classifica completa con paginazione (per infinite scroll)
+ */
+function instacontest_get_leaderboard_page($page = 1, $per_page = 20) {
+    $cache_key = "instacontest_leaderboard_page_{$page}_{$per_page}";
+    $cached_result = get_transient($cache_key);
+    
+    if ($cached_result !== false) {
+        return $cached_result;
+    }
+    
+    global $wpdb;
+    
+    $offset = ($page - 1) * $per_page;
+    
+    $results = $wpdb->get_results($wpdb->prepare("
+        SELECT u.ID as user_id, 
+               u.display_name, 
+               u.user_login,
+               CAST(COALESCE(um.meta_value, '0') AS UNSIGNED) as total_points
+        FROM {$wpdb->users} u
+        LEFT JOIN {$wpdb->usermeta} um ON u.ID = um.user_id AND um.meta_key = 'total_points'
+        WHERE CAST(COALESCE(um.meta_value, '0') AS UNSIGNED) > 0
+        ORDER BY total_points DESC, u.user_registered ASC
+        LIMIT %d OFFSET %d
+    ", $per_page, $offset));
+    
+    $leaderboard_page = array();
+    foreach ($results as $index => $user) {
+        $user_data = array(
+            'position' => $offset + $index + 1,
+            'user_id' => $user->user_id,
+            'display_name' => $user->display_name,
+            'user_login' => $user->user_login,
+            'total_points' => intval($user->total_points),
+            'participations' => instacontest_get_user_participations($user->user_id),
+            'wins' => instacontest_get_user_wins($user->user_id),
+            'instagram' => instacontest_get_user_instagram($user->user_id)
+        );
+        $leaderboard_page[] = $user_data;
+    }
+    
+    // Cache per 30 minuti (più breve per infinite scroll)
+    set_transient($cache_key, $leaderboard_page, 30 * MINUTE_IN_SECONDS);
+    
+    return $leaderboard_page;
+}
+
+/**
+ * Ottieni utenti intorno a una specifica posizione
+ */
+function instacontest_get_users_around_position($target_user_id, $range = 5) {
+    $user_position = instacontest_get_user_position($target_user_id);
+    
+    // Calcola range (es: posizione 45, range 5 = posizioni 40-50)
+    $start_position = max(1, $user_position - $range);
+    $end_position = $user_position + $range;
+    $total_needed = $end_position - $start_position + 1;
+    
+    global $wpdb;
+    
+    $offset = $start_position - 1;
+    
+    $results = $wpdb->get_results($wpdb->prepare("
+        SELECT u.ID as user_id, 
+               u.display_name, 
+               u.user_login,
+               CAST(COALESCE(um.meta_value, '0') AS UNSIGNED) as total_points
+        FROM {$wpdb->users} u
+        LEFT JOIN {$wpdb->usermeta} um ON u.ID = um.user_id AND um.meta_key = 'total_points'
+        WHERE CAST(COALESCE(um.meta_value, '0') AS UNSIGNED) >= 0
+        ORDER BY total_points DESC, u.user_registered ASC
+        LIMIT %d OFFSET %d
+    ", $total_needed, $offset));
+    
+    $users_around = array();
+    foreach ($results as $index => $user) {
+        $is_current_user = ($user->user_id == $target_user_id);
+        
+        $user_data = array(
+            'position' => $start_position + $index,
+            'user_id' => $user->user_id,
+            'display_name' => $user->display_name,
+            'user_login' => $user->user_login,
+            'total_points' => intval($user->total_points),
+            'participations' => instacontest_get_user_participations($user->user_id),
+            'wins' => instacontest_get_user_wins($user->user_id),
+            'instagram' => instacontest_get_user_instagram($user->user_id),
+            'is_current_user' => $is_current_user
+        );
+        $users_around[] = $user_data;
+    }
+    
+    return $users_around;
+}
+
+/**
+ * Ottieni statistiche generali classifica
+ */
+function instacontest_get_leaderboard_stats() {
+    $cache_key = 'instacontest_leaderboard_stats';
+    $cached_result = get_transient($cache_key);
+    
+    if ($cached_result !== false) {
+        return $cached_result;
+    }
+    
+    global $wpdb;
+    
+    // Totale utenti con punti
+    $total_users = $wpdb->get_var("
+        SELECT COUNT(*)
+        FROM {$wpdb->usermeta}
+        WHERE meta_key = 'total_points' 
+        AND CAST(meta_value AS UNSIGNED) > 0
+    ");
+    
+    // Totale punti distribuiti
+    $total_points = $wpdb->get_var("
+        SELECT SUM(CAST(meta_value AS UNSIGNED))
+        FROM {$wpdb->usermeta}
+        WHERE meta_key = 'total_points'
+    ");
+    
+    // Media punti
+    $avg_points = $total_users > 0 ? round($total_points / $total_users, 1) : 0;
+    
+    $stats = array(
+        'total_users' => intval($total_users),
+        'total_points' => intval($total_points),
+        'avg_points' => $avg_points,
+        'total_contests' => instacontest_get_total_contests()
+    );
+    
+    // Cache per 1 ora
+    set_transient($cache_key, $stats, HOUR_IN_SECONDS);
+    
+    return $stats;
+}
+
+/**
+ * Invalida cache classifica (da chiamare quando si aggiornano punti)
+ */
+function instacontest_clear_leaderboard_cache() {
+    // Cancella cache top users
+    for ($i = 5; $i <= 50; $i += 5) {
+        delete_transient('instacontest_top_users_' . $i);
+    }
+    
+    // Cancella cache pagine leaderboard (prime 10 pagine)
+    for ($page = 1; $page <= 10; $page++) {
+        delete_transient("instacontest_leaderboard_page_{$page}_20");
+    }
+    
+    // Cancella stats
+    delete_transient('instacontest_leaderboard_stats');
+}
+
+/**
+ * Hook per invalidare cache quando si aggiornano punti
+ */
+add_action('updated_user_meta', function($meta_id, $user_id, $meta_key, $meta_value) {
+    if ($meta_key === 'total_points') {
+        instacontest_clear_leaderboard_cache();
+    }
+}, 10, 4);
+
+/**
+ * AJAX handler per infinite scroll classifica
+ */
+add_action('wp_ajax_instacontest_load_leaderboard_page', 'instacontest_ajax_load_leaderboard_page');
+add_action('wp_ajax_nopriv_instacontest_load_leaderboard_page', 'instacontest_ajax_load_leaderboard_page');
+
+function instacontest_ajax_load_leaderboard_page() {
+    // Verifica nonce
+    if (!wp_verify_nonce($_POST['nonce'], 'instacontest_nonce')) {
+        wp_die('Errore di sicurezza');
+    }
+    
+    $page = intval($_POST['page'] ?? 1);
+    $per_page = 20;
+    
+    $leaderboard_page = instacontest_get_leaderboard_page($page, $per_page);
+    
+    if (empty($leaderboard_page)) {
+        wp_send_json_error('Nessun altro utente da caricare');
+        return;
+    }
+    
+    // Genera HTML per ogni utente
+    $html = '';
+    foreach ($leaderboard_page as $user_data) {
+        ob_start();
+        
+        // Usa il template part esistente
+        $position = $user_data['position'];
+        $user = (object) array('ID' => $user_data['user_id'], 'user_login' => $user_data['user_login']);
+        $is_current_user = is_user_logged_in() && $user_data['user_id'] == get_current_user_id();
+        $user_points = $user_data['total_points'];
+        $participations = $user_data['participations'];
+        $wins = $user_data['wins'];
+        
+        include(get_stylesheet_directory() . '/template-parts/leaderboard-item.php');
+        
+        $html .= ob_get_clean();
+    }
+    
+    wp_send_json_success(array(
+        'html' => $html,
+        'has_more' => count($leaderboard_page) === $per_page
+    ));
+}
