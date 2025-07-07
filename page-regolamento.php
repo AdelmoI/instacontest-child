@@ -269,7 +269,7 @@ get_header(); ?>
                 <div class="bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl p-6 text-white text-center">
                     <h3 class="font-bold text-xl mb-3">🎉 Buona fortuna!</h3>
                     <p class="text-white/90 mb-4">Partecipa ai nostri contest in sicurezza e divertiti!</p>
-                    <a href="<?php echo home_url(); ?>" class="inline-flex items-center space-x-2 bg-white text-purple-600 font-bold py-3 px-6 rounded-xl hover:bg-gray-100 transition-colors">
+                    <a href="https://www.instacontest.it/contest/" class="inline-flex items-center space-x-2 bg-white text-purple-600 font-bold py-3 px-6 rounded-xl hover:bg-gray-100 transition-colors">
                         <i class="fa-solid fa-trophy"></i>
                         <span>Scopri i contest aperti</span>
                     </a>
