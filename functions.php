@@ -1302,3 +1302,48 @@ function instacontest_ajax_load_leaderboard_page() {
         'has_more' => count($leaderboard_page) === $per_page
     ));
 }
+
+/**
+ * AJAX handler per mostrare utenti intorno alla posizione corrente
+ * Aggiungi questa funzione al functions.php
+ */
+add_action('wp_ajax_instacontest_load_around_user', 'instacontest_ajax_load_around_user');
+
+function instacontest_ajax_load_around_user() {
+    // Verifica nonce
+    if (!wp_verify_nonce($_POST['nonce'], 'instacontest_nonce')) {
+        wp_die('Errore di sicurezza');
+    }
+    
+    if (!is_user_logged_in()) {
+        wp_send_json_error('Devi essere loggato');
+        return;
+    }
+    
+    $current_user_id = get_current_user_id();
+    $users_around = instacontest_get_users_around_position($current_user_id, 5);
+    
+    if (empty($users_around)) {
+        wp_send_json_error('Nessun utente trovato');
+        return;
+    }
+    
+    // Genera HTML
+    $html = '';
+    foreach ($users_around as $user_data) {
+        ob_start();
+        
+        $position = $user_data['position'];
+        $user = (object) array('ID' => $user_data['user_id'], 'user_login' => $user_data['user_login']);
+        $is_current_user = $user_data['is_current_user'];
+        $user_points = $user_data['total_points'];
+        $participations = $user_data['participations'];
+        $wins = $user_data['wins'];
+        
+        include(get_stylesheet_directory() . '/template-parts/leaderboard-item.php');
+        
+        $html .= ob_get_clean();
+    }
+    
+    wp_send_json_success(array('html' => $html));
+}
