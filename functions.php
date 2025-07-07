@@ -356,7 +356,7 @@ function instacontest_user_has_participated($user_id, $contest_id) {
 // 9. FUNZIONI PLACEHOLDER (per evitare errori)
 // ========================================
 
-function instacontest_get_top_users($limit = 10) { return array(); }
+//function instacontest_get_top_users($limit = 10) { return array(); }
 function instacontest_get_total_participants() { return 0; }
 function instacontest_get_total_participations() { return 0; }
 function instacontest_get_total_contests() { 
