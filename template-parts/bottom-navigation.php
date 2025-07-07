@@ -7,12 +7,16 @@
 $current_page = '';
 if (is_post_type_archive('contest') || is_home() || is_front_page()) {
     $current_page = 'home';
-} elseif (is_page('classifica')) {
+} elseif (is_page('classifica') || is_page_template('page-classifica.php')) {
     $current_page = 'classifica';
-} elseif (is_page('regolamento')) {
+} elseif (is_page('regolamento') || is_page_template('page-regolamento.php')) {
     $current_page = 'regolamento';
-} elseif (is_page('profilo') || is_author()) {
+} elseif (is_page('profilo') || is_page_template('page-profilo.php') || is_author()) {
     $current_page = 'profilo';
+} elseif (is_page('login') || is_page_template('page-login.php')) {
+    $current_page = 'profilo'; // Considera login come sezione profilo
+} elseif (is_page('register') || is_page_template('page-register.php')) {
+    $current_page = 'profilo'; // Considera registrazione come sezione profilo
 }
 ?>
 
