@@ -536,9 +536,6 @@ function showPointsNotification(points, totalPoints) {
 }
 </script>
 
-<!-- Bottom Navigation -->
-<?php get_template_part('template-parts/bottom-navigation'); ?>
-
 <?php
 endwhile;
 get_footer(); ?>
