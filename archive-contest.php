@@ -275,7 +275,5 @@ get_header(); ?>
 
 </body>
 
-<!-- Bottom Navigation -->
-<?php get_template_part('template-parts/bottom-navigation'); ?>
 
 <?php get_footer(); ?>
