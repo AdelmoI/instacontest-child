@@ -8,17 +8,6 @@ get_header(); ?>
 
 <body class="bg-gray-50">
 
-    <!-- Header -->
-    <header id="header" class="fixed top-0 w-full bg-white border-b border-gray-200 z-50">
-        <div class="flex items-center justify-between px-4 py-3">
-            <a href="<?php echo home_url(); ?>" class="w-10 h-10 instagram-gradient rounded-lg flex items-center justify-center">
-                <span class="text-white font-bold text-sm">IC</span>
-            </a>
-            <h1 class="text-black font-bold text-lg">Regolamento</h1>
-            <div class="w-10 h-10"></div> <!-- Spacer -->
-        </div>
-    </header>
-
     <!-- Contenuto Regolamento -->
     <section class="mt-16 px-4 py-6 bg-white">
         <div class="max-w-4xl mx-auto">
