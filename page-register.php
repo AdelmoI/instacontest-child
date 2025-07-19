@@ -26,64 +26,66 @@ get_header(); ?>
             $errors = array();
             $success = false;
 
-            if (isset($_POST['instacontest_register'])) {
-                if (!wp_verify_nonce($_POST['register_nonce'], 'instacontest_register')) {
-                    $errors[] = 'Errore di sicurezza. Riprova.';
-                } else {
-                    $nome = sanitize_text_field($_POST['nome']);
-                    $cognome = sanitize_text_field($_POST['cognome']);
-                    $email = sanitize_email($_POST['email']);
-                    $password = $_POST['password'];
-                    $instagram_username = sanitize_text_field($_POST['instagram_username']);
-                    
-                    // Validazioni
-                    if (empty($nome)) $errors[] = 'Il nome è obbligatorio';
-                    if (empty($cognome)) $errors[] = 'Il cognome è obbligatorio';
-                    if (empty($email) || !is_email($email)) $errors[] = 'Email non valida';
-                    if (empty($password) || strlen($password) < 6) $errors[] = 'Password minimo 6 caratteri';
-                    if (empty($instagram_username)) $errors[] = 'Username Instagram obbligatorio';
-                    $squadre_cuore = isset($_POST['squadre_cuore']) ? $_POST['squadre_cuore'] : array();
-                    if (empty($squadre_cuore)) {
-                        $errors[] = 'Devi selezionare almeno una squadra del cuore';
-                    } elseif (count($squadre_cuore) > 3) {
-                        $errors[] = 'Puoi selezionare massimo 3 squadre';
-                    }
-                    
-                    $instagram_username = ltrim($instagram_username, '@');
-                    
-                    if (email_exists($email)) {
-                        $errors[] = 'Email già registrata';
-                    }
-                    
-                    if (empty($errors)) {
-                        $user_id = wp_create_user($email, $password, $email);
-                        
-                        if (!is_wp_error($user_id)) {
-                            wp_update_user(array(
-                                'ID' => $user_id,
-                                'first_name' => $nome,
-                                'last_name' => $cognome,
-                                'display_name' => $nome . ' ' . $cognome
-                            ));
-                            
-                            update_user_meta($user_id, 'instagram_username', $instagram_username);
-                            update_user_meta($user_id, 'squadre_cuore', $squadre_cuore);
-                            update_user_meta($user_id, 'total_points', 0);
-                            
-                            wp_set_current_user($user_id);
-                            wp_set_auth_cookie($user_id);
-                            
-                            $success = true;
-                            wp_set_current_user($user_id);
-                            wp_set_auth_cookie($user_id);
-                            do_action('wp_login', $email, get_user_by('ID', $user_id));
-                            
-                            $success = true;
-                            echo '<script>setTimeout(function(){ window.location.href = "' . home_url('/profilo') . '"; }, 1000);</script>';
-                        }
-                    }
-                }
+if (isset($_POST['instacontest_register'])) {
+    if (!wp_verify_nonce($_POST['register_nonce'], 'instacontest_register')) {
+        $errors[] = 'Errore di sicurezza. Riprova.';
+    } else {
+        $nome = sanitize_text_field($_POST['nome']);
+        $cognome = sanitize_text_field($_POST['cognome']);
+        $email = sanitize_email($_POST['email']);
+        $password = $_POST['password'];
+        $instagram_username = sanitize_text_field($_POST['instagram_username']);
+        
+        // Validazioni
+        if (empty($nome)) $errors[] = 'Il nome è obbligatorio';
+        if (empty($cognome)) $errors[] = 'Il cognome è obbligatorio';
+        if (empty($email) || !is_email($email)) $errors[] = 'Email non valida';
+        if (empty($password) || strlen($password) < 6) $errors[] = 'Password minimo 6 caratteri';
+        if (empty($instagram_username)) $errors[] = 'Username Instagram obbligatorio';
+        $squadre_cuore = isset($_POST['squadre_cuore']) ? $_POST['squadre_cuore'] : array();
+        if (empty($squadre_cuore)) {
+            $errors[] = 'Devi selezionare almeno una squadra del cuore';
+        } elseif (count($squadre_cuore) > 3) {
+            $errors[] = 'Puoi selezionare massimo 3 squadre';
+        }
+        
+        $instagram_username = ltrim($instagram_username, '@');
+        
+        if (email_exists($email)) {
+            $errors[] = 'Email già registrata';
+        }
+        
+        if (empty($errors)) {
+            $user_id = wp_create_user($email, $password, $email);
+            error_log('DEBUG REGISTER - wp_create_user result: ' . print_r($user_id, true));
+            
+            if (!is_wp_error($user_id)) {
+                wp_update_user(array(
+                    'ID' => $user_id,
+                    'first_name' => $nome,
+                    'last_name' => $cognome,
+                    'display_name' => $nome . ' ' . $cognome
+                ));
+                
+                update_user_meta($user_id, 'instagram_username', $instagram_username);
+                update_user_meta($user_id, 'squadre_cuore', $squadre_cuore);
+                update_user_meta($user_id, 'total_points', 0);
+                
+                error_log('DEBUG REGISTER - User created: ' . $user_id);
+                wp_set_current_user($user_id);
+                wp_set_auth_cookie($user_id);
+                do_action('wp_login', $email, get_user_by('ID', $user_id));
+                error_log('DEBUG REGISTER - User logged in, is_user_logged_in: ' . (is_user_logged_in() ? 'YES' : 'NO'));
+                
+                $success = true;
+                echo '<script>setTimeout(function(){ window.location.href = "' . home_url('/profilo') . '"; }, 1000);</script>';
+            } else {
+                $errors[] = 'Errore durante la registrazione. Riprova.';
+                error_log('DEBUG REGISTER - wp_create_user error: ' . $user_id->get_error_message());
             }
+        }
+    }
+}
             ?>
 
             <!-- Messaggi di successo -->
