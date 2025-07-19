@@ -38,7 +38,10 @@
         <div class="flex-1 min-w-0">
             <div class="flex items-center space-x-2 mb-1">
                 <h3 class="text-black font-bold text-sm truncate">
-                    @<?php echo esc_html($user->user_login); ?>
+                    @<?php 
+                    $instagram_username = instacontest_get_user_instagram($user->ID);
+                    echo esc_html($instagram_username ?: $user->user_login); 
+                    ?>
                 </h3>
                 <?php if ($is_current_user): ?>
                     <span class="bg-purple-500 text-white px-2 py-0.5 rounded-full text-xs font-bold">TU</span>
