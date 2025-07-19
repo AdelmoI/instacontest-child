@@ -1418,33 +1418,6 @@ if (!defined('GOOGLE_CLIENT_ID') || !defined('GOOGLE_CLIENT_SECRET')) {
     });
 }
 
-// Enqueue Google API JavaScript
-function instacontest_enqueue_google_scripts() {
-    // Solo nelle pagine login e register
-    if (is_page('login') || is_page('register')) {
-        // Google API JavaScript
-        wp_enqueue_script(
-            'google-platform',
-            'https://apis.google.com/js/platform.js',
-            array(),
-            null,
-            true
-        );
-        
-        // Il nostro script custom
-        wp_add_inline_script('google-platform', '
-            function onGoogleApiLoad() {
-                gapi.load("auth2", function() {
-                    gapi.auth2.init({
-                        client_id: "' . GOOGLE_CLIENT_ID . '"
-                    });
-                });
-            }
-        ');
-    }
-}
-add_action('wp_enqueue_scripts', 'instacontest_enqueue_google_scripts');
-
 // AJAX handler per login Google
 add_action('wp_ajax_google_oauth_login', 'handle_google_oauth_login');
 add_action('wp_ajax_nopriv_google_oauth_login', 'handle_google_oauth_login');
@@ -1488,31 +1461,72 @@ function handle_google_oauth_login() {
     }
 }
 
-// Funzione per verificare token Google
+// Funzione aggiornata per verificare token Google Identity Services
 function verify_google_token($token) {
-    $url = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=' . $token;
+    // Prova prima il nuovo formato JWT
+    $jwt_data = verify_google_jwt($token);
+    if ($jwt_data) {
+        return $jwt_data;
+    }
     
-    $response = wp_remote_get($url);
+    // Se non funziona, prova come token base64 (metodo alternativo)
+    $decoded = base64_decode($token);
+    if ($decoded) {
+        $data = json_decode($decoded, true);
+        if ($data && isset($data['email'])) {
+            return array(
+                'google_id' => $data['sub'] ?? $data['id'] ?? '',
+                'email' => $data['email'],
+                'name' => $data['name'] ?? '',
+                'given_name' => $data['given_name'] ?? '',
+                'family_name' => $data['family_name'] ?? '',
+                'picture' => $data['picture'] ?? ''
+            );
+        }
+    }
+    
+    return false;
+}
+
+
+// Verifica JWT Google Identity Services
+function verify_google_jwt($jwt_token) {
+    // URL per verificare il JWT con Google
+    $url = 'https://oauth2.googleapis.com/tokeninfo?id_token=' . $jwt_token;
+    
+    $response = wp_remote_get($url, array(
+        'timeout' => 15,
+        'headers' => array(
+            'User-Agent' => 'WordPress/' . get_bloginfo('version') . '; ' . home_url()
+        )
+    ));
     
     if (is_wp_error($response)) {
+        error_log('Google token verification error: ' . $response->get_error_message());
         return false;
     }
     
     $body = wp_remote_retrieve_body($response);
     $data = json_decode($body, true);
     
-    // Verifica che il token sia per la nostra app
+    // Verifica che il token sia valido e per la nostra app
     if (!isset($data['aud']) || $data['aud'] !== GOOGLE_CLIENT_ID) {
+        error_log('Google token verification failed: Invalid audience');
+        return false;
+    }
+    
+    if (!isset($data['email']) || !isset($data['sub'])) {
+        error_log('Google token verification failed: Missing required fields');
         return false;
     }
     
     return array(
         'google_id' => $data['sub'],
         'email' => $data['email'],
-        'name' => $data['name'],
-        'given_name' => $data['given_name'],
-        'family_name' => $data['family_name'],
-        'picture' => $data['picture']
+        'name' => $data['name'] ?? '',
+        'given_name' => $data['given_name'] ?? '',
+        'family_name' => $data['family_name'] ?? '',
+        'picture' => $data['picture'] ?? ''
     );
 }
 
