@@ -1614,7 +1614,6 @@ function remove_admin_bar() {
     }
 }
 
-
 // ========================================
 // DEBUG TEMPORANEO - RIMUOVERE DOPO IL FIX
 // ========================================
@@ -1654,3 +1653,37 @@ add_action('clear_auth_cookie', function() {
 });
 
 
+// ========================================
+// DISABILITA PLUGIN E TEMA SU PAGINE AUTH
+// ========================================
+
+function instacontest_disable_everything_on_auth() {
+    $current_page = get_query_var('pagename');
+    $auth_pages = array('login', 'register', 'profilo');
+    
+    if (in_array($current_page, $auth_pages) || is_page($auth_pages)) {
+        
+        // Disabilita plugin problematici
+        add_filter('option_active_plugins', function($plugins) {
+            $disabled_plugins = array(
+                'limit-login-attempts-reloaded/limit-login-attempts-reloaded.php',
+                'elementor/elementor.php',
+                'wordpress-seo/wp-seo.php'
+            );
+            
+            return array_diff($plugins, $disabled_plugins);
+        });
+        
+        // Disabilita hooks tema Astra
+        remove_all_actions('wp_head');
+        remove_all_actions('wp_footer');
+        remove_all_actions('wp_print_styles');
+        remove_all_actions('wp_print_scripts');
+        
+        // Pulisci tutto
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+    }
+}
+add_action('plugins_loaded', 'instacontest_disable_everything_on_auth', 1);
