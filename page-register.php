@@ -42,6 +42,12 @@ get_header(); ?>
                     if (empty($email) || !is_email($email)) $errors[] = 'Email non valida';
                     if (empty($password) || strlen($password) < 6) $errors[] = 'Password minimo 6 caratteri';
                     if (empty($instagram_username)) $errors[] = 'Username Instagram obbligatorio';
+                    $squadre_cuore = isset($_POST['squadre_cuore']) ? $_POST['squadre_cuore'] : array();
+                    if (empty($squadre_cuore)) {
+                        $errors[] = 'Devi selezionare almeno una squadra del cuore';
+                    } elseif (count($squadre_cuore) > 3) {
+                        $errors[] = 'Puoi selezionare massimo 3 squadre';
+                    }
                     
                     $instagram_username = ltrim($instagram_username, '@');
                     
@@ -61,6 +67,7 @@ get_header(); ?>
                             ));
                             
                             update_user_meta($user_id, 'instagram_username', $instagram_username);
+                            update_user_meta($user_id, 'squadre_cuore', $squadre_cuore);
                             update_user_meta($user_id, 'total_points', 0);
                             
                             wp_set_current_user($user_id);
@@ -273,6 +280,47 @@ get_header(); ?>
                                required>
                     </div>
                     <p class="text-xs text-gray-500 mt-1">Necessario per partecipare ai contest</p>
+                    <!-- Squadra del cuore -->
+                        <div>
+                            <label class="block text-black font-medium text-sm mb-2">
+                                Squadra del cuore <span class="text-red-500">*</span>
+                            </label>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" name="squadre_cuore[]" value="milan" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                                    <span>Milan</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" name="squadre_cuore[]" value="inter" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                                    <span>Inter</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" name="squadre_cuore[]" value="napoli" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                                    <span>Napoli</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" name="squadre_cuore[]" value="roma" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                                    <span>Roma</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" name="squadre_cuore[]" value="lazio" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                                    <span>Lazio</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" name="squadre_cuore[]" value="juventus" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                                    <span>Juventus</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" name="squadre_cuore[]" value="altro" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                                    <span>Altro</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" name="squadre_cuore[]" value="nessuna" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                                    <span>Nessuna</span>
+                                </label>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">Scegli da 1 a 3 squadre</p>
+                        </div>
                 </div>
 
                 <div class="flex items-start space-x-3">
