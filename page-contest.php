@@ -40,32 +40,6 @@ get_header(); ?>
         
     <?php endwhile; endif; ?>
 
-    <!-- Profile Section -->
-    <section id="profile" class="px-4 py-6 bg-white">
-        <div class="flex items-center gap-4">
-            <?php if (is_user_logged_in()): ?>
-                <?php $current_user = wp_get_current_user(); ?>
-                <div class="p-1 avatar-gradient rounded-full">
-                    <?php echo get_avatar($current_user->ID, 64, '', '', array('class' => 'w-16 h-16 rounded-full border-2 border-white')); ?>
-                </div>
-                <div>
-                    <h2 class="text-black font-bold text-lg">CIAO <?php echo strtoupper($current_user->display_name); ?></h2>
-                    <p class="text-gray-400 text-sm">Benvenuto su Instacontest!</p>
-                </div>
-            <?php else: ?>
-                <div class="p-1 avatar-gradient rounded-full">
-                    <div class="w-16 h-16 rounded-full border-2 border-white bg-gray-300 flex items-center justify-center">
-                        <i class="fa-solid fa-user text-white text-2xl"></i>
-                    </div>
-                </div>
-                <div>
-                    <h2 class="text-black font-bold text-lg">CIAO OSPITE</h2>
-                    <p class="text-gray-400 text-sm"><a href="<?php echo wp_login_url(); ?>" class="text-blue-500">Accedi</a> per partecipare!</p>
-                </div>
-            <?php endif; ?>
-        </div>
-    </section>
-
     <!-- Open Contests Section -->
     <section id="open-contests" class="px-4 py-6 bg-white">
   <div class="flex items-center justify-between mb-4">
