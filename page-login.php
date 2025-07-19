@@ -22,7 +22,7 @@ get_header(); ?>
             </div>
 
             <?php
-            // Gestione login normale (manteniamo il codice esistente)
+            // Gestione login normale
             $errors = array();
             $success = false;
 
@@ -87,7 +87,7 @@ get_header(); ?>
                 </div>
             <?php endif; ?>
 
-            <!-- NUOVO: Google OAuth Section PRIMA del form normale -->
+            <!-- Google OAuth Section -->
             <div class="mb-6">
                 <button id="google-login-btn" 
                         class="w-full bg-white border border-gray-200 text-gray-700 font-medium py-3 px-6 rounded-xl hover:bg-gray-50 transition duration-200 shadow-sm flex items-center justify-center space-x-3">
@@ -95,7 +95,6 @@ get_header(); ?>
                     <span>Accedi con Google</span>
                 </button>
                 
-                <!-- Loading state -->
                 <button id="google-login-loading" 
                         class="w-full bg-gray-100 text-gray-500 font-medium py-3 px-6 rounded-xl cursor-not-allowed hidden flex items-center justify-center space-x-3">
                     <i class="fa-solid fa-spinner fa-spin"></i>
@@ -113,7 +112,7 @@ get_header(); ?>
                 </div>
             </div>
 
-            <!-- Form di login normale (manteniamo il codice esistente) -->
+            <!-- Form di login normale -->
             <?php if (!$success): ?>
                 <div class="bg-white border border-gray-200 rounded-2xl p-6">
                     <form method="post" class="space-y-6">
@@ -191,14 +190,13 @@ get_header(); ?>
         </div>
     </section>
 
-    <!-- MODAL per completare registrazione Google -->
+    <!-- Modal per completare registrazione Google -->
     <div id="google-register-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl p-6 w-full max-w-md">
             <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">Completa la registrazione</h3>
             <p class="text-gray-600 text-sm mb-6 text-center">Aggiungi alcune informazioni per completare il tuo profilo</p>
             
             <form id="google-register-form" class="space-y-4">
-                <!-- Username Instagram -->
                 <div>
                     <label for="google_instagram_username" class="block text-black font-medium text-sm mb-2">
                         Username Instagram <span class="text-red-500">*</span>
@@ -215,7 +213,6 @@ get_header(); ?>
                     <p class="text-xs text-gray-500 mt-1">Necessario per partecipare ai contest</p>
                 </div>
 
-                <!-- Privacy -->
                 <div class="flex items-start space-x-3">
                     <input type="checkbox" 
                            id="google_accept_terms" 
@@ -227,7 +224,6 @@ get_header(); ?>
                     </label>
                 </div>
 
-                <!-- Buttons -->
                 <div class="flex space-x-3 mt-6">
                     <button type="button" 
                             id="cancel-google-register"
@@ -242,30 +238,21 @@ get_header(); ?>
             </form>
         </div>
     </div>
+
 </body>
 
-<!-- Google Identity Services - NUOVA API -->
+<!-- Google Identity Services -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <script>
-console.log('🚀 GOOGLE IDENTITY SERVICES - NUOVA API');
-
 const clientId = '<?php echo GOOGLE_CLIENT_ID; ?>';
-console.log('📋 Client ID:', clientId);
 
-// Inizializza la nuova Google Identity API
 function initGoogleIdentity() {
-    console.log('🔥 Inizializzazione Google Identity...');
-    
     if (typeof google === 'undefined' || !google.accounts) {
-        console.log('❌ Google Identity non ancora caricata, riprovo...');
         setTimeout(initGoogleIdentity, 500);
         return;
     }
     
-    console.log('✅ Google Identity disponibile!');
-    
-    // Inizializza Google Sign-In
     google.accounts.id.initialize({
         client_id: clientId,
         callback: handleCredentialResponse,
@@ -273,114 +260,64 @@ function initGoogleIdentity() {
         cancel_on_tap_outside: true
     });
     
-    // Setup pulsante personalizzato
     setupCustomGoogleButton();
-    
-    console.log('🎉 Google Identity inizializzata con successo!');
 }
 
-// Gestisce la risposta di Google
 function handleCredentialResponse(response) {
-    console.log('🎫 Credenziali ricevute da Google:', response);
-    
-    const credential = response.credential;
-    console.log('📋 JWT Token ricevuto:', credential ? 'SI' : 'NO');
-    
-    // Invia al server WordPress
-    sendCredentialToServer(credential);
+    sendCredentialToServer(response.credential);
 }
 
-// Setup pulsante personalizzato
 function setupCustomGoogleButton() {
-    console.log('🔗 Setup pulsante Google personalizzato...');
-    
     const button = document.getElementById('google-login-btn');
     const loading = document.getElementById('google-login-loading');
     
-    if (!button) {
-        console.error('❌ Pulsante non trovato!');
-        return;
-    }
-    
-    console.log('✅ Pulsante trovato, aggiunto listener');
+    if (!button) return;
     
     button.addEventListener('click', function(e) {
         e.preventDefault();
-        console.log('🔥 CLICK PULSANTE GOOGLE!');
         
-        // Mostra loading
         button.classList.add('hidden');
         loading.classList.remove('hidden');
         
         try {
-            // Usa la nuova API per il prompt
             google.accounts.id.prompt((notification) => {
-                console.log('📊 Notification:', notification);
-                
                 if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                    console.log('⚠️ Popup non mostrato, provo metodo alternativo...');
-                    
-                    // Metodo alternativo: OAuth popup
                     initiateOAuthFlow();
                 }
-                
-                // Ripristina pulsante se necessario
                 if (notification.isNotDisplayed()) {
                     button.classList.remove('hidden');
                     loading.classList.add('hidden');
                 }
             });
-            
         } catch (error) {
-            console.error('❌ Errore durante prompt:', error);
-            
-            // Ripristina pulsante
             button.classList.remove('hidden');
             loading.classList.add('hidden');
-            
-            // Prova metodo alternativo
             initiateOAuthFlow();
         }
     });
 }
 
-// Metodo alternativo: OAuth flow
 function initiateOAuthFlow() {
-    console.log('🔄 Avvio OAuth flow alternativo...');
-    
-    // Inizializza OAuth
     const client = google.accounts.oauth2.initTokenClient({
         client_id: clientId,
         scope: 'openid email profile',
         callback: (response) => {
-            console.log('🎫 OAuth response:', response);
-            
             if (response.access_token) {
-                // Ottieni info profilo con access token
                 fetchUserProfile(response.access_token);
             }
         },
     });
-    
-    // Avvia il flusso
     client.requestAccessToken();
 }
 
-// Ottieni profilo utente con access token
 async function fetchUserProfile(accessToken) {
-    console.log('👤 Recupero profilo utente...');
-    
     try {
         const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
+            headers: { 'Authorization': `Bearer ${accessToken}` }
         });
         
         const userInfo = await response.json();
-        console.log('📊 Info utente:', userInfo);
         
-        // Crea un JWT fittizio per il backend
         const fakeCredential = btoa(JSON.stringify({
             sub: userInfo.id,
             email: userInfo.email,
@@ -394,43 +331,25 @@ async function fetchUserProfile(accessToken) {
         sendCredentialToServer(fakeCredential);
         
     } catch (error) {
-        console.error('❌ Errore recupero profilo:', error);
         showMessage('error', 'Errore durante il recupero del profilo Google');
-        
-        // Ripristina pulsante
         document.getElementById('google-login-btn').classList.remove('hidden');
         document.getElementById('google-login-loading').classList.add('hidden');
     }
 }
 
-// Invia credenziali al server WordPress
 function sendCredentialToServer(credential) {
-    console.log('📡 Invio credenziali al server...');
-    
     fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'action=google_oauth_login&google_token=' + credential + '&nonce=<?php echo wp_create_nonce('google_oauth_nonce'); ?>'
     })
-    .then(response => {
-        console.log('📡 Risposta server:', response.status);
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-        console.log('📊 Dati server:', data);
-        
         if (data.success) {
             if (data.data.action === 'login') {
-                // Login esistente
                 showMessage('success', data.data.message);
-                setTimeout(() => {
-                    window.location.href = data.data.redirect;
-                }, 1000);
-                
+                setTimeout(() => window.location.href = data.data.redirect, 1000);
             } else if (data.data.action === 'register') {
-                // Nuovo utente
                 showRegistrationModal(data.data.user_data);
             }
         } else {
@@ -438,17 +357,14 @@ function sendCredentialToServer(credential) {
         }
     })
     .catch(error => {
-        console.error('❌ Errore server:', error);
         showMessage('error', 'Errore di comunicazione con il server');
     })
     .finally(() => {
-        // Ripristina pulsante
         document.getElementById('google-login-btn').classList.remove('hidden');
         document.getElementById('google-login-loading').classList.add('hidden');
     });
 }
 
-// Mostra messaggi
 function showMessage(type, message) {
     const alertClass = type === 'success' ? 'border-green-200 text-green-800' : 'border-red-200 text-red-800';
     const icon = type === 'success' ? 'fa-check-circle text-green-500' : 'fa-exclamation-triangle text-red-500';
@@ -469,16 +385,11 @@ function showMessage(type, message) {
     container.insertBefore(messageDiv, container.children[1]);
     
     setTimeout(() => {
-        if (messageDiv.parentNode) {
-            messageDiv.parentNode.removeChild(messageDiv);
-        }
+        if (messageDiv.parentNode) messageDiv.parentNode.removeChild(messageDiv);
     }, 5000);
 }
 
-// Modal registrazione (mantieni le funzioni esistenti)
 function showRegistrationModal(userData) {
-    console.log('🔔 Mostra modal registrazione:', userData);
-    
     const modal = document.getElementById('google-register-modal');
     modal.classList.remove('hidden');
     
@@ -500,9 +411,7 @@ function completeGoogleRegistration() {
     
     fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'action=complete_google_registration' +
               '&google_data=' + encodeURIComponent(JSON.stringify(window.tempGoogleData)) +
               '&instagram_username=' + formData.get('instagram_username') +
@@ -513,20 +422,16 @@ function completeGoogleRegistration() {
     .then(data => {
         if (data.success) {
             showMessage('success', data.data.message);
-            setTimeout(() => {
-                window.location.href = data.data.redirect;
-            }, 1000);
+            setTimeout(() => window.location.href = data.data.redirect, 1000);
         } else {
             showMessage('error', data.data);
         }
     })
     .catch(error => {
-        console.error('Errore:', error);
         showMessage('error', 'Errore durante la registrazione');
     });
 }
 
-// Toggle password
 function toggleLoginPassword() {
     const passwordInput = document.getElementById('password');
     const toggleIcon = document.getElementById('login-password-toggle-icon');
@@ -542,18 +447,13 @@ function toggleLoginPassword() {
     }
 }
 
-// Avvia tutto quando il DOM è pronto
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('📄 DOM pronto, avvio Google Identity...');
     setTimeout(initGoogleIdentity, 200);
 });
 
-// Avvia anche se DOM già caricato
 if (document.readyState !== 'loading') {
-    console.log('📄 DOM già caricato, avvio immediato...');
     setTimeout(initGoogleIdentity, 200);
 }
-
-console.log('🏁 SETUP GOOGLE IDENTITY COMPLETO');
 </script>
+
 <?php get_footer(); ?>
