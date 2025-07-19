@@ -84,7 +84,6 @@ if (isset($_POST['instacontest_register'])) {
             }
         }
     }
-}
             ?>
 
             <!-- Messaggi di successo -->
