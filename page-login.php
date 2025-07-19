@@ -80,6 +80,7 @@ if (isset($_GET['auto_login']) && isset($_GET['nonce'])) {
                         );
                         
                         $user = wp_signon($creds, false);
+                        error_log('DEBUG LOGIN FORM - Signon result: ' . (is_wp_error($user) ? 'ERROR: ' . $user->get_error_message() : 'SUCCESS - User ID: ' . $user->ID));
                         
                         if (is_wp_error($user)) {
                             $errors[] = 'Email o password non corretti';
