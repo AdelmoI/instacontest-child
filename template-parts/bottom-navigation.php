@@ -25,7 +25,7 @@ if (is_post_type_archive('contest') || is_home() || is_front_page()) {
     <div class="flex justify-around items-center py-3 px-4 max-w-full mx-auto">
         
         <!-- Home/Concorsi -->
-        <a href="<?php echo get_post_type_archive_link('contest'); ?>" class="flex flex-col items-center">
+        <a href="<?php echo home_url(); ?>" class="flex flex-col items-center">
             <i class="fa-solid fa-home <?php echo ($current_page === 'home') ? 'text-instagram-gradient' : 'text-gray-600'; ?> text-xl mb-1"></i>
             <span class="<?php echo ($current_page === 'home') ? 'text-instagram-gradient' : 'text-gray-600'; ?> text-xs">Home</span>
         </a>
