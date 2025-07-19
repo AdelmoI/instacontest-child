@@ -1613,3 +1613,42 @@ function remove_admin_bar() {
         show_admin_bar(false);
     }
 }
+
+
+// ========================================
+// DEBUG TEMPORANEO - RIMUOVERE DOPO IL FIX
+// ========================================
+
+// Debug completo login
+function instacontest_debug_auth_process() {
+    if (isset($_POST['instacontest_register']) || isset($_POST['instacontest_login'])) {
+        error_log("=== DEBUG AUTH START ===");
+        error_log("URL: " . $_SERVER['REQUEST_URI']);
+        error_log("HTTP_HOST: " . $_SERVER['HTTP_HOST']);
+        error_log("HTTPS: " . (isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : 'not set'));
+        error_log("COOKIE_DOMAIN: " . (defined('COOKIE_DOMAIN') ? COOKIE_DOMAIN : 'not defined'));
+        error_log("COOKIEPATH: " . (defined('COOKIEPATH') ? COOKIEPATH : 'not defined'));
+        error_log("Session ID: " . session_id());
+        error_log("Headers sent: " . (headers_sent() ? 'YES' : 'NO'));
+        
+        // Test cookie settings
+        $test_cookie = 'test_' . time();
+        setcookie($test_cookie, 'working', time() + 300, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true);
+        error_log("Test cookie set: " . $test_cookie);
+    }
+}
+add_action('init', 'instacontest_debug_auth_process');
+
+// Debug hooks WordPress
+add_action('wp_login', function($user_login, $user) {
+    error_log("WP_LOGIN HOOK - User: " . $user_login . " ID: " . $user->ID);
+    error_log("Is user logged in after hook: " . (is_user_logged_in() ? 'YES' : 'NO'));
+}, 10, 2);
+
+add_action('set_auth_cookie', function($auth_cookie, $expire, $expiration, $user_id, $scheme) {
+    error_log("SET_AUTH_COOKIE HOOK - User ID: " . $user_id . " Expire: " . $expire);
+}, 10, 5);
+
+add_action('clear_auth_cookie', function() {
+    error_log("CLEAR_AUTH_COOKIE HOOK - Cookies cleared");
+});
