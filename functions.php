@@ -1394,3 +1394,190 @@ function instacontest_add_bottom_nav_body_class($classes) {
     return $classes;
 }
 add_filter('body_class', 'instacontest_add_bottom_nav_body_class');
+
+// ========================================
+// GOOGLE OAUTH CONFIGURATION - AGGIUNGI AL TUO functions.php
+// ========================================
+
+// Configurazione Google OAuth (le credenziali sono in wp-config.php)
+define('GOOGLE_REDIRECT_URI', home_url('/login'));
+
+// Verifica che le credenziali siano configurate
+if (!defined('GOOGLE_CLIENT_ID') || !defined('GOOGLE_CLIENT_SECRET')) {
+    add_action('admin_notices', function() {
+        echo '<div class="notice notice-error"><p>ERRORE: Configura GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET in wp-config.php</p></div>';
+    });
+}
+
+// Enqueue Google API JavaScript
+function instacontest_enqueue_google_scripts() {
+    // Solo nelle pagine login e register
+    if (is_page('login') || is_page('register')) {
+        // Google API JavaScript
+        wp_enqueue_script(
+            'google-platform',
+            'https://apis.google.com/js/platform.js',
+            array(),
+            null,
+            true
+        );
+        
+        // Il nostro script custom
+        wp_add_inline_script('google-platform', '
+            function onGoogleApiLoad() {
+                gapi.load("auth2", function() {
+                    gapi.auth2.init({
+                        client_id: "' . GOOGLE_CLIENT_ID . '"
+                    });
+                });
+            }
+        ');
+    }
+}
+add_action('wp_enqueue_scripts', 'instacontest_enqueue_google_scripts');
+
+// AJAX handler per login Google
+add_action('wp_ajax_google_oauth_login', 'handle_google_oauth_login');
+add_action('wp_ajax_nopriv_google_oauth_login', 'handle_google_oauth_login');
+
+function handle_google_oauth_login() {
+    // Verifica nonce
+    if (!wp_verify_nonce($_POST['nonce'], 'google_oauth_nonce')) {
+        wp_die('Errore di sicurezza');
+    }
+    
+    $google_token = sanitize_text_field($_POST['google_token']);
+    
+    // Verifica token con Google
+    $user_data = verify_google_token($google_token);
+    
+    if (!$user_data) {
+        wp_send_json_error('Token Google non valido');
+        return;
+    }
+    
+    // Cerca utente esistente per email
+    $existing_user = get_user_by('email', $user_data['email']);
+    
+    if ($existing_user) {
+        // LOGIN utente esistente
+        wp_set_current_user($existing_user->ID);
+        wp_set_auth_cookie($existing_user->ID);
+        
+        wp_send_json_success(array(
+            'action' => 'login',
+            'message' => 'Login effettuato con successo!',
+            'redirect' => home_url('/profilo')
+        ));
+    } else {
+        // REGISTRAZIONE nuovo utente
+        wp_send_json_success(array(
+            'action' => 'register',
+            'user_data' => $user_data,
+            'message' => 'Completa la registrazione'
+        ));
+    }
+}
+
+// Funzione per verificare token Google
+function verify_google_token($token) {
+    $url = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=' . $token;
+    
+    $response = wp_remote_get($url);
+    
+    if (is_wp_error($response)) {
+        return false;
+    }
+    
+    $body = wp_remote_retrieve_body($response);
+    $data = json_decode($body, true);
+    
+    // Verifica che il token sia per la nostra app
+    if (!isset($data['aud']) || $data['aud'] !== GOOGLE_CLIENT_ID) {
+        return false;
+    }
+    
+    return array(
+        'google_id' => $data['sub'],
+        'email' => $data['email'],
+        'name' => $data['name'],
+        'given_name' => $data['given_name'],
+        'family_name' => $data['family_name'],
+        'picture' => $data['picture']
+    );
+}
+
+// AJAX handler per completare registrazione
+add_action('wp_ajax_complete_google_registration', 'handle_complete_google_registration');
+add_action('wp_ajax_nopriv_complete_google_registration', 'handle_complete_google_registration');
+
+function handle_complete_google_registration() {
+    // Verifica nonce
+    if (!wp_verify_nonce($_POST['nonce'], 'google_oauth_nonce')) {
+        wp_die('Errore di sicurezza');
+    }
+    
+    // Sanitizza dati
+    $google_data = json_decode(stripslashes($_POST['google_data']), true);
+    $instagram_username = sanitize_text_field($_POST['instagram_username']);
+    $accept_terms = isset($_POST['accept_terms']);
+    
+    // Validazioni
+    $errors = array();
+    
+    if (empty($instagram_username)) {
+        $errors[] = 'Username Instagram obbligatorio';
+    }
+    
+    if (!$accept_terms) {
+        $errors[] = 'Devi accettare i termini e condizioni';
+    }
+    
+    // Pulisci username Instagram
+    $instagram_username = ltrim($instagram_username, '@');
+    
+    // Verifica se username Instagram già in uso
+    if (instacontest_instagram_username_exists($instagram_username)) {
+        $errors[] = 'Username Instagram già utilizzato da un altro utente';
+    }
+    
+    if (!empty($errors)) {
+        wp_send_json_error($errors);
+        return;
+    }
+    
+    // Crea nuovo utente
+    $username = $google_data['email']; // Usa email come username
+    $password = wp_generate_password(12, false); // Password random
+    
+    $user_id = wp_create_user($username, $password, $google_data['email']);
+    
+    if (is_wp_error($user_id)) {
+        wp_send_json_error('Errore durante la creazione dell\'account');
+        return;
+    }
+    
+    // Aggiorna dati utente
+    wp_update_user(array(
+        'ID' => $user_id,
+        'first_name' => $google_data['given_name'],
+        'last_name' => $google_data['family_name'],
+        'display_name' => $google_data['name']
+    ));
+    
+    // Salva metadati extra
+    update_user_meta($user_id, 'google_id', $google_data['google_id']);
+    update_user_meta($user_id, 'google_picture', $google_data['picture']);
+    update_user_meta($user_id, 'instagram_username', $instagram_username);
+    update_user_meta($user_id, 'total_points', 0);
+    update_user_meta($user_id, 'registration_method', 'google');
+    
+    // Login automatico
+    wp_set_current_user($user_id);
+    wp_set_auth_cookie($user_id);
+    
+    wp_send_json_success(array(
+        'message' => 'Registrazione completata con successo!',
+        'redirect' => home_url('/profilo')
+    ));
+}
