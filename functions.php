@@ -1405,45 +1405,6 @@ add_filter('body_class', 'instacontest_add_bottom_nav_body_class');
 
 
 // ========================================
-// FIX CONTENT SECURITY POLICY PER GOOGLE OAUTH
-// Aggiungi questo PRIMA del codice Google OAuth nel functions.php
-// ========================================
-
-// Rimuovi CSP restrittive per le pagine di login/register
-function instacontest_fix_csp_for_google() {
-    // Solo nelle pagine login e register
-    if (is_page('login') || is_page('register')) {
-        // Rimuovi TUTTI gli header CSP
-        header_remove('Content-Security-Policy');
-        header_remove('Content-Security-Policy-Report-Only');
-        
-        // CSP molto permissiva SOLO per Google OAuth
-        header('Content-Security-Policy: ' . 
-               'default-src \'self\' data: https:; ' .
-               'script-src \'self\' \'unsafe-inline\' \'unsafe-eval\' data: blob: ' .
-               'https://apis.google.com https://www.gstatic.com https://accounts.google.com ' .
-               'https://ssl.gstatic.com https://cdnjs.cloudflare.com; ' .
-               'frame-src \'self\' https://accounts.google.com https://www.google.com; ' .
-               'connect-src \'self\' https://accounts.google.com https://www.googleapis.com ' .
-               'https://oauth2.googleapis.com; ' .
-               'img-src \'self\' data: https: blob:; ' .
-               'style-src \'self\' \'unsafe-inline\' https: data:; ' .
-               'font-src \'self\' https: data:;'
-        );
-    }
-}
-add_action('send_headers', 'instacontest_fix_csp_for_google');
-
-// Hook alternativo se il precedente non funziona
-function instacontest_fix_csp_alternative() {
-    if (is_page('login') || is_page('register')) {
-        echo '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; script-src \'self\' \'unsafe-inline\' \'unsafe-eval\' https://apis.google.com https://www.gstatic.com https://accounts.google.com https://ssl.gstatic.com; frame-src \'self\' https://accounts.google.com; connect-src \'self\' https://accounts.google.com https://www.googleapis.com; img-src \'self\' data: https:; style-src \'self\' \'unsafe-inline\' https:;">';
-    }
-}
-add_action('wp_head', 'instacontest_fix_csp_alternative', 1);
-
-
-// ========================================
 // GOOGLE OAUTH CONFIGURATION - AGGIUNGI AL TUO functions.php
 // ========================================
 
