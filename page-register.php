@@ -672,6 +672,52 @@ function toggleRegisterPassword() {
 
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(initGoogleIdentity, 200);
+    
+    // Validazione squadre del cuore in tempo reale
+    const teamCheckboxes = document.querySelectorAll('input[name="squadre_cuore[]"]');
+    const teamsError = document.getElementById('teams-error');
+    
+    teamCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const checkedTeams = document.querySelectorAll('input[name="squadre_cuore[]"]:checked');
+            
+            if (checkedTeams.length === 0) {
+                teamsError.textContent = 'Seleziona almeno 1 squadra';
+                teamsError.classList.remove('hidden');
+            } else if (checkedTeams.length > 3) {
+                teamsError.textContent = 'Massimo 3 squadre selezionabili';
+                teamsError.classList.remove('hidden');
+                
+                // Deseleziona l'ultimo checkbox selezionato
+                this.checked = false;
+            } else {
+                teamsError.classList.add('hidden');
+            }
+        });
+    });
+    
+    // Validazione squadre del cuore nel modal Google
+    const googleTeamCheckboxes = document.querySelectorAll('#google-register-form input[name="squadre_cuore[]"]');
+    const googleTeamsError = document.getElementById('google-teams-error');
+    
+    googleTeamCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const checkedTeams = document.querySelectorAll('#google-register-form input[name="squadre_cuore[]"]:checked');
+            
+            if (checkedTeams.length === 0) {
+                googleTeamsError.textContent = 'Seleziona almeno 1 squadra';
+                googleTeamsError.classList.remove('hidden');
+            } else if (checkedTeams.length > 3) {
+                googleTeamsError.textContent = 'Massimo 3 squadre selezionabili';
+                googleTeamsError.classList.remove('hidden');
+                
+                // Deseleziona l'ultimo checkbox selezionato
+                this.checked = false;
+            } else {
+                googleTeamsError.classList.add('hidden');
+            }
+        });
+    });
 });
 
 if (document.readyState !== 'loading') {
