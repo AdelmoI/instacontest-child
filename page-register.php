@@ -71,17 +71,19 @@ if (isset($_POST['instacontest_register'])) {
                     update_user_meta($user_id, 'total_points', 0);
                     
                    // SOSTITUISCI CON:
-                    // Login automatico IMMEDIATO
-                    wp_set_current_user($user_id);
-                    wp_set_auth_cookie($user_id, true, is_ssl());
-                    do_action('wp_login', $email, get_user_by('ID', $user_id));
-                    
-                    // Forza refresh cache
-                    wp_cache_delete($user_id, 'users');
-                    wp_cache_delete($email, 'userlogins');
+                    // Login con gestione headers
+                    if (!headers_sent()) {
+                        wp_set_current_user($user_id);
+                        wp_set_auth_cookie($user_id, true, is_ssl());
+                        do_action('wp_login', $email, get_user_by('ID', $user_id));
+                        
+                        // Forza refresh cache
+                        wp_cache_delete($user_id, 'users');
+                        wp_cache_delete($email, 'userlogins');
+                    }
                     
                     $success = true;
-                    echo '<script>setTimeout(function(){ window.location.href = "' . home_url('/profilo') . '"; }, 1000);</script>';
+                    echo '<script>setTimeout(function(){ window.location.href = "' . home_url('/profilo') . '"; }, 2000);</script>';
                 } else {
                     $errors[] = 'Errore durante la registrazione. Riprova.';
                 }
