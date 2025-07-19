@@ -243,85 +243,144 @@ get_header(); ?>
         </div>
     </div>
 
-<!-- SCRIPT DI DEBUG - Aggiungilo temporaneamente prima di </body> -->
+// JavaScript DETTAGLIATO per debug Google OAuth
 <script>
-console.log('🔍 DEBUG Google OAuth - Inizio');
+console.log('🚀 INIZIO DEBUG GOOGLE AUTH');
 
-// Test 1: Verifica se le costanti PHP sono passate correttamente
-console.log('Client ID:', '<?php echo defined("GOOGLE_CLIENT_ID") ? GOOGLE_CLIENT_ID : "NON DEFINITO"; ?>');
+// Test 1: Verifica Client ID
+const clientId = '<?php echo GOOGLE_CLIENT_ID; ?>';
+console.log('📋 Client ID:', clientId);
+console.log('📋 Client ID valido?', clientId.includes('.apps.googleusercontent.com'));
 
-// Test 2: Verifica caricamento Google API
+// Test 2: Callback quando Google API è pronta
+function onGoogleApiLoad() {
+    console.log('🔥 Google API callback chiamata');
+    
+    // Test caricamento auth2
+    gapi.load('auth2', function() {
+        console.log('✅ Auth2 modulo caricato');
+        
+        // Prova inizializzazione con gestione errori
+        try {
+            console.log('🔄 Inizializzazione auth2...');
+            
+            gapi.auth2.init({
+                client_id: clientId
+            }).then(function(authInstance) {
+                console.log('✅ Auth2 inizializzato con successo!', authInstance);
+                console.log('📊 Utente loggato?', authInstance.isSignedIn.get());
+                
+                // Ora attacca il listener al pulsante
+                attachSignInListener(authInstance);
+                
+            }, function(error) {
+                console.error('❌ ERRORE inizializzazione auth2:', error);
+                console.log('📋 Errore dettagli:', JSON.stringify(error, null, 2));
+            });
+            
+        } catch (error) {
+            console.error('❌ ERRORE CRITICO durante init:', error);
+        }
+    });
+}
+
+// Test 3: Attacca listener al pulsante
+function attachSignInListener(authInstance) {
+    console.log('🔗 Attaccando listener al pulsante...');
+    
+    const button = document.getElementById('google-login-btn');
+    const loading = document.getElementById('google-login-loading');
+    
+    if (!button) {
+        console.error('❌ Pulsante non trovato!');
+        return;
+    }
+    
+    // Rimuovi eventuali listener esistenti
+    const newButton = button.cloneNode(true);
+    button.parentNode.replaceChild(newButton, button);
+    
+    console.log('✅ Pulsante preparato, aggiungendo listener...');
+    
+    newButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('🔥 CLICK RILEVATO SUL PULSANTE GOOGLE!');
+        
+        // Mostra loading
+        newButton.classList.add('hidden');
+        loading.classList.remove('hidden');
+        
+        console.log('🔄 Tentativo sign-in...');
+        
+        // Prova sign-in
+        authInstance.signIn().then(function(googleUser) {
+            console.log('✅ Sign-in riuscito!', googleUser);
+            
+            const idToken = googleUser.getAuthResponse().id_token;
+            console.log('🎫 Token ricevuto:', idToken ? 'SI' : 'NO');
+            
+            // Invia al server
+            handleServerRequest(idToken);
+            
+        }).catch(function(error) {
+            console.error('❌ Errore sign-in:', error);
+            console.log('📋 Dettagli errore:', JSON.stringify(error, null, 2));
+            
+            // Ripristina pulsante
+            newButton.classList.remove('hidden');
+            loading.classList.add('hidden');
+        });
+    });
+    
+    console.log('✅ Listener attaccato con successo!');
+}
+
+// Test 4: Richiesta al server
+function handleServerRequest(idToken) {
+    console.log('📡 Invio richiesta al server...');
+    
+    fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'action=google_oauth_login&google_token=' + idToken + '&nonce=<?php echo wp_create_nonce('google_oauth_nonce'); ?>'
+    })
+    .then(response => {
+        console.log('📡 Risposta server ricevuta:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('📊 Dati server:', data);
+        // Gestisci risposta...
+    })
+    .catch(error => {
+        console.error('❌ Errore comunicazione server:', error);
+    });
+}
+
+// Test 5: Caricamento manuale se necessario
 window.addEventListener('load', function() {
     setTimeout(function() {
-        console.log('🔍 Gapi disponibile?', typeof gapi !== 'undefined');
-        console.log('🔍 Gapi auth2?', typeof gapi !== 'undefined' && gapi.auth2);
-        
-        // Test 3: Verifica se il pulsante esiste
-        const button = document.getElementById('google-login-btn');
-        console.log('🔍 Pulsante trovato?', button !== null);
-        
-        if (button) {
-            console.log('🔍 Event listeners sul pulsante:', getEventListeners ? getEventListeners(button) : 'Non disponibile in questo browser');
+        if (typeof gapi === 'undefined') {
+            console.log('⚠️ Google API non caricata, caricamento manuale...');
+            const script = document.createElement('script');
+            script.src = 'https://apis.google.com/js/platform.js?onload=onGoogleApiLoad';
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        } else {
+            console.log('✅ Google API già disponibile');
+            if (typeof gapi.auth2 === 'undefined') {
+                console.log('🔄 Caricamento auth2...');
+                onGoogleApiLoad();
+            }
         }
-        
-        // Test 4: Forza click per vedere se l'handler è attaccato
-        if (button) {
-            button.addEventListener('click', function() {
-                console.log('🔍 Click rilevato sul pulsante Google!');
-            });
-        }
-        
-    }, 2000);
+    }, 1000);
 });
 
-// Test 5: Verifica errori Google API
-window.gapi_onload = function() {
-    console.log('🔍 Google API caricata tramite callback');
-};
-
-// Test 6: Override delle funzioni per debug
-const originalOnGoogleApiLoad = window.onGoogleApiLoad;
-window.onGoogleApiLoad = function() {
-    console.log('🔍 onGoogleApiLoad chiamata');
-    if (typeof originalOnGoogleApiLoad === 'function') {
-        try {
-            originalOnGoogleApiLoad();
-            console.log('✅ onGoogleApiLoad eseguita con successo');
-        } catch (error) {
-            console.error('❌ Errore in onGoogleApiLoad:', error);
-        }
-    }
-};
-
-const originalInitGoogleAuth = window.initGoogleAuth;
-window.initGoogleAuth = function() {
-    console.log('🔍 initGoogleAuth chiamata');
-    if (typeof originalInitGoogleAuth === 'function') {
-        try {
-            originalInitGoogleAuth();
-            console.log('✅ initGoogleAuth eseguita con successo');
-        } catch (error) {
-            console.error('❌ Errore in initGoogleAuth:', error);
-        }
-    }
-};
-
-const originalAttachGoogleSignIn = window.attachGoogleSignIn;
-window.attachGoogleSignIn = function() {
-    console.log('🔍 attachGoogleSignIn chiamata');
-    if (typeof originalAttachGoogleSignIn === 'function') {
-        try {
-            originalAttachGoogleSignIn();
-            console.log('✅ attachGoogleSignIn eseguita con successo');
-        } catch (error) {
-            console.error('❌ Errore in attachGoogleSignIn:', error);
-        }
-    }
-};
-
-console.log('🔍 DEBUG Google OAuth - Fine setup');
+console.log('🏁 FINE SETUP DEBUG GOOGLE AUTH');
 </script>
-
 </body>
 
 <!-- JavaScript per Google OAuth e form handling -->
