@@ -1544,7 +1544,6 @@ function handle_complete_google_registration() {
     $google_data = json_decode(stripslashes($_POST['google_data']), true);
     $instagram_username = sanitize_text_field($_POST['instagram_username']);
     $accept_terms = isset($_POST['accept_terms']);
-    $squadre_cuore = isset($_POST['squadre_cuore']) ? $_POST['squadre_cuore'] : array();
     
     // Validazioni
     $errors = array();
@@ -1555,22 +1554,6 @@ function handle_complete_google_registration() {
     
     if (!$accept_terms) {
         $errors[] = 'Devi accettare i termini e condizioni';
-    }
-    
-    // Validazione squadre del cuore
-    if (empty($squadre_cuore)) {
-        $errors[] = 'Seleziona almeno una squadra del cuore';
-    } elseif (count($squadre_cuore) > 3) {
-        $errors[] = 'Puoi selezionare massimo 3 squadre del cuore';
-    } else {
-        // Valida che le squadre siano nell'elenco consentito
-        $squadre_consentite = array('milan', 'inter', 'napoli', 'roma', 'lazio', 'juventus', 'altro', 'nessuna');
-        foreach ($squadre_cuore as $squadra) {
-            if (!in_array($squadra, $squadre_consentite)) {
-                $errors[] = 'Squadra non valida selezionata';
-                break;
-            }
-        }
     }
     
     // Pulisci username Instagram
@@ -1609,7 +1592,6 @@ function handle_complete_google_registration() {
     update_user_meta($user_id, 'google_id', $google_data['google_id']);
     update_user_meta($user_id, 'google_picture', $google_data['picture']);
     update_user_meta($user_id, 'instagram_username', $instagram_username);
-    update_user_meta($user_id, 'squadre_cuore', $squadre_cuore); // NUOVO: Salva squadre del cuore
     update_user_meta($user_id, 'total_points', 0);
     update_user_meta($user_id, 'registration_method', 'google');
     
@@ -1621,37 +1603,4 @@ function handle_complete_google_registration() {
         'message' => 'Registrazione completata con successo!',
         'redirect' => home_url('/profilo')
     ));
-}
-
-// AGGIUNGI ANCHE QUESTA FUNZIONE per ottenere le squadre del cuore di un utente
-function instacontest_get_user_teams($user_id) {
-    $teams = get_user_meta($user_id, 'squadre_cuore', true);
-    return is_array($teams) ? $teams : array();
-}
-
-// AGGIUNGI ANCHE QUESTA per formattare le squadre
-function instacontest_format_teams($teams) {
-    if (empty($teams)) {
-        return 'Nessuna squadra';
-    }
-    
-    $team_labels = array(
-        'milan' => '🔴 Milan',
-        'inter' => '🔵 Inter', 
-        'napoli' => '💙 Napoli',
-        'roma' => '🟡 Roma',
-        'lazio' => '🩵 Lazio',
-        'juventus' => '⚫ Juventus',
-        'altro' => '🟣 Altro',
-        'nessuna' => '⭕ Nessuna squadra'
-    );
-    
-    $formatted = array();
-    foreach ($teams as $team) {
-        if (isset($team_labels[$team])) {
-            $formatted[] = $team_labels[$team];
-        }
-    }
-    
-    return implode(', ', $formatted);
 }
