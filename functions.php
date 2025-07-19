@@ -1613,20 +1613,3 @@ function remove_admin_bar() {
         show_admin_bar(false);
     }
 }
-
-
-// Handler per auto-login dopo registrazione
-add_action('init', 'handle_auto_login');
-function handle_auto_login() {
-    if (isset($_GET['action']) && $_GET['action'] === 'auto_login' && isset($_GET['user_id']) && isset($_GET['nonce'])) {
-        $user_id = intval($_GET['user_id']);
-        $nonce = $_GET['nonce'];
-        
-        if (wp_verify_nonce($nonce, 'auto_login_' . $user_id)) {
-            wp_set_current_user($user_id);
-            wp_set_auth_cookie($user_id);
-            wp_redirect(home_url('/profilo'));
-            exit;
-        }
-    }
-}
