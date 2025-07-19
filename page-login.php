@@ -80,8 +80,27 @@ if (isset($_GET['auto_login']) && isset($_GET['nonce'])) {
                         );
                         
                         $user = wp_signon($creds, false);
-                        error_log('DEBUG LOGIN FORM - Signon result: ' . (is_wp_error($user) ? 'ERROR: ' . $user->get_error_message() : 'SUCCESS - User ID: ' . $user->ID));
-                        
+error_log('DEBUG LOGIN FORM - Signon result: ' . (is_wp_error($user) ? 'ERROR: ' . $user->get_error_message() : 'SUCCESS - User ID: ' . $user->ID));
+
+if (is_wp_error($user)) {
+    $errors[] = 'Email o password non corretti';
+} else {
+    // Verifica immediata se l'utente è loggato
+    error_log('DEBUG LOGIN FORM - is_user_logged_in after signon: ' . (is_user_logged_in() ? 'YES' : 'NO'));
+    error_log('DEBUG LOGIN FORM - get_current_user_id: ' . get_current_user_id());
+    
+    // Verifica se l'utente esiste davvero
+    $check_user = get_user_by('ID', $user->ID);
+    error_log('DEBUG LOGIN FORM - User exists check: ' . ($check_user ? 'YES' : 'NO'));
+    
+    if ($check_user) {
+        error_log('DEBUG LOGIN FORM - User role: ' . implode(', ', $check_user->roles));
+        error_log('DEBUG LOGIN FORM - User status: ' . $check_user->user_status);
+    }
+    
+    $success = true;
+    echo '<script>setTimeout(function(){ window.location.href = "' . home_url('/profilo') . '"; }, 2000);</script>';
+}                        
                         if (is_wp_error($user)) {
                             $errors[] = 'Email o password non corretti';
                         } else {
