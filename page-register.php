@@ -55,33 +55,32 @@ if (isset($_POST['instacontest_register'])) {
             $errors[] = 'Email già registrata';
         }
         
-        if (empty($errors)) {
-            $user_id = wp_create_user($email, $password, $email);
-            error_log('DEBUG REGISTER - wp_create_user result: ' . print_r($user_id, true));
-            
-            if (!is_wp_error($user_id)) {
-                wp_update_user(array(
-                    'ID' => $user_id,
-                    'first_name' => $nome,
-                    'last_name' => $cognome,
-                    'display_name' => $nome . ' ' . $cognome
-                ));
+            if (empty($errors)) {
+                $user_id = wp_create_user($email, $password, $email);
                 
-                update_user_meta($user_id, 'instagram_username', $instagram_username);
-                update_user_meta($user_id, 'squadre_cuore', $squadre_cuore);
-                update_user_meta($user_id, 'total_points', 0);
-                
-                error_log('DEBUG REGISTER - User created: ' . $user_id);
-                wp_set_current_user($user_id);
-                wp_set_auth_cookie($user_id);
-                do_action('wp_login', $email, get_user_by('ID', $user_id));
-                error_log('DEBUG REGISTER - User logged in, is_user_logged_in: ' . (is_user_logged_in() ? 'YES' : 'NO'));
-                
-                $success = true;
-                echo '<script>setTimeout(function(){ window.location.href = "' . home_url('/profilo') . '"; }, 1000);</script>';
-            } else {
-                $errors[] = 'Errore durante la registrazione. Riprova.';
-                error_log('DEBUG REGISTER - wp_create_user error: ' . $user_id->get_error_message());
+                if (!is_wp_error($user_id)) {
+                    wp_update_user(array(
+                        'ID' => $user_id,
+                        'first_name' => $nome,
+                        'last_name' => $cognome,
+                        'display_name' => $nome . ' ' . $cognome
+                    ));
+                    
+                    update_user_meta($user_id, 'instagram_username', $instagram_username);
+                    update_user_meta($user_id, 'squadre_cuore', $squadre_cuore);
+                    update_user_meta($user_id, 'total_points', 0);
+                    
+                    // Salva dati temporanei per auto-login
+                    set_transient('temp_login_' . $user_id, array(
+                        'email' => $email,
+                        'time' => time()
+                    ), 300); // 5 minuti
+                    
+                    $success = true;
+                    echo '<script>setTimeout(function(){ window.location.href = "' . home_url('/login?auto_login=' . $user_id . '&nonce=' . wp_create_nonce('auto_login_' . $user_id)) . '"; }, 1000);</script>';
+                } else {
+                    $errors[] = 'Errore durante la registrazione. Riprova.';
+                }
             }
         }
     }
