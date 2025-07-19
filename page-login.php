@@ -242,51 +242,48 @@ get_header(); ?>
             </form>
         </div>
     </div>
+</body>
 
-// JavaScript DETTAGLIATO per debug Google OAuth
+<!-- UNICO JavaScript per Google OAuth - Sostituisce tutto -->
 <script>
-console.log('🚀 INIZIO DEBUG GOOGLE AUTH');
+console.log('🚀 INIZIO GOOGLE AUTH FORZATA');
 
-// Test 1: Verifica Client ID
 const clientId = '<?php echo GOOGLE_CLIENT_ID; ?>';
 console.log('📋 Client ID:', clientId);
-console.log('📋 Client ID valido?', clientId.includes('.apps.googleusercontent.com'));
 
-// Test 2: Callback quando Google API è pronta
-function onGoogleApiLoad() {
-    console.log('🔥 Google API callback chiamata');
+// Forza inizializzazione appena possibile
+function initGoogleAuthForced() {
+    console.log('🔥 Tentativo inizializzazione forzata...');
     
-    // Test caricamento auth2
+    if (typeof gapi === 'undefined') {
+        console.log('❌ GAPI non ancora disponibile, riprovo tra 500ms...');
+        setTimeout(initGoogleAuthForced, 500);
+        return;
+    }
+    
+    console.log('✅ GAPI disponibile, carico auth2...');
+    
     gapi.load('auth2', function() {
-        console.log('✅ Auth2 modulo caricato');
+        console.log('✅ Auth2 modulo caricato, inizializzo...');
         
-        // Prova inizializzazione con gestione errori
-        try {
-            console.log('🔄 Inizializzazione auth2...');
+        gapi.auth2.init({
+            client_id: clientId
+        }).then(function(authInstance) {
+            console.log('🎉 SUCCESSO! Auth2 inizializzato:', authInstance);
             
-            gapi.auth2.init({
-                client_id: clientId
-            }).then(function(authInstance) {
-                console.log('✅ Auth2 inizializzato con successo!', authInstance);
-                console.log('📊 Utente loggato?', authInstance.isSignedIn.get());
-                
-                // Ora attacca il listener al pulsante
-                attachSignInListener(authInstance);
-                
-            }, function(error) {
-                console.error('❌ ERRORE inizializzazione auth2:', error);
-                console.log('📋 Errore dettagli:', JSON.stringify(error, null, 2));
-            });
+            // Attacca il pulsante
+            setupGoogleButton(authInstance);
             
-        } catch (error) {
-            console.error('❌ ERRORE CRITICO durante init:', error);
-        }
+        }).catch(function(error) {
+            console.error('❌ Errore init auth2:', error);
+            console.log('🔍 Dettagli:', JSON.stringify(error, null, 2));
+        });
     });
 }
 
-// Test 3: Attacca listener al pulsante
-function attachSignInListener(authInstance) {
-    console.log('🔗 Attaccando listener al pulsante...');
+// Setup del pulsante Google
+function setupGoogleButton(authInstance) {
+    console.log('🔗 Setup pulsante Google...');
     
     const button = document.getElementById('google-login-btn');
     const loading = document.getElementById('google-login-loading');
@@ -296,48 +293,49 @@ function attachSignInListener(authInstance) {
         return;
     }
     
-    // Rimuovi eventuali listener esistenti
-    const newButton = button.cloneNode(true);
-    button.parentNode.replaceChild(newButton, button);
+    console.log('✅ Pulsante trovato, aggiunto listener');
     
-    console.log('✅ Pulsante preparato, aggiungendo listener...');
-    
-    newButton.addEventListener('click', function(e) {
+    button.addEventListener('click', function(e) {
         e.preventDefault();
-        console.log('🔥 CLICK RILEVATO SUL PULSANTE GOOGLE!');
+        console.log('🔥 CLICK GOOGLE BUTTON!');
         
         // Mostra loading
-        newButton.classList.add('hidden');
+        button.classList.add('hidden');
         loading.classList.remove('hidden');
         
-        console.log('🔄 Tentativo sign-in...');
+        console.log('🔄 Avvio sign-in...');
         
-        // Prova sign-in
-        authInstance.signIn().then(function(googleUser) {
+        authInstance.signIn({
+            scope: 'profile email'
+        }).then(function(googleUser) {
             console.log('✅ Sign-in riuscito!', googleUser);
             
+            const profile = googleUser.getBasicProfile();
             const idToken = googleUser.getAuthResponse().id_token;
-            console.log('🎫 Token ricevuto:', idToken ? 'SI' : 'NO');
+            
+            console.log('👤 Profilo:', {
+                name: profile.getName(),
+                email: profile.getEmail()
+            });
             
             // Invia al server
-            handleServerRequest(idToken);
+            sendToServer(idToken);
             
         }).catch(function(error) {
             console.error('❌ Errore sign-in:', error);
-            console.log('📋 Dettagli errore:', JSON.stringify(error, null, 2));
             
             // Ripristina pulsante
-            newButton.classList.remove('hidden');
+            button.classList.remove('hidden');
             loading.classList.add('hidden');
+            
+            alert('Errore durante l\'accesso con Google: ' + (error.error || 'Errore sconosciuto'));
         });
     });
-    
-    console.log('✅ Listener attaccato con successo!');
 }
 
-// Test 4: Richiesta al server
-function handleServerRequest(idToken) {
-    console.log('📡 Invio richiesta al server...');
+// Invio al server WordPress
+function sendToServer(idToken) {
+    console.log('📡 Invio al server WordPress...');
     
     fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
         method: 'POST',
@@ -347,107 +345,31 @@ function handleServerRequest(idToken) {
         body: 'action=google_oauth_login&google_token=' + idToken + '&nonce=<?php echo wp_create_nonce('google_oauth_nonce'); ?>'
     })
     .then(response => {
-        console.log('📡 Risposta server ricevuta:', response.status);
+        console.log('📡 Risposta ricevuta:', response.status);
         return response.json();
     })
     .then(data => {
         console.log('📊 Dati server:', data);
-        // Gestisci risposta...
-    })
-    .catch(error => {
-        console.error('❌ Errore comunicazione server:', error);
-    });
-}
-
-// Test 5: Caricamento manuale se necessario
-window.addEventListener('load', function() {
-    setTimeout(function() {
-        if (typeof gapi === 'undefined') {
-            console.log('⚠️ Google API non caricata, caricamento manuale...');
-            const script = document.createElement('script');
-            script.src = 'https://apis.google.com/js/platform.js?onload=onGoogleApiLoad';
-            script.async = true;
-            script.defer = true;
-            document.head.appendChild(script);
-        } else {
-            console.log('✅ Google API già disponibile');
-            if (typeof gapi.auth2 === 'undefined') {
-                console.log('🔄 Caricamento auth2...');
-                onGoogleApiLoad();
-            }
-        }
-    }, 1000);
-});
-
-console.log('🏁 FINE SETUP DEBUG GOOGLE AUTH');
-</script>
-</body>
-
-<!-- JavaScript per Google OAuth e form handling -->
-<script>
-// Attendi che Google API sia caricata
-function onGoogleApiLoad() {
-    gapi.load('auth2', initGoogleAuth);
-}
-
-function initGoogleAuth() {
-    gapi.auth2.init({
-        client_id: '<?php echo GOOGLE_CLIENT_ID; ?>'
-    }).then(function() {
-        attachGoogleSignIn();
-    });
-}
-
-function attachGoogleSignIn() {
-    const authInstance = gapi.auth2.getAuthInstance();
-    const button = document.getElementById('google-login-btn');
-    const loading = document.getElementById('google-login-loading');
-    
-    button.addEventListener('click', function() {
-        // Mostra loading
-        button.classList.add('hidden');
-        loading.classList.remove('hidden');
         
-        authInstance.signIn().then(function(googleUser) {
-            const idToken = googleUser.getAuthResponse().id_token;
-            handleGoogleLogin(idToken);
-        }).catch(function(error) {
-            console.error('Errore Google Sign-In:', error);
-            // Ripristina pulsante
-            button.classList.remove('hidden');
-            loading.classList.add('hidden');
-        });
-    });
-}
-
-function handleGoogleLogin(idToken) {
-    fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'action=google_oauth_login&google_token=' + idToken + '&nonce=<?php echo wp_create_nonce('google_oauth_nonce'); ?>'
-    })
-    .then(response => response.json())
-    .then(data => {
         if (data.success) {
             if (data.data.action === 'login') {
-                // Login esistente - redirect
-                showSuccessMessage(data.data.message);
+                // Login esistente
+                showMessage('success', data.data.message);
                 setTimeout(() => {
                     window.location.href = data.data.redirect;
                 }, 1000);
+                
             } else if (data.data.action === 'register') {
-                // Nuovo utente - mostra modal registrazione
-                showGoogleRegisterModal(data.data.user_data);
+                // Nuovo utente - mostra modal
+                showRegistrationModal(data.data.user_data);
             }
         } else {
-            showErrorMessage(data.data);
+            showMessage('error', data.data || 'Errore sconosciuto');
         }
     })
     .catch(error => {
-        console.error('Errore:', error);
-        showErrorMessage('Errore durante l\'autenticazione');
+        console.error('❌ Errore server:', error);
+        showMessage('error', 'Errore di comunicazione con il server');
     })
     .finally(() => {
         // Ripristina pulsante
@@ -456,14 +378,45 @@ function handleGoogleLogin(idToken) {
     });
 }
 
-function showGoogleRegisterModal(userData) {
+// Mostra messaggi
+function showMessage(type, message) {
+    const alertClass = type === 'success' ? 'border-green-200 text-green-800' : 'border-red-200 text-red-800';
+    const icon = type === 'success' ? 'fa-check-circle text-green-500' : 'fa-exclamation-triangle text-red-500';
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `bg-white border ${alertClass} rounded-2xl p-4 mb-6`;
+    messageDiv.innerHTML = `
+        <div class="flex items-center">
+            <i class="fa-solid ${icon} mr-3 text-xl"></i>
+            <div>
+                <h3 class="font-bold">${type === 'success' ? 'Successo!' : 'Errore'}</h3>
+                <p class="text-sm">${message}</p>
+            </div>
+        </div>
+    `;
+    
+    const container = document.querySelector('.max-w-md');
+    container.insertBefore(messageDiv, container.children[1]);
+    
+    // Rimuovi dopo 5 secondi
+    setTimeout(() => {
+        if (messageDiv.parentNode) {
+            messageDiv.parentNode.removeChild(messageDiv);
+        }
+    }, 5000);
+}
+
+// Mostra modal registrazione
+function showRegistrationModal(userData) {
+    console.log('🔔 Mostra modal registrazione per:', userData);
+    
     const modal = document.getElementById('google-register-modal');
     modal.classList.remove('hidden');
     
-    // Salva dati utente temporaneamente
+    // Salva dati temporaneamente
     window.tempGoogleData = userData;
     
-    // Gestione form completamento registrazione
+    // Gestione form
     const form = document.getElementById('google-register-form');
     form.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -476,6 +429,7 @@ function showGoogleRegisterModal(userData) {
     });
 }
 
+// Completa registrazione Google
 function completeGoogleRegistration() {
     const formData = new FormData(document.getElementById('google-register-form'));
     
@@ -493,71 +447,21 @@ function completeGoogleRegistration() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showSuccessMessage(data.data.message);
+            showMessage('success', data.data.message);
             setTimeout(() => {
                 window.location.href = data.data.redirect;
             }, 1000);
         } else {
-            showErrorMessage(data.data);
+            showMessage('error', data.data);
         }
     })
     .catch(error => {
         console.error('Errore:', error);
-        showErrorMessage('Errore durante la registrazione');
+        showMessage('error', 'Errore durante la registrazione');
     });
 }
 
-function showSuccessMessage(message) {
-    // Rimuovi messaggi esistenti
-    const existing = document.querySelectorAll('.temp-message');
-    existing.forEach(el => el.remove());
-    
-    const successDiv = document.createElement('div');
-    successDiv.className = 'temp-message bg-white border border-green-200 rounded-2xl p-4 mb-6';
-    successDiv.innerHTML = `
-        <div class="flex items-center">
-            <i class="fa-solid fa-check-circle text-green-500 mr-3 text-xl"></i>
-            <div>
-                <h3 class="text-black font-bold">Successo!</h3>
-                <p class="text-gray-500 text-sm">${message}</p>
-            </div>
-        </div>
-    `;
-    
-    const container = document.querySelector('.max-w-md');
-    container.insertBefore(successDiv, container.children[1]);
-}
-
-function showErrorMessage(message) {
-    // Rimuovi messaggi esistenti
-    const existing = document.querySelectorAll('.temp-message');
-    existing.forEach(el => el.remove());
-    
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'temp-message bg-white border border-red-200 rounded-2xl p-4 mb-6';
-    
-    let errorText = '';
-    if (Array.isArray(message)) {
-        errorText = message.map(err => `• ${err}`).join('<br>');
-    } else {
-        errorText = message;
-    }
-    
-    errorDiv.innerHTML = `
-        <div class="flex items-start">
-            <i class="fa-solid fa-exclamation-triangle text-red-500 mr-3 text-xl mt-0.5"></i>
-            <div>
-                <h3 class="text-black font-bold mb-1">Errore:</h3>
-                <div class="text-gray-600 text-sm">${errorText}</div>
-            </div>
-        </div>
-    `;
-    
-    const container = document.querySelector('.max-w-md');
-    container.insertBefore(errorDiv, container.children[1]);
-}
-
-// Toggle password esistente
+// Toggle password
 function toggleLoginPassword() {
     const passwordInput = document.getElementById('password');
     const toggleIcon = document.getElementById('login-password-toggle-icon');
@@ -573,16 +477,27 @@ function toggleLoginPassword() {
     }
 }
 
-// Carica Google API
-if (typeof gapi === 'undefined') {
-    const script = document.createElement('script');
-    script.src = 'https://apis.google.com/js/platform.js?onload=onGoogleApiLoad';
-    script.async = true;
-    script.defer = true;
-    document.head.appendChild(script);
-} else {
-    onGoogleApiLoad();
-}
-</script>
+// Avvia tutto
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('📄 DOM caricato, avvio Google Auth...');
+    setTimeout(initGoogleAuthForced, 100);
+});
 
+// Backup se DOM è già caricato
+if (document.readyState === 'loading') {
+    // DOM non ancora caricato
+} else {
+    // DOM già caricato
+    console.log('📄 DOM già caricato, avvio immediato...');
+    setTimeout(initGoogleAuthForced, 100);
+}
+
+// Callback legacy se viene chiamata
+window.onGoogleApiLoad = function() {
+    console.log('🔄 Callback legacy chiamata');
+    initGoogleAuthForced();
+};
+
+console.log('🏁 SETUP GOOGLE AUTH COMPLETO');
+</script>
 <?php get_footer(); ?>
