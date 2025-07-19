@@ -72,10 +72,10 @@ get_header(); ?>
                             
                             wp_set_current_user($user_id);
                             wp_set_auth_cookie($user_id);
+                            do_action('wp_login', $email, get_user_by('ID', $user_id));
                             
                             $success = true;
-                            echo '<script>setTimeout(function(){ window.location.href = "' . home_url('/profilo') . '"; }, 1000);</script>';
-                        } else {
+                            echo '<script>setTimeout(function(){ window.location.reload(); setTimeout(function(){ window.location.href = "' . home_url('/profilo') . '"; }, 500); }, 1000);</script>';                        } else {
                             $errors[] = 'Errore durante la registrazione. Riprova.';
                         }
                     }
