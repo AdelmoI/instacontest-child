@@ -72,13 +72,11 @@ if (isset($_POST['instacontest_register'])) {
                 update_user_meta($user_id, 'total_points', 0);
                 
                 error_log('DEBUG REGISTER - User created: ' . $user_id);
-                wp_set_current_user($user_id);
-                wp_set_auth_cookie($user_id);
-                do_action('wp_login', $email, get_user_by('ID', $user_id));
-                error_log('DEBUG REGISTER - User logged in, is_user_logged_in: ' . (is_user_logged_in() ? 'YES' : 'NO'));
+                // Invece di usare i cookie, fai redirect con auto-login
+                $auto_login_url = wp_login_url() . '?action=auto_login&user_id=' . $user_id . '&nonce=' . wp_create_nonce('auto_login_' . $user_id);
                 
                 $success = true;
-                echo '<script>setTimeout(function(){ window.location.href = "' . home_url('/profilo') . '"; }, 1000);</script>';
+                echo '<script>setTimeout(function(){ window.location.href = "' . esc_url($auto_login_url) . '"; }, 1000);</script>';
             } else {
                 $errors[] = 'Errore durante la registrazione. Riprova.';
                 error_log('DEBUG REGISTER - wp_create_user error: ' . $user_id->get_error_message());
