@@ -70,14 +70,18 @@ if (isset($_POST['instacontest_register'])) {
                     update_user_meta($user_id, 'squadre_cuore', $squadre_cuore);
                     update_user_meta($user_id, 'total_points', 0);
                     
-                    // Salva dati temporanei per auto-login
-                    set_transient('temp_login_' . $user_id, array(
-                        'email' => $email,
-                        'time' => time()
-                    ), 300); // 5 minuti
+                   // SOSTITUISCI CON:
+                    // Login automatico IMMEDIATO
+                    wp_set_current_user($user_id);
+                    wp_set_auth_cookie($user_id, true, is_ssl());
+                    do_action('wp_login', $email, get_user_by('ID', $user_id));
+                    
+                    // Forza refresh cache
+                    wp_cache_delete($user_id, 'users');
+                    wp_cache_delete($email, 'userlogins');
                     
                     $success = true;
-                    echo '<script>setTimeout(function(){ window.location.href = "' . home_url('/login?auto_login=' . $user_id . '&nonce=' . wp_create_nonce('auto_login_' . $user_id)) . '"; }, 1000);</script>';
+                    echo '<script>setTimeout(function(){ window.location.href = "' . home_url('/profilo') . '"; }, 1000);</script>';
                 } else {
                     $errors[] = 'Errore durante la registrazione. Riprova.';
                 }
