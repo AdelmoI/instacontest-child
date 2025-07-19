@@ -5,6 +5,24 @@
  */
 
 get_header(); ?>
+<?php
+// Gestione auto-login da registrazione
+if (isset($_GET['auto_login']) && isset($_GET['nonce'])) {
+    $user_id = intval($_GET['auto_login']);
+    $nonce = $_GET['nonce'];
+    
+    if (wp_verify_nonce($nonce, 'auto_login_' . $user_id)) {
+        $temp_data = get_transient('temp_login_' . $user_id);
+        if ($temp_data) {
+            wp_set_current_user($user_id);
+            wp_set_auth_cookie($user_id);
+            delete_transient('temp_login_' . $user_id);
+            wp_redirect(home_url('/profilo'));
+            exit;
+        }
+    }
+}
+?>
 
 <body class="bg-gray-50">
 
