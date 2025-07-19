@@ -108,10 +108,7 @@ $current_user_points = $current_user_id ? instacontest_get_user_points($current_
     <section class="px-4 py-6">
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-black font-bold text-lg">📊 Classifica Completa</h3>
-            <button id="load-around-user" 
-                    class="text-blue-500 text-sm font-medium"
-                    <?php echo !$current_user_id ? 'style="display:none;"' : ''; ?>
-                    onclick="loadAroundCurrentUser()">
+                <button id="load-around-user" class="bg-blue-500 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-blue-600" onclick="loadAroundCurrentUser()">
                 Vai alla tua posizione
             </button>
         </div>
