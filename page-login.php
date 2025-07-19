@@ -243,6 +243,85 @@ get_header(); ?>
         </div>
     </div>
 
+<!-- SCRIPT DI DEBUG - Aggiungilo temporaneamente prima di </body> -->
+<script>
+console.log('🔍 DEBUG Google OAuth - Inizio');
+
+// Test 1: Verifica se le costanti PHP sono passate correttamente
+console.log('Client ID:', '<?php echo defined("GOOGLE_CLIENT_ID") ? GOOGLE_CLIENT_ID : "NON DEFINITO"; ?>');
+
+// Test 2: Verifica caricamento Google API
+window.addEventListener('load', function() {
+    setTimeout(function() {
+        console.log('🔍 Gapi disponibile?', typeof gapi !== 'undefined');
+        console.log('🔍 Gapi auth2?', typeof gapi !== 'undefined' && gapi.auth2);
+        
+        // Test 3: Verifica se il pulsante esiste
+        const button = document.getElementById('google-login-btn');
+        console.log('🔍 Pulsante trovato?', button !== null);
+        
+        if (button) {
+            console.log('🔍 Event listeners sul pulsante:', getEventListeners ? getEventListeners(button) : 'Non disponibile in questo browser');
+        }
+        
+        // Test 4: Forza click per vedere se l'handler è attaccato
+        if (button) {
+            button.addEventListener('click', function() {
+                console.log('🔍 Click rilevato sul pulsante Google!');
+            });
+        }
+        
+    }, 2000);
+});
+
+// Test 5: Verifica errori Google API
+window.gapi_onload = function() {
+    console.log('🔍 Google API caricata tramite callback');
+};
+
+// Test 6: Override delle funzioni per debug
+const originalOnGoogleApiLoad = window.onGoogleApiLoad;
+window.onGoogleApiLoad = function() {
+    console.log('🔍 onGoogleApiLoad chiamata');
+    if (typeof originalOnGoogleApiLoad === 'function') {
+        try {
+            originalOnGoogleApiLoad();
+            console.log('✅ onGoogleApiLoad eseguita con successo');
+        } catch (error) {
+            console.error('❌ Errore in onGoogleApiLoad:', error);
+        }
+    }
+};
+
+const originalInitGoogleAuth = window.initGoogleAuth;
+window.initGoogleAuth = function() {
+    console.log('🔍 initGoogleAuth chiamata');
+    if (typeof originalInitGoogleAuth === 'function') {
+        try {
+            originalInitGoogleAuth();
+            console.log('✅ initGoogleAuth eseguita con successo');
+        } catch (error) {
+            console.error('❌ Errore in initGoogleAuth:', error);
+        }
+    }
+};
+
+const originalAttachGoogleSignIn = window.attachGoogleSignIn;
+window.attachGoogleSignIn = function() {
+    console.log('🔍 attachGoogleSignIn chiamata');
+    if (typeof originalAttachGoogleSignIn === 'function') {
+        try {
+            originalAttachGoogleSignIn();
+            console.log('✅ attachGoogleSignIn eseguita con successo');
+        } catch (error) {
+            console.error('❌ Errore in attachGoogleSignIn:', error);
+        }
+    }
+};
+
+console.log('🔍 DEBUG Google OAuth - Fine setup');
+</script>
+
 </body>
 
 <!-- JavaScript per Google OAuth e form handling -->
