@@ -1581,3 +1581,11 @@ function handle_complete_google_registration() {
         'redirect' => home_url('/profilo')
     ));
 }
+
+// DEBUG TEMPORANEO - rimuovi dopo il test
+add_action('init', function() {
+    if (current_user_can('administrator')) {
+        error_log('DEBUG Domain: ' . home_url());
+        error_log('DEBUG Site URL: ' . site_url());
+    }
+});
