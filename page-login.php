@@ -6,37 +6,27 @@
 
 get_header(); ?>
 <?php
-// Gestione auto-login da registrazione
-if (isset($_GET['auto_login']) && isset($_GET['nonce'])) {
-    $user_id = intval($_GET['auto_login']);
+// Gestione completamento login normale
+if (isset($_GET['complete_login']) && isset($_GET['nonce'])) {
+    $user_id = intval($_GET['complete_login']);
     $nonce = $_GET['nonce'];
     
-    error_log('DEBUG AUTO-LOGIN - User ID: ' . $user_id);
-    error_log('DEBUG AUTO-LOGIN - Nonce: ' . $nonce);
+    error_log('DEBUG COMPLETE LOGIN - User ID: ' . $user_id);
     
-    if (wp_verify_nonce($nonce, 'auto_login_' . $user_id)) {
-        error_log('DEBUG AUTO-LOGIN - Nonce verified');
-        
-        $temp_data = get_transient('temp_login_' . $user_id);
-        error_log('DEBUG AUTO-LOGIN - Temp data: ' . print_r($temp_data, true));
+    if (wp_verify_nonce($nonce, 'complete_login_' . $user_id)) {
+        $temp_data = get_transient('temp_login_success_' . $user_id);
+        error_log('DEBUG COMPLETE LOGIN - Temp data: ' . print_r($temp_data, true));
         
         if ($temp_data) {
-            error_log('DEBUG AUTO-LOGIN - Setting current user...');
             wp_set_current_user($user_id);
-            wp_set_auth_cookie($user_id);
+            wp_set_auth_cookie($user_id, $temp_data['remember']);
             
-            error_log('DEBUG AUTO-LOGIN - User logged in check: ' . (is_user_logged_in() ? 'YES' : 'NO'));
+            error_log('DEBUG COMPLETE LOGIN - User logged in check: ' . (is_user_logged_in() ? 'YES' : 'NO'));
             
-            delete_transient('temp_login_' . $user_id);
-            
-            error_log('DEBUG AUTO-LOGIN - Redirecting to profilo...');
+            delete_transient('temp_login_success_' . $user_id);
             wp_redirect(home_url('/profilo'));
             exit;
-        } else {
-            error_log('DEBUG AUTO-LOGIN - No temp data found');
         }
-    } else {
-        error_log('DEBUG AUTO-LOGIN - Nonce verification failed');
     }
 }
 ?>
@@ -85,22 +75,17 @@ error_log('DEBUG LOGIN FORM - Signon result: ' . (is_wp_error($user) ? 'ERROR: '
 if (is_wp_error($user)) {
     $errors[] = 'Email o password non corretti';
 } else {
-    // Verifica immediata se l'utente è loggato
-    error_log('DEBUG LOGIN FORM - is_user_logged_in after signon: ' . (is_user_logged_in() ? 'YES' : 'NO'));
-    error_log('DEBUG LOGIN FORM - get_current_user_id: ' . get_current_user_id());
-    
-    // Verifica se l'utente esiste davvero
-    $check_user = get_user_by('ID', $user->ID);
-    error_log('DEBUG LOGIN FORM - User exists check: ' . ($check_user ? 'YES' : 'NO'));
-    
-    if ($check_user) {
-        error_log('DEBUG LOGIN FORM - User role: ' . implode(', ', $check_user->roles));
-        error_log('DEBUG LOGIN FORM - User status: ' . $check_user->user_status);
-    }
+    // Invece di fare login immediato, salva dati temporanei e fai redirect
+    set_transient('temp_login_success_' . $user->ID, array(
+        'user_id' => $user->ID,
+        'remember' => $remember,
+        'time' => time()
+    ), 300); // 5 minuti
     
     $success = true;
-    echo '<script>setTimeout(function(){ window.location.href = "' . home_url('/profilo') . '"; }, 2000);</script>';
-}                        
+    $redirect_url = home_url('/login?complete_login=' . $user->ID . '&nonce=' . wp_create_nonce('complete_login_' . $user->ID));
+    echo '<script>setTimeout(function(){ window.location.href = "' . esc_url($redirect_url) . '"; }, 1000);</script>';
+}                    
                         if (is_wp_error($user)) {
                             $errors[] = 'Email o password non corretti';
                         } else {
