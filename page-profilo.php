@@ -5,7 +5,15 @@
  */
 
 get_header(); 
-
+// DEBUG: Verifica stato login
+error_log('DEBUG PROFILO - User logged in: ' . (is_user_logged_in() ? 'YES' : 'NO'));
+if (is_user_logged_in()) {
+    $current_user = wp_get_current_user();
+    error_log('DEBUG PROFILO - User ID: ' . $current_user->ID);
+    error_log('DEBUG PROFILO - Display name: ' . $current_user->display_name);
+} else {
+    error_log('DEBUG PROFILO - Redirecting to login');
+}
 // Redirect se non loggato
 if (!is_user_logged_in()) {
     wp_redirect(home_url('/login'));
