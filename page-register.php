@@ -1,7 +1,7 @@
 <?php
 /**
  * Template Name: Registrazione
- * Pagina di registrazione con stile identico al login
+ * Pagina di registrazione con Google OAuth integrato
  */
 
 get_header(); ?>
@@ -22,7 +22,7 @@ get_header(); ?>
             </div>
 
             <?php
-            // Gestione registrazione
+            // Gestione registrazione normale (manteniamo il codice esistente)
             $errors = array();
             $success = false;
 
@@ -109,7 +109,33 @@ get_header(); ?>
                 </div>
             <?php endif; ?>
 
-            <!-- Form di registrazione -->
+            <!-- NUOVO: Google OAuth Section PRIMA del form normale -->
+            <div class="mb-6">
+                <button id="google-register-btn" 
+                        class="w-full bg-white border border-gray-200 text-gray-700 font-medium py-3 px-6 rounded-xl hover:bg-gray-50 transition duration-200 shadow-sm flex items-center justify-center space-x-3">
+                    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" class="w-5 h-5">
+                    <span>Registrati con Google</span>
+                </button>
+                
+                <!-- Loading state -->
+                <button id="google-register-loading" 
+                        class="w-full bg-gray-100 text-gray-500 font-medium py-3 px-6 rounded-xl cursor-not-allowed hidden flex items-center justify-center space-x-3">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <span>Registrazione in corso...</span>
+                </button>
+            </div>
+
+            <!-- Separatore -->
+            <div class="relative mb-6">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-gray-300"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-2 bg-gray-50 text-gray-500">oppure con email</span>
+                </div>
+            </div>
+
+            <!-- Form di registrazione normale (manteniamo il codice esistente) -->
             <?php if (!$success): ?>
                 <div class="bg-white border border-gray-200 rounded-2xl p-6">
                     <form method="post" class="space-y-6">
@@ -171,8 +197,8 @@ get_header(); ?>
                                        required>
                                 <button type="button" 
                                         class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                        onclick="togglePassword()">
-                                    <i class="fa-solid fa-eye" id="password-toggle-icon"></i>
+                                        onclick="toggleRegisterPassword()">
+                                    <i class="fa-solid fa-eye" id="register-password-toggle-icon"></i>
                                 </button>
                             </div>
                             <p class="text-xs text-gray-500 mt-1">Almeno 6 caratteri</p>
@@ -218,25 +244,6 @@ get_header(); ?>
                     </form>
                 </div>
 
-                <!-- Google OAuth Section -->
-                <div class="mt-6">
-                    <div class="relative">
-                        <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-gray-300"></div>
-                        </div>
-                        <div class="relative flex justify-center text-sm">
-                            <span class="px-2 bg-gray-50 text-gray-500">oppure</span>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-6">
-                        <button class="w-full bg-white border border-gray-200 text-gray-600 font-medium py-3 px-6 rounded-xl hover:bg-gray-50 transition duration-200 shadow-sm opacity-50 cursor-not-allowed" disabled>
-                            <i class="fab fa-google mr-2 text-red-500"></i>
-                            Registrati con Google (Coming Soon)
-                        </button>
-                    </div>
-                </div>
-
                 <!-- Link al login -->
                 <div class="text-center mt-6">
                     <p class="text-gray-600">
@@ -249,13 +256,346 @@ get_header(); ?>
         </div>
     </section>
 
+    <!-- MODAL per completare registrazione Google -->
+    <div id="google-register-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">Completa la registrazione</h3>
+            <p class="text-gray-600 text-sm mb-6 text-center">Aggiungi alcune informazioni per completare il tuo profilo</p>
+            
+            <form id="google-register-form" class="space-y-4">
+                <!-- Username Instagram -->
+                <div>
+                    <label for="google_instagram_username" class="block text-black font-medium text-sm mb-2">
+                        Username Instagram <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-bold">@</span>
+                        <input type="text" 
+                               id="google_instagram_username" 
+                               name="instagram_username" 
+                               class="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-50" 
+                               placeholder="tusername"
+                               required>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Necessario per partecipare ai contest</p>
+                </div>
+
+                <!-- Privacy -->
+                <div class="flex items-start space-x-3">
+                    <input type="checkbox" 
+                           id="google_accept_terms" 
+                           name="accept_terms" 
+                           class="mt-1 rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-4 h-4"
+                           required>
+                    <label for="google_accept_terms" class="text-sm text-gray-600">
+                        Accetto i <a href="/regolamento" class="text-blue-500 hover:text-blue-600 underline">termini e condizioni</a> e la privacy policy
+                    </label>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex space-x-3 mt-6">
+                    <button type="button" 
+                            id="cancel-google-register"
+                            class="flex-1 bg-gray-200 text-gray-700 font-medium py-3 rounded-xl hover:bg-gray-300 transition">
+                        Annulla
+                    </button>
+                    <button type="submit" 
+                            class="flex-1 btn-participate font-bold py-3 rounded-xl text-sm">
+                        Completa Registrazione
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </body>
 
-<!-- JavaScript per toggle password -->
+<!-- Google Identity Services - NUOVA API -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
 <script>
-function togglePassword() {
+console.log('🚀 GOOGLE IDENTITY SERVICES - PAGINA REGISTER');
+
+const clientId = '<?php echo GOOGLE_CLIENT_ID; ?>';
+console.log('📋 Client ID:', clientId);
+
+// Inizializza la nuova Google Identity API
+function initGoogleIdentity() {
+    console.log('🔥 Inizializzazione Google Identity...');
+    
+    if (typeof google === 'undefined' || !google.accounts) {
+        console.log('❌ Google Identity non ancora caricata, riprovo...');
+        setTimeout(initGoogleIdentity, 500);
+        return;
+    }
+    
+    console.log('✅ Google Identity disponibile!');
+    
+    // Inizializza Google Sign-In
+    google.accounts.id.initialize({
+        client_id: clientId,
+        callback: handleCredentialResponse,
+        auto_select: false,
+        cancel_on_tap_outside: true
+    });
+    
+    // Setup pulsante personalizzato
+    setupCustomGoogleButton();
+    
+    console.log('🎉 Google Identity inizializzata con successo!');
+}
+
+// Gestisce la risposta di Google
+function handleCredentialResponse(response) {
+    console.log('🎫 Credenziali ricevute da Google:', response);
+    
+    const credential = response.credential;
+    console.log('📋 JWT Token ricevuto:', credential ? 'SI' : 'NO');
+    
+    // Invia al server WordPress
+    sendCredentialToServer(credential);
+}
+
+// Setup pulsante personalizzato
+function setupCustomGoogleButton() {
+    console.log('🔗 Setup pulsante Google personalizzato...');
+    
+    const button = document.getElementById('google-register-btn');
+    const loading = document.getElementById('google-register-loading');
+    
+    if (!button) {
+        console.error('❌ Pulsante non trovato!');
+        return;
+    }
+    
+    console.log('✅ Pulsante trovato, aggiunto listener');
+    
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('🔥 CLICK PULSANTE GOOGLE REGISTER!');
+        
+        // Mostra loading
+        button.classList.add('hidden');
+        loading.classList.remove('hidden');
+        
+        try {
+            // Usa la nuova API per il prompt
+            google.accounts.id.prompt((notification) => {
+                console.log('📊 Notification:', notification);
+                
+                if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                    console.log('⚠️ Popup non mostrato, provo metodo alternativo...');
+                    
+                    // Metodo alternativo: OAuth popup
+                    initiateOAuthFlow();
+                }
+                
+                // Ripristina pulsante se necessario
+                if (notification.isNotDisplayed()) {
+                    button.classList.remove('hidden');
+                    loading.classList.add('hidden');
+                }
+            });
+            
+        } catch (error) {
+            console.error('❌ Errore durante prompt:', error);
+            
+            // Ripristina pulsante
+            button.classList.remove('hidden');
+            loading.classList.add('hidden');
+            
+            // Prova metodo alternativo
+            initiateOAuthFlow();
+        }
+    });
+}
+
+// Metodo alternativo: OAuth flow
+function initiateOAuthFlow() {
+    console.log('🔄 Avvio OAuth flow alternativo...');
+    
+    // Inizializza OAuth
+    const client = google.accounts.oauth2.initTokenClient({
+        client_id: clientId,
+        scope: 'openid email profile',
+        callback: (response) => {
+            console.log('🎫 OAuth response:', response);
+            
+            if (response.access_token) {
+                // Ottieni info profilo con access token
+                fetchUserProfile(response.access_token);
+            }
+        },
+    });
+    
+    // Avvia il flusso
+    client.requestAccessToken();
+}
+
+// Ottieni profilo utente con access token
+async function fetchUserProfile(accessToken) {
+    console.log('👤 Recupero profilo utente...');
+    
+    try {
+        const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+        
+        const userInfo = await response.json();
+        console.log('📊 Info utente:', userInfo);
+        
+        // Crea un JWT fittizio per il backend
+        const fakeCredential = btoa(JSON.stringify({
+            sub: userInfo.id,
+            email: userInfo.email,
+            name: userInfo.name,
+            given_name: userInfo.given_name,
+            family_name: userInfo.family_name,
+            picture: userInfo.picture,
+            aud: clientId
+        }));
+        
+        sendCredentialToServer(fakeCredential);
+        
+    } catch (error) {
+        console.error('❌ Errore recupero profilo:', error);
+        showMessage('error', 'Errore durante il recupero del profilo Google');
+        
+        // Ripristina pulsante
+        document.getElementById('google-register-btn').classList.remove('hidden');
+        document.getElementById('google-register-loading').classList.add('hidden');
+    }
+}
+
+// Invia credenziali al server WordPress
+function sendCredentialToServer(credential) {
+    console.log('📡 Invio credenziali al server...');
+    
+    fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'action=google_oauth_login&google_token=' + credential + '&nonce=<?php echo wp_create_nonce('google_oauth_nonce'); ?>'
+    })
+    .then(response => {
+        console.log('📡 Risposta server:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('📊 Dati server:', data);
+        
+        if (data.success) {
+            if (data.data.action === 'login') {
+                // Utente esistente - redirect al profilo
+                showMessage('success', 'Accesso effettuato! Hai già un account.');
+                setTimeout(() => {
+                    window.location.href = data.data.redirect;
+                }, 1000);
+                
+            } else if (data.data.action === 'register') {
+                // Nuovo utente - mostra modal
+                showRegistrationModal(data.data.user_data);
+            }
+        } else {
+            showMessage('error', data.data || 'Errore sconosciuto');
+        }
+    })
+    .catch(error => {
+        console.error('❌ Errore server:', error);
+        showMessage('error', 'Errore di comunicazione con il server');
+    })
+    .finally(() => {
+        // Ripristina pulsante
+        document.getElementById('google-register-btn').classList.remove('hidden');
+        document.getElementById('google-register-loading').classList.add('hidden');
+    });
+}
+
+// Mostra messaggi
+function showMessage(type, message) {
+    const alertClass = type === 'success' ? 'border-green-200 text-green-800' : 'border-red-200 text-red-800';
+    const icon = type === 'success' ? 'fa-check-circle text-green-500' : 'fa-exclamation-triangle text-red-500';
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `bg-white border ${alertClass} rounded-2xl p-4 mb-6`;
+    messageDiv.innerHTML = `
+        <div class="flex items-center">
+            <i class="fa-solid ${icon} mr-3 text-xl"></i>
+            <div>
+                <h3 class="font-bold">${type === 'success' ? 'Successo!' : 'Errore'}</h3>
+                <p class="text-sm">${message}</p>
+            </div>
+        </div>
+    `;
+    
+    const container = document.querySelector('.max-w-md');
+    container.insertBefore(messageDiv, container.children[1]);
+    
+    setTimeout(() => {
+        if (messageDiv.parentNode) {
+            messageDiv.parentNode.removeChild(messageDiv);
+        }
+    }, 5000);
+}
+
+// Modal registrazione
+function showRegistrationModal(userData) {
+    console.log('🔔 Mostra modal registrazione:', userData);
+    
+    const modal = document.getElementById('google-register-modal');
+    modal.classList.remove('hidden');
+    
+    window.tempGoogleData = userData;
+    
+    const form = document.getElementById('google-register-form');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        completeGoogleRegistration();
+    });
+    
+    document.getElementById('cancel-google-register').addEventListener('click', function() {
+        modal.classList.add('hidden');
+    });
+}
+
+function completeGoogleRegistration() {
+    const formData = new FormData(document.getElementById('google-register-form'));
+    
+    fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'action=complete_google_registration' +
+              '&google_data=' + encodeURIComponent(JSON.stringify(window.tempGoogleData)) +
+              '&instagram_username=' + formData.get('instagram_username') +
+              '&accept_terms=' + (formData.get('accept_terms') ? '1' : '0') +
+              '&nonce=<?php echo wp_create_nonce('google_oauth_nonce'); ?>'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showMessage('success', data.data.message);
+            setTimeout(() => {
+                window.location.href = data.data.redirect;
+            }, 1000);
+        } else {
+            showMessage('error', data.data);
+        }
+    })
+    .catch(error => {
+        console.error('Errore:', error);
+        showMessage('error', 'Errore durante la registrazione');
+    });
+}
+
+// Toggle password
+function toggleRegisterPassword() {
     const passwordInput = document.getElementById('password');
-    const toggleIcon = document.getElementById('password-toggle-icon');
+    const toggleIcon = document.getElementById('register-password-toggle-icon');
     
     if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
@@ -267,6 +607,20 @@ function togglePassword() {
         toggleIcon.classList.add('fa-eye');
     }
 }
+
+// Avvia tutto quando il DOM è pronto
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('📄 DOM pronto, avvio Google Identity...');
+    setTimeout(initGoogleIdentity, 200);
+});
+
+// Avvia anche se DOM già caricato
+if (document.readyState !== 'loading') {
+    console.log('📄 DOM già caricato, avvio immediato...');
+    setTimeout(initGoogleIdentity, 200);
+}
+
+console.log('🏁 SETUP GOOGLE IDENTITY REGISTER COMPLETO');
 </script>
 
 <?php get_footer(); ?>
