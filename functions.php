@@ -1652,3 +1652,40 @@ add_action('set_auth_cookie', function($auth_cookie, $expire, $expiration, $user
 add_action('clear_auth_cookie', function() {
     error_log("CLEAR_AUTH_COOKIE HOOK - Cookies cleared");
 });
+
+
+// ========================================
+// FIX HEADERS ALREADY SENT - ELEMENTOR
+// ========================================
+
+// Disabilita Elementor su pagine di autenticazione
+function instacontest_disable_elementor_on_auth_pages() {
+    if (is_page('login') || is_page('register') || is_page('profilo')) {
+        remove_action('wp_head', 'elementor_theme_do_location');
+        remove_action('wp_footer', 'elementor_theme_do_location');
+        
+        // Disabilita ottimizzazioni Elementor
+        add_filter('elementor/frontend/print_google_fonts', '__return_false');
+        add_filter('elementor/optimization/css/disabled', '__return_true');
+        add_filter('elementor/optimization/js/disabled', '__return_true');
+    }
+}
+add_action('wp', 'instacontest_disable_elementor_on_auth_pages', 1);
+
+// Buffer output per evitare headers già inviati
+function instacontest_start_buffer() {
+    if (is_page('login') || is_page('register') || is_page('profilo')) {
+        ob_start();
+    }
+}
+add_action('init', 'instacontest_start_buffer', 1);
+
+// Flush buffer dopo il login
+function instacontest_end_buffer() {
+    if (is_page('login') || is_page('register') || is_page('profilo')) {
+        if (ob_get_level()) {
+            ob_end_flush();
+        }
+    }
+}
+add_action('wp_footer', 'instacontest_end_buffer', 999);
