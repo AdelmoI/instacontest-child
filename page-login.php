@@ -11,15 +11,32 @@ if (isset($_GET['auto_login']) && isset($_GET['nonce'])) {
     $user_id = intval($_GET['auto_login']);
     $nonce = $_GET['nonce'];
     
+    error_log('DEBUG AUTO-LOGIN - User ID: ' . $user_id);
+    error_log('DEBUG AUTO-LOGIN - Nonce: ' . $nonce);
+    
     if (wp_verify_nonce($nonce, 'auto_login_' . $user_id)) {
+        error_log('DEBUG AUTO-LOGIN - Nonce verified');
+        
         $temp_data = get_transient('temp_login_' . $user_id);
+        error_log('DEBUG AUTO-LOGIN - Temp data: ' . print_r($temp_data, true));
+        
         if ($temp_data) {
+            error_log('DEBUG AUTO-LOGIN - Setting current user...');
             wp_set_current_user($user_id);
             wp_set_auth_cookie($user_id);
+            
+            error_log('DEBUG AUTO-LOGIN - User logged in check: ' . (is_user_logged_in() ? 'YES' : 'NO'));
+            
             delete_transient('temp_login_' . $user_id);
+            
+            error_log('DEBUG AUTO-LOGIN - Redirecting to profilo...');
             wp_redirect(home_url('/profilo'));
             exit;
+        } else {
+            error_log('DEBUG AUTO-LOGIN - No temp data found');
         }
+    } else {
+        error_log('DEBUG AUTO-LOGIN - Nonce verification failed');
     }
 }
 ?>
