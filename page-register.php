@@ -35,7 +35,6 @@ get_header(); ?>
                     $email = sanitize_email($_POST['email']);
                     $password = $_POST['password'];
                     $instagram_username = sanitize_text_field($_POST['instagram_username']);
-                    $squadre_cuore = isset($_POST['squadre_cuore']) ? $_POST['squadre_cuore'] : array();
                     
                     // Validazioni
                     if (empty($nome)) $errors[] = 'Il nome è obbligatorio';
@@ -43,22 +42,6 @@ get_header(); ?>
                     if (empty($email) || !is_email($email)) $errors[] = 'Email non valida';
                     if (empty($password) || strlen($password) < 6) $errors[] = 'Password minimo 6 caratteri';
                     if (empty($instagram_username)) $errors[] = 'Username Instagram obbligatorio';
-                    
-                    // Validazione squadre del cuore
-                    if (empty($squadre_cuore)) {
-                        $errors[] = 'Seleziona almeno una squadra del cuore';
-                    } elseif (count($squadre_cuore) > 3) {
-                        $errors[] = 'Puoi selezionare massimo 3 squadre del cuore';
-                    } else {
-                        // Valida che le squadre siano nell'elenco consentito
-                        $squadre_consentite = array('milan', 'inter', 'napoli', 'roma', 'lazio', 'juventus', 'altro', 'nessuna');
-                        foreach ($squadre_cuore as $squadra) {
-                            if (!in_array($squadra, $squadre_consentite)) {
-                                $errors[] = 'Squadra non valida selezionata';
-                                break;
-                            }
-                        }
-                    }
                     
                     $instagram_username = ltrim($instagram_username, '@');
                     
@@ -78,7 +61,6 @@ get_header(); ?>
                             ));
                             
                             update_user_meta($user_id, 'instagram_username', $instagram_username);
-                            update_user_meta($user_id, 'squadre_cuore', $squadre_cuore);
                             update_user_meta($user_id, 'total_points', 0);
                             
                             wp_set_current_user($user_id);
@@ -236,89 +218,6 @@ get_header(); ?>
                             <p class="text-xs text-gray-500 mt-1">Necessario per partecipare ai contest</p>
                         </div>
 
-                        <!-- Squadre del cuore -->
-                        <div>
-                            <label class="block text-black font-medium text-sm mb-3">
-                                Squadre del cuore <span class="text-red-500">*</span>
-                            </label>
-                            <p class="text-xs text-gray-500 mb-3">Seleziona da 1 a 3 squadre</p>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div class="flex items-center space-x-2">
-                                    <input type="checkbox" 
-                                           id="team_milan" 
-                                           name="squadre_cuore[]" 
-                                           value="milan"
-                                           class="rounded border-gray-300 text-red-600 focus:ring-red-500 w-4 h-4"
-                                           <?php echo (isset($_POST['squadre_cuore']) && in_array('milan', $_POST['squadre_cuore'])) ? 'checked' : ''; ?>>
-                                    <label for="team_milan" class="text-sm text-gray-700">🔴 Milan</label>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <input type="checkbox" 
-                                           id="team_inter" 
-                                           name="squadre_cuore[]" 
-                                           value="inter"
-                                           class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4"
-                                           <?php echo (isset($_POST['squadre_cuore']) && in_array('inter', $_POST['squadre_cuore'])) ? 'checked' : ''; ?>>
-                                    <label for="team_inter" class="text-sm text-gray-700">🔵 Inter</label>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <input type="checkbox" 
-                                           id="team_napoli" 
-                                           name="squadre_cuore[]" 
-                                           value="napoli"
-                                           class="rounded border-gray-300 text-blue-400 focus:ring-blue-400 w-4 h-4"
-                                           <?php echo (isset($_POST['squadre_cuore']) && in_array('napoli', $_POST['squadre_cuore'])) ? 'checked' : ''; ?>>
-                                    <label for="team_napoli" class="text-sm text-gray-700">💙 Napoli</label>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <input type="checkbox" 
-                                           id="team_roma" 
-                                           name="squadre_cuore[]" 
-                                           value="roma"
-                                           class="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500 w-4 h-4"
-                                           <?php echo (isset($_POST['squadre_cuore']) && in_array('roma', $_POST['squadre_cuore'])) ? 'checked' : ''; ?>>
-                                    <label for="team_roma" class="text-sm text-gray-700">🟡 Roma</label>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <input type="checkbox" 
-                                           id="team_lazio" 
-                                           name="squadre_cuore[]" 
-                                           value="lazio"
-                                           class="rounded border-gray-300 text-sky-500 focus:ring-sky-400 w-4 h-4"
-                                           <?php echo (isset($_POST['squadre_cuore']) && in_array('lazio', $_POST['squadre_cuore'])) ? 'checked' : ''; ?>>
-                                    <label for="team_lazio" class="text-sm text-gray-700">🩵 Lazio</label>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <input type="checkbox" 
-                                           id="team_juventus" 
-                                           name="squadre_cuore[]" 
-                                           value="juventus"
-                                           class="rounded border-gray-300 text-gray-900 focus:ring-gray-600 w-4 h-4"
-                                           <?php echo (isset($_POST['squadre_cuore']) && in_array('juventus', $_POST['squadre_cuore'])) ? 'checked' : ''; ?>>
-                                    <label for="team_juventus" class="text-sm text-gray-700">⚫ Juventus</label>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <input type="checkbox" 
-                                           id="team_altro" 
-                                           name="squadre_cuore[]" 
-                                           value="altro"
-                                           class="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-4 h-4"
-                                           <?php echo (isset($_POST['squadre_cuore']) && in_array('altro', $_POST['squadre_cuore'])) ? 'checked' : ''; ?>>
-                                    <label for="team_altro" class="text-sm text-gray-700">🟣 Altro</label>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <input type="checkbox" 
-                                           id="team_nessuna" 
-                                           name="squadre_cuore[]" 
-                                           value="nessuna"
-                                           class="rounded border-gray-300 text-gray-400 focus:ring-gray-300 w-4 h-4"
-                                           <?php echo (isset($_POST['squadre_cuore']) && in_array('nessuna', $_POST['squadre_cuore'])) ? 'checked' : ''; ?>>
-                                    <label for="team_nessuna" class="text-sm text-gray-700">⭕ Non ho una squadra</label>
-                                </div>
-                            </div>
-                            <div id="teams-error" class="text-red-500 text-xs mt-2 hidden">Seleziona almeno 1 squadra (massimo 3)</div>
-                        </div>
-
                         <!-- Privacy -->
                         <div class="flex items-start space-x-3">
                             <input type="checkbox" 
@@ -374,49 +273,6 @@ get_header(); ?>
                                required>
                     </div>
                     <p class="text-xs text-gray-500 mt-1">Necessario per partecipare ai contest</p>
-                </div>
-
-                <!-- Squadre del cuore nel modal -->
-                <div>
-                    <label class="block text-black font-medium text-sm mb-3">
-                        Squadre del cuore <span class="text-red-500">*</span>
-                    </label>
-                    <p class="text-xs text-gray-500 mb-3">Seleziona da 1 a 3 squadre</p>
-                    <div class="grid grid-cols-2 gap-2 text-sm">
-                        <div class="flex items-center space-x-2">
-                            <input type="checkbox" id="google_team_milan" name="squadre_cuore[]" value="milan" class="rounded border-gray-300 text-red-600 focus:ring-red-500 w-4 h-4">
-                            <label for="google_team_milan" class="text-xs text-gray-700">🔴 Milan</label>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <input type="checkbox" id="google_team_inter" name="squadre_cuore[]" value="inter" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4">
-                            <label for="google_team_inter" class="text-xs text-gray-700">🔵 Inter</label>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <input type="checkbox" id="google_team_napoli" name="squadre_cuore[]" value="napoli" class="rounded border-gray-300 text-blue-400 focus:ring-blue-400 w-4 h-4">
-                            <label for="google_team_napoli" class="text-xs text-gray-700">💙 Napoli</label>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <input type="checkbox" id="google_team_roma" name="squadre_cuore[]" value="roma" class="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500 w-4 h-4">
-                            <label for="google_team_roma" class="text-xs text-gray-700">🟡 Roma</label>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <input type="checkbox" id="google_team_lazio" name="squadre_cuore[]" value="lazio" class="rounded border-gray-300 text-sky-500 focus:ring-sky-400 w-4 h-4">
-                            <label for="google_team_lazio" class="text-xs text-gray-700">🩵 Lazio</label>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <input type="checkbox" id="google_team_juventus" name="squadre_cuore[]" value="juventus" class="rounded border-gray-300 text-gray-900 focus:ring-gray-600 w-4 h-4">
-                            <label for="google_team_juventus" class="text-xs text-gray-700">⚫ Juventus</label>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <input type="checkbox" id="google_team_altro" name="squadre_cuore[]" value="altro" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-4 h-4">
-                            <label for="google_team_altro" class="text-xs text-gray-700">🟣 Altro</label>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <input type="checkbox" id="google_team_nessuna" name="squadre_cuore[]" value="nessuna" class="rounded border-gray-300 text-gray-400 focus:ring-gray-300 w-4 h-4">
-                            <label for="google_team_nessuna" class="text-xs text-gray-700">⭕ Nessuna</label>
-                        </div>
-                    </div>
-                    <div id="google-teams-error" class="text-red-500 text-xs mt-2 hidden">Seleziona almeno 1 squadra (massimo 3)</div>
                 </div>
 
                 <div class="flex items-start space-x-3">
@@ -615,29 +471,12 @@ function showRegistrationModal(userData) {
 function completeGoogleRegistration() {
     const formData = new FormData(document.getElementById('google-register-form'));
     
-    // Raccogli le squadre selezionate
-    const squadreSelezionate = [];
-    const checkboxes = document.querySelectorAll('#google-register-form input[name="squadre_cuore[]"]:checked');
-    checkboxes.forEach(checkbox => squadreSelezionate.push(checkbox.value));
-    
-    // Validazione squadre
-    if (squadreSelezionate.length === 0 || squadreSelezionate.length > 3) {
-        document.getElementById('google-teams-error').classList.remove('hidden');
-        return;
-    } else {
-        document.getElementById('google-teams-error').classList.add('hidden');
-    }
-    
-    // Crea stringa per le squadre
-    const squadreParam = squadreSelezionate.map(squadra => `squadre_cuore[]=${encodeURIComponent(squadra)}`).join('&');
-    
     fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'action=complete_google_registration' +
               '&google_data=' + encodeURIComponent(JSON.stringify(window.tempGoogleData)) +
               '&instagram_username=' + formData.get('instagram_username') +
-              '&' + squadreParam +
               '&accept_terms=' + (formData.get('accept_terms') ? '1' : '0') +
               '&nonce=<?php echo wp_create_nonce('google_oauth_nonce'); ?>'
     })
@@ -672,52 +511,6 @@ function toggleRegisterPassword() {
 
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(initGoogleIdentity, 200);
-    
-    // Validazione squadre del cuore in tempo reale
-    const teamCheckboxes = document.querySelectorAll('input[name="squadre_cuore[]"]');
-    const teamsError = document.getElementById('teams-error');
-    
-    teamCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const checkedTeams = document.querySelectorAll('input[name="squadre_cuore[]"]:checked');
-            
-            if (checkedTeams.length === 0) {
-                teamsError.textContent = 'Seleziona almeno 1 squadra';
-                teamsError.classList.remove('hidden');
-            } else if (checkedTeams.length > 3) {
-                teamsError.textContent = 'Massimo 3 squadre selezionabili';
-                teamsError.classList.remove('hidden');
-                
-                // Deseleziona l'ultimo checkbox selezionato
-                this.checked = false;
-            } else {
-                teamsError.classList.add('hidden');
-            }
-        });
-    });
-    
-    // Validazione squadre del cuore nel modal Google
-    const googleTeamCheckboxes = document.querySelectorAll('#google-register-form input[name="squadre_cuore[]"]');
-    const googleTeamsError = document.getElementById('google-teams-error');
-    
-    googleTeamCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const checkedTeams = document.querySelectorAll('#google-register-form input[name="squadre_cuore[]"]:checked');
-            
-            if (checkedTeams.length === 0) {
-                googleTeamsError.textContent = 'Seleziona almeno 1 squadra';
-                googleTeamsError.classList.remove('hidden');
-            } else if (checkedTeams.length > 3) {
-                googleTeamsError.textContent = 'Massimo 3 squadre selezionabili';
-                googleTeamsError.classList.remove('hidden');
-                
-                // Deseleziona l'ultimo checkbox selezionato
-                this.checked = false;
-            } else {
-                googleTeamsError.classList.add('hidden');
-            }
-        });
-    });
 });
 
 if (document.readyState !== 'loading') {
