@@ -158,27 +158,76 @@ if (isset($_POST['action']) && $_POST['action'] === 'google_oauth') {
     exit;
 }
 
-// Controlla se username Instagram è già in uso
-function instacontest_instagram_username_exists($username, $exclude_user_id = 0) {
-    global $wpdb;
-    
-    $username = ltrim($username, '@');
-    
-    $query = $wpdb->prepare(
-        "SELECT user_id FROM {$wpdb->usermeta} 
-         WHERE meta_key = 'instagram_username' 
-         AND meta_value = %s",
-        $username
-    );
-    
-    if ($exclude_user_id > 0) {
-        $query .= $wpdb->prepare(" AND user_id != %d", $exclude_user_id);
+
+// ========================================
+// FUNZIONI HELPER PER AUTH.PHP
+// ========================================
+
+// Verifica se username Instagram esiste già
+if (!function_exists('instacontest_instagram_username_exists')) {
+    function instacontest_instagram_username_exists($username, $exclude_user_id = 0) {
+        global $wpdb;
+        
+        $username = ltrim($username, '@');
+        
+        $query = $wpdb->prepare(
+            "SELECT user_id FROM {$wpdb->usermeta} 
+             WHERE meta_key = 'instagram_username' 
+             AND meta_value = %s",
+            $username
+        );
+        
+        if ($exclude_user_id > 0) {
+            $query .= $wpdb->prepare(" AND user_id != %d", $exclude_user_id);
+        }
+        
+        $result = $wpdb->get_var($query);
+        return !empty($result);
     }
-    
-    $result = $wpdb->get_var($query);
-    return !empty($result);
 }
 
+// Verifica token Google
+if (!function_exists('verify_google_token')) {
+    function verify_google_token($jwt_token) {
+        // URL per verificare il JWT con Google
+        $url = 'https://oauth2.googleapis.com/tokeninfo?id_token=' . $jwt_token;
+        
+        $response = wp_remote_get($url, array(
+            'timeout' => 15,
+            'headers' => array(
+                'User-Agent' => 'WordPress/' . get_bloginfo('version') . '; ' . home_url()
+            )
+        ));
+        
+        if (is_wp_error($response)) {
+            error_log('Google token verification error: ' . $response->get_error_message());
+            return false;
+        }
+        
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
+        
+        // Verifica che il token sia valido
+        if (!isset($data['email']) || !isset($data['sub'])) {
+            error_log('Google token verification failed: Missing required fields');
+            return false;
+        }
+        
+        return array(
+            'google_id' => $data['sub'],
+            'email' => $data['email'],
+            'name' => $data['name'] ?? '',
+            'given_name' => $data['given_name'] ?? '',
+            'family_name' => $data['family_name'] ?? '',
+            'picture' => $data['picture'] ?? ''
+        );
+    }
+}
+
+// Verifica configurazione Google
+if (!defined('GOOGLE_CLIENT_ID') || empty(GOOGLE_CLIENT_ID)) {
+    error_log('ERRORE: GOOGLE_CLIENT_ID non configurato in wp-config.php');
+}
 // ========================================
 // COMPLETAMENTO REGISTRAZIONE GOOGLE
 // ========================================
