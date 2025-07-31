@@ -605,25 +605,113 @@ add_shortcode('instacontest_register_form', 'instacontest_register_form_shortcod
 // ========================================
 
 // Aggiungi campo Instagram nel profilo admin
+// Aggiungi campi InstaContest nel profilo admin
 function instacontest_add_instagram_field($user) {
     $instagram = get_user_meta($user->ID, 'instagram_username', true);
+    $squadre_cuore = get_user_meta($user->ID, 'squadre_cuore', true);
+    $registration_method = get_user_meta($user->ID, 'registration_method', true);
+    $google_id = get_user_meta($user->ID, 'google_id', true);
+    
+    // Se squadre_cuore non è array, imposta array vuoto
+    if (!is_array($squadre_cuore)) {
+        $squadre_cuore = array();
+    }
+    
+    // Elenco squadre disponibili
+    $squadre_disponibili = array(
+        'milan' => 'Milan',
+        'inter' => 'Inter', 
+        'napoli' => 'Napoli',
+        'roma' => 'Roma',
+        'lazio' => 'Lazio',
+        'juventus' => 'Juventus',
+        'altro' => 'Altro',
+        'nessuna' => 'Nessuna'
+    );
     ?>
-    <h3>Informazioni InstaContest</h3>
+    <h3>🏆 Informazioni InstaContest</h3>
     <table class="form-table">
         <tr>
             <th><label for="instagram_username">Username Instagram</label></th>
             <td>
                 <input type="text" name="instagram_username" id="instagram_username" 
                        value="<?php echo esc_attr($instagram); ?>" class="regular-text" />
-                <p class="description">Il tuo username Instagram (senza @)</p>
+                <p class="description">Username Instagram dell'utente (senza @)</p>
+                <?php if ($instagram): ?>
+                    <p class="description">
+                        <a href="https://instagram.com/<?php echo esc_attr($instagram); ?>" target="_blank" style="color: #E4405F;">
+                            🔗 Vedi profilo @<?php echo esc_html($instagram); ?>
+                        </a>
+                    </p>
+                <?php endif; ?>
             </td>
         </tr>
+        
+        <tr>
+            <th><label>Squadre del Cuore</label></th>
+            <td>
+                <?php foreach ($squadre_disponibili as $valore => $nome): ?>
+                    <label style="display: inline-block; margin-right: 15px; margin-bottom: 5px;">
+                        <input type="checkbox" name="squadre_cuore[]" value="<?php echo esc_attr($valore); ?>" 
+                               <?php checked(in_array($valore, $squadre_cuore)); ?> />
+                        <?php echo esc_html($nome); ?>
+                    </label>
+                <?php endforeach; ?>
+                <p class="description">Squadre selezionate dall'utente (max 3)</p>
+                <?php if (!empty($squadre_cuore)): ?>
+                    <p class="description">
+                        <strong>Attualmente selezionate:</strong> 
+                        <?php 
+                        $nomi_squadre = array();
+                        foreach ($squadre_cuore as $squadra) {
+                            if (isset($squadre_disponibili[$squadra])) {
+                                $nomi_squadre[] = $squadre_disponibili[$squadra];
+                            }
+                        }
+                        echo implode(', ', $nomi_squadre);
+                        ?>
+                    </p>
+                <?php endif; ?>
+            </td>
+        </tr>
+        
         <tr>
             <th><label for="total_points">Punti Totali</label></th>
             <td>
                 <input type="number" name="total_points" id="total_points" 
                        value="<?php echo instacontest_get_user_points($user->ID); ?>" class="regular-text" />
-                <p class="description">Punti accumulati dall'utente</p>
+                <p class="description">Punti accumulati dall'utente nei contest</p>
+                
+                <!-- Statistiche utente -->
+                <div style="margin-top: 10px; padding: 10px; background: #f9f9f9; border-left: 4px solid #00a0d2;">
+                    <strong>📊 Statistiche:</strong><br>
+                    🎯 Partecipazioni: <?php echo instacontest_get_user_participations($user->ID); ?><br>
+                    🏆 Vittorie: <?php echo instacontest_get_user_wins($user->ID); ?><br>
+                    📍 Posizione classifica: #<?php echo instacontest_get_user_position($user->ID); ?>
+                </div>
+            </td>
+        </tr>
+        
+        <tr>
+            <th><label>Metodo Registrazione</label></th>
+            <td>
+                <strong>
+                    <?php if ($registration_method === 'google'): ?>
+                        🔍 Google OAuth
+                    <?php elseif ($registration_method): ?>
+                        ✉️ Registrazione Tradizionale  
+                    <?php else: ?>
+                        ❓ Non specificato (utente esistente)
+                    <?php endif; ?>
+                </strong>
+                
+                <?php if ($google_id): ?>
+                    <p class="description">Google ID: <code><?php echo esc_html($google_id); ?></code></p>
+                <?php endif; ?>
+                
+                <p class="description">
+                    Data registrazione: <?php echo get_the_author_meta('user_registered', $user->ID); ?>
+                </p>
             </td>
         </tr>
     </table>
