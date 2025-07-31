@@ -230,8 +230,39 @@ if (isset($_POST['action']) && $_POST['action'] === 'complete_google_register') 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <style>
+        /* Bottom Navigation Animations */
+        #bottom-nav {
+            animation: slideUp 0.4s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Hover effects for nav items */
+        #bottom-nav a {
+            transition: all 0.2s ease;
+        }
+        
+        #bottom-nav a:hover {
+            transform: scale(1.05);
+        }
+        
+        #bottom-nav a:active {
+            transform: scale(0.95);
+        }
+    </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 pb-20">
 
 <div class="min-h-screen py-6 px-4">
     <div class="max-w-md mx-auto">
@@ -464,6 +495,40 @@ if (isset($_POST['action']) && $_POST['action'] === 'complete_google_register') 
         </form>
     </div>
 </div>
+
+<!-- Bottom Navigation -->
+<nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 w-full bg-white border-t border-gray-200 z-50">
+    <div class="flex justify-around items-center py-3 px-4 max-w-full mx-auto">
+        
+        <!-- Home/Concorsi -->
+        <a href="/" class="flex flex-col items-center">
+            <i class="fa-solid fa-home text-gray-600 text-xl mb-1"></i>
+            <span class="text-gray-600 text-xs">Home</span>
+        </a>
+        
+        <!-- Classifica -->
+        <a href="/classifica" class="flex flex-col items-center">
+            <i class="fa-regular fa-chart-bar text-gray-600 text-xl mb-1"></i>
+            <span class="text-gray-600 text-xs">Classifica</span>
+        </a>
+        
+        <!-- Regolamento -->
+        <a href="/regolamento" class="flex flex-col items-center">
+            <i class="fa-regular fa-file-lines text-gray-600 text-xl mb-1"></i>
+            <span class="text-gray-600 text-xs">Regolamento</span>
+        </a>
+        
+        <!-- Profilo/Login -->
+        <a href="<?php echo $mode === 'login' ? '/register' : '/login'; ?>" class="flex flex-col items-center">
+            <i class="fa-regular fa-user text-blue-500 text-xl mb-1"></i>
+            <span class="text-blue-500 text-xs"><?php echo $mode === 'login' ? 'Registrati' : 'Accedi'; ?></span>
+        </a>
+        
+    </div>
+</nav>
+
+<!-- Spacer per bottom nav -->
+<div class="pb-20"></div>
 
 <script>
 // Configurazione Google
