@@ -5,14 +5,18 @@
  * File: /wp-content/themes/instacontest-child/auth.php
  */
 
-// Carica WordPress
-require_once('../../../wp-load.php');
+// Carica WordPress solo se non è già caricato
+if (!defined('ABSPATH')) {
+    require_once('../../../wp-load.php');
+}
 
-// Disabilita tutti i hooks
-remove_all_actions('init');
-remove_all_actions('wp_loaded');
-remove_all_actions('wp_head');
-remove_all_actions('wp_footer');
+// Disabilita tutti i hooks solo se stiamo accedendo direttamente
+if (!did_action('wp_loaded')) {
+    remove_all_actions('init');
+    remove_all_actions('wp_loaded');
+    remove_all_actions('wp_head');
+    remove_all_actions('wp_footer');
+}
 
 // Redirect se già loggato
 if (is_user_logged_in()) {
