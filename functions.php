@@ -720,21 +720,38 @@ function instacontest_add_instagram_field($user) {
 add_action('show_user_profile', 'instacontest_add_instagram_field');
 add_action('edit_user_profile', 'instacontest_add_instagram_field');
 
-// Salva campo Instagram nel profilo admin
+// Salva campi InstaContest nel profilo admin
 function instacontest_save_instagram_field($user_id) {
     if (!current_user_can('edit_user', $user_id)) {
         return false;
     }
     
+    // Salva username Instagram
     if (isset($_POST['instagram_username'])) {
         $instagram = sanitize_text_field($_POST['instagram_username']);
-        $instagram = ltrim($instagram, '@');
+        $instagram = ltrim($instagram, '@'); // Rimuovi @ se presente
         update_user_meta($user_id, 'instagram_username', $instagram);
     }
     
+    // Salva squadre del cuore
+    if (isset($_POST['squadre_cuore']) && is_array($_POST['squadre_cuore'])) {
+        $squadre = array_map('sanitize_text_field', $_POST['squadre_cuore']);
+        
+        // Limita a massimo 3 squadre
+        if (count($squadre) > 3) {
+            $squadre = array_slice($squadre, 0, 3);
+        }
+        
+        update_user_meta($user_id, 'squadre_cuore', $squadre);
+    } else {
+        // Se nessuna squadra selezionata, salva array vuoto
+        update_user_meta($user_id, 'squadre_cuore', array());
+    }
+    
+    // Salva punti totali (solo per admin)
     if (isset($_POST['total_points']) && current_user_can('manage_options')) {
         $points = intval($_POST['total_points']);
-        update_user_meta($user_id, 'total_points', $points);
+        update_user_meta($user_id, 'total_points', max(0, $points)); // Non permettere punti negativi
     }
 }
 add_action('personal_options_update', 'instacontest_save_instagram_field');
