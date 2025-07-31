@@ -158,66 +158,141 @@ if (isset($_POST['action']) && $_POST['action'] === 'google_oauth') {
     exit;
 }
 
+// Controlla se username Instagram è già in uso
+function instacontest_instagram_username_exists($username, $exclude_user_id = 0) {
+    global $wpdb;
+    
+    $username = ltrim($username, '@');
+    
+    $query = $wpdb->prepare(
+        "SELECT user_id FROM {$wpdb->usermeta} 
+         WHERE meta_key = 'instagram_username' 
+         AND meta_value = %s",
+        $username
+    );
+    
+    if ($exclude_user_id > 0) {
+        $query .= $wpdb->prepare(" AND user_id != %d", $exclude_user_id);
+    }
+    
+    $result = $wpdb->get_var($query);
+    return !empty($result);
+}
+
 // ========================================
 // COMPLETAMENTO REGISTRAZIONE GOOGLE
 // ========================================
 if (isset($_POST['action']) && $_POST['action'] === 'complete_google_register') {
     header('Content-Type: application/json');
     
-    $google_data = json_decode(stripslashes($_POST['google_data']), true);
-    $instagram_username = sanitize_text_field($_POST['instagram_username']);
-    $squadre_cuore = isset($_POST['squadre_cuore']) ? $_POST['squadre_cuore'] : array();
-    
-    $errors = array();
-    
-    if (empty($instagram_username)) $errors[] = 'Username Instagram obbligatorio';
-    if (empty($squadre_cuore)) $errors[] = 'Seleziona almeno una squadra';
-    if (count($squadre_cuore) > 3) $errors[] = 'Massimo 3 squadre';
-    
-    $instagram_username = ltrim($instagram_username, '@');
-    
-    if (!empty($errors)) {
-        echo json_encode(array('success' => false, 'errors' => $errors));
+    try {
+        // Decodifica dati Google
+        $google_data_raw = stripslashes($_POST['google_data']);
+        $google_data = json_decode($google_data_raw, true);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception('Errore decodifica dati Google: ' . json_last_error_msg());
+        }
+        
+        // Decodifica squadre
+        $squadre_raw = stripslashes($_POST['squadre_cuore']);
+        $squadre_cuore = json_decode($squadre_raw, true);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception('Errore decodifica squadre: ' . json_last_error_msg());
+        }
+        
+        $instagram_username = sanitize_text_field($_POST['instagram_username']);
+        
+        error_log('DEBUG: Google data decoded: ' . print_r($google_data, true));
+        error_log('DEBUG: Squadre decoded: ' . print_r($squadre_cuore, true));
+        error_log('DEBUG: Instagram: ' . $instagram_username);
+        
+        $errors = array();
+        
+        // Validazioni
+        if (empty($instagram_username)) {
+            $errors[] = 'Username Instagram obbligatorio';
+        }
+        
+        if (empty($squadre_cuore) || !is_array($squadre_cuore)) {
+            $errors[] = 'Seleziona almeno una squadra';
+        }
+        
+        if (is_array($squadre_cuore) && count($squadre_cuore) > 3) {
+            $errors[] = 'Massimo 3 squadre';
+        }
+        
+        // Pulisci username Instagram
+        $instagram_username = ltrim($instagram_username, '@');
+        
+        // Verifica se email già esiste
+        if (email_exists($google_data['email'])) {
+            $errors[] = 'Email già registrata';
+        }
+        
+        // Verifica se username Instagram già in uso
+        if (instacontest_instagram_username_exists($instagram_username)) {
+            $errors[] = 'Username Instagram già in uso';
+        }
+        
+        if (!empty($errors)) {
+            echo json_encode(array('success' => false, 'errors' => $errors));
+            exit;
+        }
+        
+        // Crea nuovo utente
+        $username = $google_data['email']; // Usa email come username
+        $password = wp_generate_password(12, false); // Password random
+        
+        $user_id = wp_create_user($username, $password, $google_data['email']);
+        
+        if (is_wp_error($user_id)) {
+            throw new Exception('Errore creazione utente: ' . $user_id->get_error_message());
+        }
+        
+        // Aggiorna dati utente
+        $update_result = wp_update_user(array(
+            'ID' => $user_id,
+            'first_name' => $google_data['given_name'] ?? '',
+            'last_name' => $google_data['family_name'] ?? '',
+            'display_name' => $google_data['name'] ?? $google_data['email']
+        ));
+        
+        if (is_wp_error($update_result)) {
+            error_log('Errore aggiornamento utente: ' . $update_result->get_error_message());
+        }
+        
+        // Salva metadati
+        update_user_meta($user_id, 'google_id', $google_data['sub'] ?? $google_data['google_id'] ?? '');
+        update_user_meta($user_id, 'google_picture', $google_data['picture'] ?? '');
+        update_user_meta($user_id, 'instagram_username', $instagram_username);
+        update_user_meta($user_id, 'squadre_cuore', $squadre_cuore);
+        update_user_meta($user_id, 'total_points', 0);
+        update_user_meta($user_id, 'registration_method', 'google');
+        
+        error_log('DEBUG: Utente creato con ID: ' . $user_id);
+        
+        // Login automatico
+        wp_clear_auth_cookie();
+        wp_set_auth_cookie($user_id, true, is_ssl());
+        wp_set_current_user($user_id);
+        
+        echo json_encode(array(
+            'success' => true,
+            'message' => 'Registrazione completata!',
+            'redirect' => home_url('/profilo')
+        ));
+        exit;
+        
+    } catch (Exception $e) {
+        error_log('ERRORE complete_google_register: ' . $e->getMessage());
+        echo json_encode(array(
+            'success' => false, 
+            'message' => 'Errore interno: ' . $e->getMessage()
+        ));
         exit;
     }
-    
-    // Crea utente
-    $username = $google_data['email'];
-    $password = wp_generate_password(12, false);
-    
-    $user_id = wp_create_user($username, $password, $google_data['email']);
-    
-    if (is_wp_error($user_id)) {
-        echo json_encode(array('success' => false, 'message' => 'Errore durante la registrazione'));
-        exit;
-    }
-    
-    // Aggiorna dati
-    wp_update_user(array(
-        'ID' => $user_id,
-        'first_name' => $google_data['given_name'],
-        'last_name' => $google_data['family_name'],
-        'display_name' => $google_data['name']
-    ));
-    
-    // Salva metadati
-    update_user_meta($user_id, 'google_id', $google_data['google_id']);
-    update_user_meta($user_id, 'google_picture', $google_data['picture']);
-    update_user_meta($user_id, 'instagram_username', $instagram_username);
-    update_user_meta($user_id, 'squadre_cuore', $squadre_cuore);
-    update_user_meta($user_id, 'total_points', 0);
-    update_user_meta($user_id, 'registration_method', 'google');
-    
-    // Login automatico
-    wp_clear_auth_cookie();
-    wp_set_auth_cookie($user_id, true, is_ssl());
-    wp_set_current_user($user_id);
-    
-    echo json_encode(array(
-        'success' => true,
-        'redirect' => '/profilo'
-    ));
-    exit;
 }
 
 ?>
