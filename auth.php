@@ -625,20 +625,34 @@ document.getElementById('google-register-form').addEventListener('submit', funct
     
     const formData = new FormData(this);
     const squadre = Array.from(formData.getAll('google_squadre_cuore[]'));
+    const instagram = document.getElementById('google_instagram_username').value.trim();
+    
+    // Validazioni
+    if (!instagram) {
+        alert('Inserisci il tuo username Instagram');
+        document.getElementById('google_instagram_username').focus();
+        return;
+    }
     
     if (squadre.length === 0) {
-        alert('Seleziona almeno una squadra');
+        alert('Seleziona almeno una squadra del cuore');
         return;
     }
     
     if (squadre.length > 3) {
-        alert('Massimo 3 squadre');
+        alert('Puoi selezionare massimo 3 squadre');
         return;
     }
     
+    // Disabilita pulsante durante invio
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Completamento...';
+    submitBtn.disabled = true;
+    
     const postData = 'action=complete_google_register' +
                     '&google_data=' + encodeURIComponent(JSON.stringify(window.tempGoogleData)) +
-                    '&instagram_username=' + encodeURIComponent(document.getElementById('google_instagram_username').value) +
+                    '&instagram_username=' + encodeURIComponent(instagram) +
                     '&squadre_cuore=' + encodeURIComponent(JSON.stringify(squadre));
     
     fetch(window.location.href, {
@@ -652,7 +666,17 @@ document.getElementById('google-register-form').addEventListener('submit', funct
             window.location.href = data.redirect;
         } else {
             alert('Errore: ' + (data.errors ? data.errors.join(', ') : data.message));
+            // Riabilita pulsante
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
         }
+    })
+    .catch(error => {
+        console.error('Errore:', error);
+        alert('Errore di connessione. Riprova.');
+        // Riabilita pulsante
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
     });
 });
 
