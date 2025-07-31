@@ -309,19 +309,31 @@ if (isset($_POST['action']) && $_POST['action'] === 'complete_google_register') 
             </div>
         <?php endif; ?>
 
-        <!-- Google OAuth Button -->
+       <!-- Squadre del cuore Google -->
         <div class="mb-6">
-            <button id="google-auth-btn" 
-                    class="w-full bg-white border border-gray-200 text-gray-700 font-medium py-3 px-6 rounded-xl hover:bg-gray-50 transition shadow-sm flex items-center justify-center space-x-3">
-                <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" class="w-5 h-5">
-                <span><?php echo $mode === 'register' ? 'Registrati' : 'Accedi'; ?> con Google</span>
-            </button>
-            
-            <button id="google-loading" 
-                    class="w-full bg-gray-100 text-gray-500 font-medium py-3 px-6 rounded-xl cursor-not-allowed hidden flex items-center justify-center space-x-3">
-                <i class="fa-solid fa-spinner fa-spin"></i>
-                <span>Elaborazione...</span>
-            </button>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Squadra del cuore * (1-3 squadre)</label>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+                <?php 
+                $squadre = array(
+                    'milan' => 'Milan', 
+                    'inter' => 'Inter', 
+                    'napoli' => 'Napoli', 
+                    'roma' => 'Roma', 
+                    'lazio' => 'Lazio', 
+                    'juventus' => 'Juventus', 
+                    'altro' => 'Altro', 
+                    'nessuna' => 'Nessuna'
+                );
+                
+                foreach ($squadre as $value => $label): 
+                ?>
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" name="google_squadre_cuore[]" value="<?php echo $value; ?>" 
+                               class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                        <span><?php echo $label; ?></span>
+                    </label>
+                <?php endforeach; ?>
+            </div>
         </div>
 
         <!-- Separatore -->
@@ -612,20 +624,34 @@ document.getElementById('google-register-form').addEventListener('submit', funct
     
     const formData = new FormData(this);
     const squadre = Array.from(formData.getAll('google_squadre_cuore[]'));
+    const instagram = document.getElementById('google_instagram_username').value.trim();
+    
+    // Validazioni
+    if (!instagram) {
+        alert('Inserisci il tuo username Instagram');
+        document.getElementById('google_instagram_username').focus();
+        return;
+    }
     
     if (squadre.length === 0) {
-        alert('Seleziona almeno una squadra');
+        alert('Seleziona almeno una squadra del cuore');
         return;
     }
     
     if (squadre.length > 3) {
-        alert('Massimo 3 squadre');
+        alert('Puoi selezionare massimo 3 squadre');
         return;
     }
     
+    // Disabilita pulsante durante invio
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Completamento...';
+    submitBtn.disabled = true;
+    
     const postData = 'action=complete_google_register' +
                     '&google_data=' + encodeURIComponent(JSON.stringify(window.tempGoogleData)) +
-                    '&instagram_username=' + encodeURIComponent(document.getElementById('google_instagram_username').value) +
+                    '&instagram_username=' + encodeURIComponent(instagram) +
                     '&squadre_cuore=' + encodeURIComponent(JSON.stringify(squadre));
     
     fetch(window.location.href, {
@@ -639,7 +665,17 @@ document.getElementById('google-register-form').addEventListener('submit', funct
             window.location.href = data.redirect;
         } else {
             alert('Errore: ' + (data.errors ? data.errors.join(', ') : data.message));
+            // Riabilita pulsante
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
         }
+    })
+    .catch(error => {
+        console.error('Errore:', error);
+        alert('Errore di connessione. Riprova.');
+        // Riabilita pulsante
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
     });
 });
 
