@@ -472,7 +472,20 @@ if (isset($_POST['action']) && $_POST['action'] === 'complete_google_register') 
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Squadra del cuore * (1-3 squadre)</label>
                 <div class="grid grid-cols-2 gap-2 text-sm">
-                    <?php foreach ($squadre as $value => $label): ?>
+                    <?php 
+                    $squadre = array(
+                        'milan' => 'Milan', 
+                        'inter' => 'Inter', 
+                        'napoli' => 'Napoli', 
+                        'roma' => 'Roma', 
+                        'lazio' => 'Lazio', 
+                        'juventus' => 'Juventus', 
+                        'altro' => 'Altro', 
+                        'nessuna' => 'Nessuna'
+                    );
+                    
+                    foreach ($squadre as $value => $label): 
+                    ?>
                         <label class="flex items-center space-x-2">
                             <input type="checkbox" name="google_squadre_cuore[]" value="<?php echo $value; ?>" 
                                    class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
