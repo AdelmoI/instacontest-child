@@ -251,11 +251,11 @@ if (isset($_POST['action']) && $_POST['action'] === 'complete_google_register') 
 
         <!-- Toggle Login/Register -->
         <div class="flex bg-gray-100 rounded-xl p-1 mb-6">
-            <a href="?mode=login" 
+            <a href="/login" 
                class="flex-1 text-center py-2 rounded-lg transition <?php echo $mode === 'login' ? 'bg-white text-blue-600 font-semibold shadow-sm' : 'text-gray-600'; ?>">
                 Accedi
             </a>
-            <a href="?mode=register" 
+            <a href="/register" 
                class="flex-1 text-center py-2 rounded-lg transition <?php echo $mode === 'register' ? 'bg-white text-blue-600 font-semibold shadow-sm' : 'text-gray-600'; ?>">
                 Registrati
             </a>
